@@ -6,6 +6,7 @@ import { getWebsocketHost } from "../host";
 import { useContext, useRef } from "react";
 import { ConversationContext } from "./ConversationContext";
 import { ToastContext } from "./ToastContext";
+import { AuthContext } from "./AuthContext";
 
 export const SocketContext = createContext<{
   socketOnline: boolean;
@@ -32,15 +33,19 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   } = useContext(ConversationContext);
 
   const { showErrorToast, showSuccessToast } = useContext(ToastContext);
+  const { user, isGuest } = useContext(AuthContext); // Get auth status
 
   const [socketOnline, setSocketOnline] = useState(false);
   const [socket, setSocket] = useState<WebSocket>();
   const [reconnect, setReconnect] = useState(false);
   const initialRef = useRef(false);
 
+  // Only initialize reconnect if user is authenticated
   useEffect(() => {
-    setReconnect(true);
-  }, []);
+    if (user || isGuest) {
+      setReconnect(true);
+    }
+  }, [user, isGuest]);
 
   useEffect(() => {
     if (!initialRef.current) {
@@ -59,6 +64,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   }, [socketOnline, socket]);
 
   useEffect(() => {
+    // Don't connect if not authenticated
+    if (!user && !isGuest) {
+      return;
+    }
+
     if (initialRef.current) {
       return;
     }
@@ -89,23 +99,29 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     localSocket.onerror = (error) => {
       if (process.env.NODE_ENV === "development") {
-        console.log(error);
+        console.error("❌ WebSocket error:", error);
       }
       setSocketOnline(false);
       setSocket(undefined);
       setAllConversationStatuses("");
       handleAllConversationsError();
-      showErrorToast("Connection to Elysia lost");
+      // Don't show error toast - let user use app in offline mode
+      if (process.env.NODE_ENV === "development") {
+        showErrorToast("⚠️ Connection to backend lost (working in offline mode)");
+      }
     };
 
     localSocket.onclose = () => {
+      if (process.env.NODE_ENV === "development") {
+        console.log("🔌 Socket closed");
+      }
       setSocketOnline(false);
       setAllConversationStatuses("");
       setSocket(undefined);
       handleAllConversationsError();
-      showErrorToast("Connection to Elysia lost");
+      // Don't show error toast in production - silently retry
       if (process.env.NODE_ENV === "development") {
-        console.log("Socket closed");
+        showErrorToast("⚠️ Disconnected from backend");
       }
     };
 

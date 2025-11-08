@@ -32,7 +32,12 @@ export function useConfigState(
   // Effect to sync with parent config
   useEffect(() => {
     if (userConfig?.backend && userConfig?.frontend) {
-      setCurrentUserConfig({ ...userConfig.backend });
+      const backendConfig = { ...userConfig.backend };
+      // Ensure settings object exists
+      if (!backendConfig.settings) {
+        backendConfig.settings = {} as any;
+      }
+      setCurrentUserConfig(backendConfig);
       setCurrentFrontendConfig({ ...userConfig.frontend });
       setChangedConfig(false);
       setMatchingConfig(true);
@@ -131,12 +136,13 @@ export function useConfigState(
     value?: any
   ) => {
     if (currentUserConfig) {
+      const settings = currentUserConfig.settings || {};
       if (typeof keyOrUpdates === "string") {
         // Single key-value update
         setCurrentUserConfig({
           ...currentUserConfig,
           settings: {
-            ...currentUserConfig.settings,
+            ...settings,
             [keyOrUpdates]: value,
           },
         });
@@ -145,7 +151,7 @@ export function useConfigState(
         setCurrentUserConfig({
           ...currentUserConfig,
           settings: {
-            ...currentUserConfig.settings,
+            ...settings,
             ...keyOrUpdates,
           },
         });

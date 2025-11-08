@@ -87,7 +87,74 @@ export const SessionProvider = ({
 
   const [showRateLimitDialog, setShowRateLimitDialog] =
     useState<boolean>(false);
-  const id = useDeviceId();
+  
+  // Use device fingerprint for guests OR JWT user_id for authenticated users
+  const deviceId = useDeviceId();
+  const getActualUserId = () => {
+    if (typeof window === "undefined") return null;
+    
+    // Check if user is authenticated (has JWT token)
+    const authToken = localStorage.getItem("auth_token");
+    if (authToken) {
+      // Extract user_id from JWT token
+      try {
+        const payload = JSON.parse(
+          atob(authToken.split('.')[1])
+        );
+        if (payload.userId) {
+          return payload.userId;
+        }
+      } catch (e) {
+        console.error("Failed to parse JWT:", e);
+      }
+    }
+    
+    // Fall back to device fingerprint for guests
+    return deviceId;
+  };
+  
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isAuthenticatedUser, setIsAuthenticatedUser] = useState<boolean>(false);
+  
+  // Update userId when deviceId or auth token changes
+  useEffect(() => {
+    const updateAuthState = () => {
+      const token = localStorage.getItem("auth_token");
+      const isAuth = !!token;
+      setIsAuthenticatedUser(isAuth);
+      
+      if (deviceId) {
+        const actualId = getActualUserId();
+        setUserId(actualId);
+        if (process.env.NODE_ENV === "development") {
+          console.log(`[Auth Status] isAuth: ${isAuth}, userId: ${actualId}, token: ${token ? 'present' : 'absent'}`);
+        }
+      }
+    };
+
+    updateAuthState();
+
+    // Listen for storage changes (login/logout in other tabs)
+    window.addEventListener("storage", updateAuthState);
+    
+    // Also listen for auth token changes in localStorage (same tab)
+    // Create a custom event for when auth token changes
+    const handleAuthChange = (e: Event) => {
+      if ((e as CustomEvent).detail?.key === "auth_token") {
+        updateAuthState();
+      }
+    };
+    window.addEventListener("authTokenChanged", handleAuthChange);
+
+    // Periodic check every 2 seconds as fallback
+    const interval = setInterval(updateAuthState, 2000);
+
+    return () => {
+      window.removeEventListener("storage", updateAuthState);
+      window.removeEventListener("authTokenChanged", handleAuthChange);
+      clearInterval(interval);
+    };
+  }, [deviceId]);
   const [userConfig, setUserConfig] = useState<UserConfig | null>(null);
   const [configIDs, setConfigIDs] = useState<ConfigListEntry[]>([]);
   const [correctSettings, setCorrectSettings] =
@@ -138,10 +205,10 @@ export const SessionProvider = ({
 
   const fetchCurrentConfig = async () => {
     setLoadingConfig(true);
-    if (!id) {
+    if (!userId) {
       return;
     }
-    const config = await getConfig(id);
+    const config = await getConfig(userId);
     if (config.error) {
       console.error(config.error);
       showErrorToast("Failed to Load Configuration", config.error);
@@ -159,9 +226,9 @@ export const SessionProvider = ({
   };
 
   useEffect(() => {
-    if (initialized.current || !id) return;
+    if (initialized.current || !userId) return;
     initUser();
-  }, [id]);
+  }, [userId]);
 
   useEffect(() => {
     if (pathname === "/") {
@@ -183,10 +250,10 @@ export const SessionProvider = ({
   }, [pathname]);
 
   const initUser = async () => {
-    if (!id) {
+    if (!userId) {
       return;
     }
-    const user_object = await initializeUser(id);
+    const user_object = await initializeUser(userId);
     setLoadingConfig(true);
 
     if (user_object.error) {
@@ -196,10 +263,10 @@ export const SessionProvider = ({
     }
 
     if (process.env.NODE_ENV === "development") {
-      console.log("Initialized user with id: " + id);
+      console.log("Initialized user with id: " + userId);
     }
 
-    getConfigIDs(id);
+    getConfigIDs(userId);
     setUserConfig({
       backend: user_object.config,
       frontend: user_object.frontend_config,
@@ -221,7 +288,7 @@ export const SessionProvider = ({
     setLoadingConfig(true);
     setSavingConfig(true);
     const response: ConfigPayload = await saveConfig(
-      id,
+      userId,
       config.backend,
       config.frontend,
       setDefault
@@ -246,7 +313,7 @@ export const SessionProvider = ({
       backend: response.config,
       frontend: response.frontend_config,
     });
-    getConfigIDs(id || "");
+    getConfigIDs(userId || "");
     setLoadingConfig(false);
     triggerFetchCollection();
     triggerFetchConversation();
@@ -359,7 +426,7 @@ export const SessionProvider = ({
     <SessionContext.Provider
       value={{
         mode,
-        id,
+        id: userId || "",
         showRateLimitDialog,
         enableRateLimitDialog,
         userConfig,

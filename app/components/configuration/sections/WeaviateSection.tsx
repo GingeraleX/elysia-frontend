@@ -53,8 +53,10 @@ export default function WeaviateSection({
   onUpdateSettings,
   onUpdateFrontend,
 }: WeaviateSectionProps) {
-  const isLocal = currentUserConfig?.settings.WEAVIATE_IS_LOCAL as boolean;
-  const isCustom = currentUserConfig?.settings.WEAVIATE_IS_CUSTOM as boolean;
+  // Safely access settings with defaults
+  const settings = currentUserConfig?.settings ?? {};
+  const isLocal = (settings.WEAVIATE_IS_LOCAL ?? false) as boolean;
+  const isCustom = (settings.WEAVIATE_IS_CUSTOM ?? false) as boolean;
 
   return (
     <SettingCard>
@@ -96,7 +98,7 @@ export default function WeaviateSection({
               if (
                 value === "Local" &&
                 (!currentUserConfig?.settings?.WCD_URL ||
-                  currentUserConfig.settings.WCD_URL.trim() === "")
+                  currentUserConfig?.settings?.WCD_URL?.trim() === "")
               ) {
                 updates.WCD_URL = "http://localhost";
               }

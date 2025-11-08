@@ -6,6 +6,7 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { ProcessingSocketPayload } from "@/app/types/socketPayloads";
 import { CollectionContext } from "./CollectionContext";
 import { ToastContext } from "./ToastContext";
+import { AuthContext } from "./AuthContext";
 
 export const ProcessingContext = createContext<{
   triggerAnalysis: (collection: Collection, user_id: string) => void;
@@ -25,6 +26,7 @@ export const ProcessingProvider = ({
     updateProcessingSocket,
     analyzeCollection,
   } = useContext(ToastContext);
+  const { user, isGuest } = useContext(AuthContext); // Get auth status
 
   const [socket, setSocket] = useState<WebSocket>();
   const [reconnect, setReconnect] = useState(false);
@@ -46,11 +48,19 @@ export const ProcessingProvider = ({
     }
   };
 
+  // Only initialize reconnect if user is authenticated
   useEffect(() => {
-    setReconnect(true);
-  }, []);
+    if (user || isGuest) {
+      setReconnect(true);
+    }
+  }, [user, isGuest]);
 
   useEffect(() => {
+    // Don't connect if not authenticated
+    if (!user && !isGuest) {
+      return;
+    }
+
     if (initialRef.current) {
       return;
     }

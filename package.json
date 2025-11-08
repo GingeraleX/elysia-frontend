@@ -3,7 +3,7 @@
   "version": "0.2.5",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "set PORT=3001 && next dev",
     "build": "cross-env NEXT_PUBLIC_IS_STATIC=true next build",
     "build:clean": "rm -rf .next out && cross-env NEXT_PUBLIC_IS_STATIC=true next build",
     "export": "chmod +x export.sh && ./export.sh",

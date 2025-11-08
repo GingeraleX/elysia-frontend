@@ -16,7 +16,7 @@ export function useConfigValidation(
 ) {
   // Dynamic validation based on current config values
   const currentValidation = useMemo(() => {
-    if (!currentUserConfig) {
+    if (!currentUserConfig || !currentUserConfig.settings) {
       return {
         wcd_url: false,
         wcd_api_key: false,
@@ -35,9 +35,9 @@ export function useConfigValidation(
       };
     }
 
-    const isWeaviateLocal = currentUserConfig.settings
+    const isWeaviateLocal = currentUserConfig?.settings
       ?.WEAVIATE_IS_LOCAL as boolean;
-    const isWeaviateCustom = currentUserConfig.settings
+    const isWeaviateCustom = currentUserConfig?.settings
       ?.WEAVIATE_IS_CUSTOM as boolean;
     const isStorageCustom =
       currentFrontendConfig?.save_location_weaviate_is_custom as boolean;
@@ -45,22 +45,22 @@ export function useConfigValidation(
     return {
       wcd_url: isWeaviateCustom
         ? true
-        : Boolean(currentUserConfig.settings.WCD_URL?.trim()),
+        : Boolean(currentUserConfig?.settings?.WCD_URL?.trim()),
       wcd_api_key:
         isWeaviateLocal || isWeaviateCustom
           ? true
-          : Boolean(currentUserConfig.settings.WCD_API_KEY?.trim()),
-      base_provider: Boolean(currentUserConfig.settings.BASE_PROVIDER?.trim()),
-      base_model: Boolean(currentUserConfig.settings.BASE_MODEL?.trim()),
+          : Boolean(currentUserConfig?.settings?.WCD_API_KEY?.trim()),
+      base_provider: Boolean(currentUserConfig?.settings?.BASE_PROVIDER?.trim()),
+      base_model: Boolean(currentUserConfig?.settings?.BASE_MODEL?.trim()),
       complex_provider: Boolean(
-        currentUserConfig.settings.COMPLEX_PROVIDER?.trim()
+        currentUserConfig?.settings?.COMPLEX_PROVIDER?.trim()
       ),
-      complex_model: Boolean(currentUserConfig.settings.COMPLEX_MODEL?.trim()),
+      complex_model: Boolean(currentUserConfig?.settings?.COMPLEX_MODEL?.trim()),
       custom_weaviate_http_host: isWeaviateCustom
-        ? Boolean(currentUserConfig.settings.CUSTOM_HTTP_HOST?.trim())
+        ? Boolean(currentUserConfig?.settings?.CUSTOM_HTTP_HOST?.trim())
         : true,
       custom_weaviate_grpc_host: isWeaviateCustom
-        ? Boolean(currentUserConfig.settings.CUSTOM_GRPC_HOST?.trim())
+        ? Boolean(currentUserConfig?.settings?.CUSTOM_GRPC_HOST?.trim())
         : true,
       custom_storage_http_host: isStorageCustom
         ? Boolean(currentFrontendConfig?.save_location_custom_http_host?.trim())
@@ -86,15 +86,17 @@ export function useConfigValidation(
       currentUserConfig.settings.BASE_PROVIDER &&
       currentUserConfig.settings.BASE_MODEL
     ) {
-      const provider = modelsData[currentUserConfig.settings.BASE_PROVIDER];
+      const provider = modelsData?.[currentUserConfig.settings.BASE_PROVIDER];
       if (provider && provider[currentUserConfig.settings.BASE_MODEL]) {
         const requiredKeys =
           provider[currentUserConfig.settings.BASE_MODEL].api_keys;
-        requiredKeys.forEach((key) => {
-          if (!availableKeysLower.includes(key.toLowerCase())) {
-            missingKeys.push(key);
-          }
-        });
+        if (requiredKeys && Array.isArray(requiredKeys)) {
+          requiredKeys.forEach((key) => {
+            if (!availableKeysLower.includes(key.toLowerCase())) {
+              missingKeys.push(key);
+            }
+          });
+        }
       }
     }
 
@@ -103,18 +105,20 @@ export function useConfigValidation(
       currentUserConfig.settings.COMPLEX_PROVIDER &&
       currentUserConfig.settings.COMPLEX_MODEL
     ) {
-      const provider = modelsData[currentUserConfig.settings.COMPLEX_PROVIDER];
+      const provider = modelsData?.[currentUserConfig.settings.COMPLEX_PROVIDER];
       if (provider && provider[currentUserConfig.settings.COMPLEX_MODEL]) {
         const requiredKeys =
           provider[currentUserConfig.settings.COMPLEX_MODEL].api_keys;
-        requiredKeys.forEach((key) => {
-          if (
-            !availableKeysLower.includes(key.toLowerCase()) &&
-            !missingKeys.includes(key)
-          ) {
-            missingKeys.push(key);
-          }
-        });
+        if (requiredKeys && Array.isArray(requiredKeys)) {
+          requiredKeys.forEach((key) => {
+            if (
+              !availableKeysLower.includes(key.toLowerCase()) &&
+              !missingKeys.includes(key)
+            ) {
+              missingKeys.push(key);
+            }
+          });
+        }
       }
     }
 
