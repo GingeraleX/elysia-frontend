@@ -22,6 +22,10 @@ const DataSubMenu: React.FC = () => {
     changePage("data", {}, true);
   };
 
+  const toImport = () => {
+    changePage("import", {}, true);
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>
@@ -36,9 +40,12 @@ const DataSubMenu: React.FC = () => {
             <MdOutlineSpaceDashboard />
             <p>Dashboard</p>
           </SidebarMenuButton>
-          <SidebarMenuButton variant="default">
+          <SidebarMenuButton
+            variant={currentPage === "import" ? "active" : "default"}
+            onClick={toImport}
+          >
             <TbPackageImport />
-            <p>Import Data (Coming Soon)</p>
+            <p>Import Data</p>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarGroupContent>

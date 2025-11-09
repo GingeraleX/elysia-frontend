@@ -1,4 +1,4 @@
-﻿﻿"use client";
+﻿﻿﻿"use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -75,7 +75,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         setUser(response.user);
         setIsGuest(false);
+
+        // Soft redirect to chat page (no full reload)
+        if (typeof window !== "undefined") {
+          window.history.replaceState(null, "", "/?page=chat");
+        }
       }
+    } catch (error) {
+      // Re-throw error so AuthModal can catch it
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -95,6 +103,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // After registration, auto-login
       await login(email, password);
+    } catch (error) {
+      // Re-throw error so AuthModal can catch it
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -111,11 +122,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     apiClient.clearAuthToken();
     setUser(null);
     setIsGuest(false);
+    
+    // Soft redirect to landing page (no full reload)
+    if (typeof window !== "undefined") {
+      // Use history.replaceState to not do a full page reload
+      window.history.replaceState(null, "", "/");
+    }
   };
 
   const continueAsGuest = () => {
     localStorage.setItem("guest_mode", "true");
     setIsGuest(true);
+    
+    // Soft redirect to chat page (no full reload)
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", "/?page=chat");
+    }
   };
 
   return (

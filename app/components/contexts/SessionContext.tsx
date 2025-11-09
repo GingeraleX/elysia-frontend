@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useEffect, useRef, useState, useContext } from "react";
+import { createContext, useEffect, useRef, useState, useContext, useCallback, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { initializeUser } from "@/app/api/initializeUser";
 import { saveConfig } from "@/app/api/saveConfig";
@@ -88,7 +88,7 @@ export const SessionProvider = ({
   const [showRateLimitDialog, setShowRateLimitDialog] =
     useState<boolean>(false);
   
-  // Use device fingerprint for guests OR JWT user_id for authenticated users
+  // Use device fingerprint for guests OR user_id from localStorage for authenticated users
   const deviceId = useDeviceId();
   const getActualUserId = () => {
     if (typeof window === "undefined") return null;
@@ -96,7 +96,13 @@ export const SessionProvider = ({
     // Check if user is authenticated (has JWT token)
     const authToken = localStorage.getItem("auth_token");
     if (authToken) {
-      // Extract user_id from JWT token
+      // First, try to get user_id directly from localStorage (set by AuthContext)
+      const storedUserId = localStorage.getItem("user_id");
+      if (storedUserId) {
+        return storedUserId;
+      }
+      
+      // Fallback: Extract user_id from JWT token payload
       try {
         const payload = JSON.parse(
           atob(authToken.split('.')[1])
@@ -104,8 +110,11 @@ export const SessionProvider = ({
         if (payload.userId) {
           return payload.userId;
         }
+        if (payload.sub) {
+          return payload.sub;
+        }
       } catch (e) {
-        console.error("Failed to parse JWT:", e);
+        // Silent fail on JWT parse
       }
     }
     
@@ -114,44 +123,50 @@ export const SessionProvider = ({
   };
   
   const [userId, setUserId] = useState<string | null>(null);
-  const [isAuthenticatedUser, setIsAuthenticatedUser] = useState<boolean>(false);
+  const previousUserIdRef = useRef<string | null>(null);
   
-  // Update userId when deviceId or auth token changes
+  // Update userId when auth token or user_id changes in localStorage
   useEffect(() => {
-    const updateAuthState = () => {
+    const checkAuthState = () => {
+      if (!deviceId) return;
+
       const token = localStorage.getItem("auth_token");
+      const guestMode = localStorage.getItem("guest_mode");
       const isAuth = !!token;
-      setIsAuthenticatedUser(isAuth);
       
-      if (deviceId) {
-        const actualId = getActualUserId();
+      // If user has token, they're authenticated - clear guest mode flag
+      if (isAuth && guestMode === "true") {
+        localStorage.removeItem("guest_mode");
+      }
+      
+      const actualId = getActualUserId();
+      
+      // Only update if userId actually changed (avoid cascading re-renders)
+      if (actualId !== previousUserIdRef.current) {
+        previousUserIdRef.current = actualId;
         setUserId(actualId);
-        if (process.env.NODE_ENV === "development") {
-          console.log(`[Auth Status] isAuth: ${isAuth}, userId: ${actualId}, token: ${token ? 'present' : 'absent'}`);
-        }
       }
     };
 
-    updateAuthState();
+    // Initial check on component mount
+    checkAuthState();
 
-    // Listen for storage changes (login/logout in other tabs)
-    window.addEventListener("storage", updateAuthState);
+    // Listen for storage changes (login/logout in other tabs or same-tab auth changes)
+    // Using 'change' event which fires for ALL storage changes including same-tab
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "auth_token" || e.key === "user_id" || e.key === "guest_mode") {
+        checkAuthState();
+      }
+    };
     
-    // Also listen for auth token changes in localStorage (same tab)
-    // Create a custom event for when auth token changes
-    const handleAuthChange = (e: Event) => {
-      if ((e as CustomEvent).detail?.key === "auth_token") {
-        updateAuthState();
-      }
-    };
-    window.addEventListener("authTokenChanged", handleAuthChange);
-
-    // Periodic check every 2 seconds as fallback
-    const interval = setInterval(updateAuthState, 2000);
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Also manually check auth state periodically in case storage event misses same-tab changes
+    // This is a fallback for when auth context updates localStorage directly
+    const interval = setInterval(checkAuthState, 2000);
 
     return () => {
-      window.removeEventListener("storage", updateAuthState);
-      window.removeEventListener("authTokenChanged", handleAuthChange);
+      window.removeEventListener("storage", handleStorageChange);
       clearInterval(interval);
     };
   }, [deviceId]);
@@ -167,6 +182,11 @@ export const SessionProvider = ({
     useState<boolean>(false);
   const [fetchConversationFlag, setFetchConversationFlag] =
     useState<boolean>(false);
+  
+  // Add tracking refs to prevent duplicate API calls
+  const lastConfigFetchRef = useRef<{ userId: string; timestamp: number } | null>(null);
+  const lastCurrentConfigFetchRef = useRef<{ userId: string; timestamp: number } | null>(null);
+  const CONFIG_FETCH_DEBOUNCE = 1000; // 1 second debounce
 
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
 
@@ -178,7 +198,14 @@ export const SessionProvider = ({
     setFetchConversationFlag((prev) => !prev);
   };
 
-  const getConfigIDs = async (user_id: string) => {
+  const getConfigIDs = useCallback(async (user_id: string) => {
+    // Prevent duplicate fetches - if we fetched this user within 1 second, skip
+    const now = Date.now();
+    if (lastConfigFetchRef.current?.userId === user_id && 
+        now - lastConfigFetchRef.current.timestamp < CONFIG_FETCH_DEBOUNCE) {
+      return;
+    }
+
     setLoadingConfigs(true);
     setConfigIDs([]);
     if (!user_id) {
@@ -199,11 +226,21 @@ export const SessionProvider = ({
     });
     setConfigIDs(sortedConfigs);
     setLoadingConfigs(false);
-  };
+    
+    // Update last fetch time
+    lastConfigFetchRef.current = { userId: user_id, timestamp: now };
+  }, [showErrorToast]);
 
   // TODO : Add fetching all possible model names from the API
 
-  const fetchCurrentConfig = async () => {
+  const fetchCurrentConfig = useCallback(async () => {
+    // Prevent duplicate fetches - if we fetched this user within 1 second, skip
+    const now = Date.now();
+    if (lastCurrentConfigFetchRef.current?.userId === userId && 
+        now - lastCurrentConfigFetchRef.current.timestamp < CONFIG_FETCH_DEBOUNCE) {
+      return;
+    }
+
     setLoadingConfig(true);
     if (!userId) {
       return;
@@ -219,11 +256,21 @@ export const SessionProvider = ({
       frontend: config.frontend_config,
     });
     setLoadingConfig(false);
-  };
+    
+    // Update last fetch time
+    lastCurrentConfigFetchRef.current = { userId, timestamp: now };
+  }, [userId, showErrorToast]);
 
   const updateUnsavedChanges = (unsaved: boolean) => {
     setUnsavedChanges(unsaved);
   };
+
+  // Reset initialization when user ID changes (e.g., guest → registered user)
+  useEffect(() => {
+    if (userId) {
+      initialized.current = false; // Reset so we re-initialize
+    }
+  }, [userId]);
 
   useEffect(() => {
     if (initialized.current || !userId) return;
@@ -253,12 +300,22 @@ export const SessionProvider = ({
     if (!userId) {
       return;
     }
+
+    // Prevent duplicate initialization
+    if (initialized.current) {
+      console.log("User already initialized, skipping init");
+      return;
+    }
+
     const user_object = await initializeUser(userId);
     setLoadingConfig(true);
 
     if (user_object.error) {
-      console.error(user_object.error);
-      showErrorToast("Failed to Initialize User", user_object.error);
+      console.error("User initialization error:", user_object.error);
+      // Don't show error toast on transient errors during page load
+      if (!user_object.error.includes("not found")) {
+        showErrorToast("Failed to Initialize User", user_object.error);
+      }
       return;
     }
 
@@ -273,7 +330,6 @@ export const SessionProvider = ({
     });
     setCorrectSettings(user_object.correct_settings);
     setLoadingConfig(false);
-    showSuccessToast("User Initialized");
     initialized.current = true;
   };
 
@@ -281,7 +337,7 @@ export const SessionProvider = ({
     setShowRateLimitDialog(true);
   };
 
-  const updateConfig = async (
+  const updateConfig = useCallback(async (
     config: UserConfig,
     setDefault: boolean = false
   ) => {
@@ -319,9 +375,9 @@ export const SessionProvider = ({
     triggerFetchConversation();
     setSavingConfig(false);
     return true;
-  };
+  }, [userId, showErrorToast, showSuccessToast, showWarningToast]);
 
-  const handleLoadConfig = async (user_id: string, config_id: string) => {
+  const handleLoadConfig = useCallback(async (user_id: string, config_id: string) => {
     if (!user_id || !config_id) {
       return;
     }
@@ -341,9 +397,9 @@ export const SessionProvider = ({
       frontend: response.frontend_config,
     });
     setLoadingConfig(false);
-  };
+  }, [showErrorToast, showSuccessToast]);
 
-  const handleCreateConfig = async (user_id: string) => {
+  const handleCreateConfig = useCallback(async (user_id: string) => {
     if (!user_id) {
       return;
     }
@@ -384,9 +440,9 @@ export const SessionProvider = ({
     });
     getConfigIDs(user_id);
     setLoadingConfig(false);
-  };
+  }, [configIDs, showErrorToast, showSuccessToast]);
 
-  const handleDeleteConfig = async (
+  const handleDeleteConfig = useCallback(async (
     user_id: string,
     config_id: string,
     selectedConfig: boolean
@@ -420,11 +476,11 @@ export const SessionProvider = ({
     setLoadingConfig(false);
     triggerFetchConversation();
     triggerFetchCollection();
-  };
+  }, [configIDs, showErrorToast, showSuccessToast]);
 
   return (
     <SessionContext.Provider
-      value={{
+      value={useMemo(() => ({
         mode,
         id: userId || "",
         showRateLimitDialog,
@@ -448,7 +504,28 @@ export const SessionProvider = ({
         fetchConversationFlag,
         updateUnsavedChanges,
         unsavedChanges,
-      }}
+      }), [
+        mode,
+        userId,
+        showRateLimitDialog,
+        userConfig,
+        savingConfig,
+        fetchCurrentConfig,
+        configIDs,
+        updateConfig,
+        handleCreateConfig,
+        getConfigIDs,
+        handleLoadConfig,
+        handleDeleteConfig,
+        loadingConfig,
+        loadingConfigs,
+        correctSettings,
+        fetchCollectionFlag,
+        triggerFetchCollection,
+        triggerFetchConversation,
+        fetchConversationFlag,
+        unsavedChanges,
+      ])}
     >
       {children}
     </SessionContext.Provider>

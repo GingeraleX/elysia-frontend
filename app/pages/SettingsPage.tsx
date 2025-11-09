@@ -118,6 +118,7 @@ export default function Home() {
   const [saveAsDefault, setSaveAsDefault] = useState<boolean>(true);
   const [isEnvModalOpen, setIsEnvModalOpen] = useState<boolean>(false);
   const [envContent, setEnvContent] = useState<string>("");
+  const [hasLoadedDefaultConfig, setHasLoadedDefaultConfig] = useState<boolean>(false);
 
   // Fetch models data on component mount
   useEffect(() => {
@@ -139,6 +140,33 @@ export default function Home() {
 
     fetchModels();
   }, []);
+
+  // On first login/mount: Refresh config list and load default config (ONE TIME ONLY)
+  useEffect(() => {
+    if (id && !hasLoadedDefaultConfig) {
+      // Refresh the config list
+      getConfigIDs(id);
+      setHasLoadedDefaultConfig(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  // Load default config when config list updates (only if just refreshed)
+  useEffect(() => {
+    if (id && configIDs && configIDs.length > 0 && hasLoadedDefaultConfig) {
+      // Find the config marked as default
+      const defaultConfig = configIDs.find((config) => config.default);
+      
+      if (defaultConfig) {
+        // Load the default config
+        handleLoadConfig(id, defaultConfig.config_id);
+        setChangedConfig(false);
+      }
+      // Only do this once
+      setHasLoadedDefaultConfig(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, configIDs.length]);
 
   // Helper function to handle saving configuration
   const handleSaveConfig = async (setDefault: boolean = false) => {

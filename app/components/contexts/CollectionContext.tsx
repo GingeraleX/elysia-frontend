@@ -26,60 +26,90 @@ export const CollectionProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { id, fetchCollectionFlag, initialized } = useContext(SessionContext);
+  const { id } = useContext(SessionContext);
   const { showErrorToast, showSuccessToast } = useContext(ToastContext);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loadingCollections, setLoadingCollections] = useState(false);
+  const toastRef = useRef({ showErrorToast, showSuccessToast });
+  const lastFetchedIdRef = useRef<string | null>(null);
 
-  const idRef = useRef(id);
-  const initialFetch = useRef(false);
-
+  // Keep toast functions in ref so effect doesn't depend on them
   useEffect(() => {
-    if (initialFetch.current || !id || !initialized) return;
-    initialFetch.current = true;
-    idRef.current = id;
-    fetchCollections();
-  }, [id, initialized]);
+    toastRef.current = { showErrorToast, showSuccessToast };
+  }, [showErrorToast, showSuccessToast]);
 
+  // Only fetch when ID actually changes
   useEffect(() => {
-    fetchCollections();
-  }, [fetchCollectionFlag]);
+    if (!id) {
+      setCollections([]);
+      lastFetchedIdRef.current = null;
+      return;
+    }
+
+    // Skip if we already fetched this exact ID
+    if (lastFetchedIdRef.current === id) {
+      return;
+    }
+
+    lastFetchedIdRef.current = id;
+
+    const loadCollections = async () => {
+      setLoadingCollections(true);
+      try {
+        const result = await getCollections(id);
+        setCollections(result);
+        toastRef.current.showSuccessToast(`${result.length} Collections Loaded`);
+      } catch (error) {
+        toastRef.current.showErrorToast("Failed to load collections", String(error));
+      } finally {
+        setLoadingCollections(false);
+      }
+    };
+
+    // Delay fetch slightly to let SessionContext/settings finish initializing
+    const timer = setTimeout(() => {
+      loadCollections();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [id]);
 
   const fetchCollections = async () => {
-    if (!idRef.current) return;
-    setCollections([]);
+    if (!id) return;
+    
     setLoadingCollections(true);
-    const collections: Collection[] = await getCollections(idRef.current);
-    setCollections(collections);
-    setLoadingCollections(false);
-    showSuccessToast(`${collections.length} Collections Loaded`);
+    try {
+      const result = await getCollections(id);
+      setCollections(result);
+      toastRef.current.showSuccessToast(`${result.length} Collections Loaded`);
+    } catch (error) {
+      toastRef.current.showErrorToast("Failed to load collections", String(error));
+    } finally {
+      setLoadingCollections(false);
+    }
   };
 
   const deleteCollection = async (collection_name: string) => {
-    if (!idRef.current) return;
-    const result = await deleteCollectionMetadata(
-      idRef.current,
-      collection_name
-    );
+    if (!id) return;
+    const result = await deleteCollectionMetadata(id, collection_name);
 
     if (result.error) {
-      showErrorToast("Failed to Remove Analysis", result.error);
+      toastRef.current.showErrorToast("Failed to Remove Analysis", result.error);
     } else {
-      showSuccessToast(
+      toastRef.current.showSuccessToast(
         "Analysis Removed",
         `Analysis for "${collection_name}" has been removed successfully.`
       );
-      fetchCollections();
+      // Refetch after deletion
+      await fetchCollections();
     }
   };
 
   const getRandomPrompts = (amount: number = 4) => {
-    // Merge all prompts from all collections into a single array
     const allPrompts = collections.reduce((acc: string[], collection) => {
       return acc.concat(collection.prompts || []);
     }, []);
 
-    // Shuffle the array and return requested amount
     const shuffled = allPrompts.sort(() => 0.5 - Math.random());
     return shuffled.slice(0, amount);
   };

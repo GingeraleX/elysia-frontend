@@ -176,7 +176,7 @@ const SidebarComponent: React.FC = () => {
         <Separator />
 
         {currentPage === "chat" && <HomeSubMenu />}
-        {(currentPage === "data" || currentPage === "collection") && (
+        {(currentPage === "data" || currentPage === "collection" || currentPage === "import") && (
           <DataSubMenu />
         )}
         {(currentPage === "eval" ||

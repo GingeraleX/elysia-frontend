@@ -24,7 +24,24 @@ export async function getCollections(
     }
 
     const data: CollectionPayload = await response.json();
-    return data.collections;
+    
+    // Transform backend response to Collection type
+    const collections: Collection[] = (data.collections || []).map((col: any) => ({
+      name: col.display_name || col.weaviate_collection_name || "Unknown Collection",
+      total: col.record_count || 0,
+      vectorizer: {
+        fields: {},
+        global: {
+          named_vector: col.vector_field || "vector",
+          vectorizer: col.embedder_provider || "local",
+          model: col.embedder_model || "all-minilm-l6-v2",
+        },
+      },
+      processed: false,
+      prompts: [],
+    }));
+
+    return collections;
   } catch (error) {
     console.error("Get Collections error:", error);
     return [];

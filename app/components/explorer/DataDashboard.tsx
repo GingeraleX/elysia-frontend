@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 
 import { Collection } from "@/app/types/objects";
+import { LoadingSpinner } from "@/app/components/loading/LoadingSpinner";
 
 import { CollectionContext } from "../contexts/CollectionContext";
 import { SessionContext } from "../contexts/SessionContext";
@@ -185,11 +186,9 @@ const Dashboard: React.FC = () => {
 
         <div className="flex flex-col gap-3 w-full flex-1 min-h-0 mb-16 overflow-y-auto">
           {loading ? (
-            <div className="flex flex-col gap-2 w-full fade-in">
-              <Skeleton className="w-full h-[45px] rounded-md" />
-              <Skeleton className="w-full h-[45px] rounded-md" />
-              <Skeleton className="w-full h-[45px] rounded-md" />
-              <Skeleton className="w-full h-[45px] rounded-md" />
+            <div className="flex flex-col items-center justify-center gap-4 py-12 fade-in">
+              <LoadingSpinner size="medium" />
+              <p className="text-secondary text-sm">Loading collections...</p>
             </div>
           ) : (
             <div className="flex flex-col gap-3 flex-1 min-h-0">

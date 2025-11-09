@@ -75,18 +75,11 @@ export const RouterProvider = ({ children }: { children: React.ReactNode }) => {
     // Get page from URL parameter
     const pageParam = searchParams.get("page");
 
-    // If no page parameter exists, redirect to chat page
+    // If no page parameter exists, use default based on auth status
     if (!pageParam) {
-      // Preserve any existing query parameters (like conversation)
-      const currentParams: Record<string, any> = {};
-      searchParams.forEach((value, key) => {
-        currentParams[key] = value;
-      });
-
-      // Add page=chat to the URL
-      const url = `/?${new URLSearchParams({ page: "chat", ...currentParams }).toString()}`;
-      window.history.replaceState(null, "", url);
-      setCurrentPage("chat");
+      // We'll handle this in the main page.tsx component
+      // Just set to "landing" for now
+      setCurrentPage("landing");
       return;
     }
 
@@ -95,11 +88,14 @@ export const RouterProvider = ({ children }: { children: React.ReactNode }) => {
       "chat",
       "data",
       "collection",
+      "import",
       "settings",
       "eval",
       "feedback",
       "elysia",
       "display",
+      "login",
+      "landing",
     ];
     const validatedPage = validPages.includes(pageParam) ? pageParam : "chat";
 

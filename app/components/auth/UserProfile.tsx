@@ -1,4 +1,4 @@
-﻿"use client";
+﻿﻿"use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/app/components/contexts/AuthContext";
@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { LogOut, Settings, User as UserIcon } from "lucide-react";
 
 /**
- * User Profile Component - Minimal sleek profile menu
- * Shows user email/avatar in top-right corner
+ * User Profile Component - Elysia styled profile menu
+ * Shows user email/avatar in top-right corner using design system colors
  * Provides logout and settings access
  */
 export function UserProfile() {
@@ -38,35 +38,35 @@ export function UserProfile() {
 
   return (
     <div className="fixed top-4 right-4 z-50" ref={menuRef}>
-      {/* Avatar Button */}
+      {/* Avatar Button - Elysia neon accent gradient */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm hover:opacity-90 transition-opacity cursor-pointer border border-blue-400/30"
+        className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-highlight flex items-center justify-center text-background font-semibold text-sm hover:shadow-lg hover:shadow-accent/50 transition-all duration-300 cursor-pointer border border-accent/30 scale-100 hover:scale-105 active:scale-95"
         title={user ? user.email : "Guest Mode"}
       >
         {initials}
       </button>
 
-      {/* Dropdown Menu */}
+      {/* Dropdown Menu - Elysia style popup */}
       {isOpen && (
-        <div className="absolute top-12 right-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-lg overflow-hidden">
-          {/* User Info */}
-          <div className="p-4 border-b border-slate-700">
-            <p className="text-xs text-gray-400">
+        <div className="absolute top-12 right-0 mt-2 w-56 bg-foreground border border-border rounded-lg shadow-lg overflow-hidden fade-in">
+          {/* User Info Section */}
+          <div className="p-4 border-b border-border">
+            <p className="text-xs text-secondary">
               {isGuest ? "Guest Mode" : "Logged In"}
             </p>
-            <p className="text-sm font-medium text-white truncate">
+            <p className="text-sm font-medium text-primary truncate mt-1">
               {user?.email || "Guest"}
             </p>
             {user?.role && (
-              <p className="text-xs text-blue-400 mt-1 capitalize">
+              <p className="text-xs text-accent mt-2 capitalize">
                 {user.role.toLowerCase()}
               </p>
             )}
           </div>
 
           {/* Menu Items */}
-          <div className="p-2">
+          <div className="p-2 space-y-1">
             {user && (
               <>
                 <button
@@ -74,7 +74,7 @@ export function UserProfile() {
                     // TODO: Navigate to settings
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-slate-800 text-sm text-gray-300 hover:text-white transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-background_alt text-sm text-secondary hover:text-primary transition-colors duration-200"
                 >
                   <Settings size={16} />
                   Settings
@@ -87,7 +87,7 @@ export function UserProfile() {
                 logout();
                 setIsOpen(false);
               }}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded hover:bg-red-900/20 text-sm text-red-400 hover:text-red-300 transition-colors"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-background_error/20 text-sm text-error hover:text-error transition-colors duration-200"
             >
               <LogOut size={16} />
               {isGuest ? "Exit Guest Mode" : "Logout"}

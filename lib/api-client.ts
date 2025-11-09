@@ -1,4 +1,4 @@
-﻿interface ApiConfig {
+﻿﻿interface ApiConfig {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: Record<string, string>;
   body?: any;
@@ -104,16 +104,36 @@ export class ApiClient {
       const response = await fetch(url, requestConfig);
       
       if (!response.ok) {
-        // Handle 401 Unauthorized - clear token and redirect to login
-        if (response.status === 401) {
-          this.clearAuthToken();
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+        const contentType = response.headers.get('content-type');
+        let errorMessage = `HTTP ${response.status}`;
+        
+        try {
+          if (contentType && contentType.includes('application/json')) {
+            const errorData: ApiErrorResponse = await response.json();
+            // Try to extract message from various possible response formats
+            errorMessage = errorData?.message || errorData?.detail || errorMessage;
           }
+        } catch (parseError) {
+          // If JSON parsing fails, use the status message
+          console.warn('Failed to parse error response as JSON', parseError);
         }
 
-        const errorData: ApiErrorResponse = await response.json().catch(() => ({}));
-        const errorMessage = errorData?.detail || errorData?.message || `HTTP ${response.status}`;
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          // Only redirect if this is NOT a login/register attempt
+          // Login/register endpoints should throw error for the form to handle
+          const isAuthEndpoint = endpoint.includes('/auth/login') || endpoint.includes('/auth/register');
+          
+          if (!isAuthEndpoint) {
+            // Token expired during normal operation - redirect to login
+            this.clearAuthToken();
+            if (typeof window !== 'undefined') {
+              // Use router if available, fallback to window.location
+              window.location.href = '/?page=login';
+            }
+          }
+        }
+        
         throw new ApiError(errorMessage, response.status);
       }
 

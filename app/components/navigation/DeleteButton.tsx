@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -24,31 +24,35 @@ interface DeleteButtonProps {
   classNameDefault?: string;
 }
 
-export const DeleteButton: React.FC<DeleteButtonProps> = ({
-  icon,
-  text,
-  confirmText,
-  confirmIcon,
-  onClick,
-  variant = "destructive",
-  size = "default",
-  classNameDefault = "",
-  classNameConfirm = "",
-  disabled = false,
-  timerDuration = 3000,
-}) => {
-  const [isConfirming, setIsConfirming] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(0);
+export const DeleteButton = forwardRef<HTMLButtonElement, DeleteButtonProps>(
+  (
+    {
+      icon,
+      text,
+      confirmText,
+      confirmIcon,
+      onClick,
+      variant = "destructive",
+      size = "default",
+      classNameDefault = "",
+      classNameConfirm = "",
+      disabled = false,
+      timerDuration = 3000,
+    },
+    ref
+  ) => {
+    const [isConfirming, setIsConfirming] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(0);
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
+    useEffect(() => {
+      let timer: NodeJS.Timeout;
 
-    if (isConfirming && timeLeft > 0) {
-      timer = setTimeout(() => {
-        setTimeLeft(timeLeft - 100);
-      }, 100);
-    } else if (isConfirming && timeLeft <= 0) {
-      setIsConfirming(false);
+      if (isConfirming && timeLeft > 0) {
+        timer = setTimeout(() => {
+          setTimeLeft(timeLeft - 100);
+        }, 100);
+      } else if (isConfirming && timeLeft <= 0) {
+        setIsConfirming(false);
       setTimeLeft(0);
     }
 
@@ -271,6 +275,8 @@ export const DeleteButton: React.FC<DeleteButtonProps> = ({
       </Button>
     </motion.div>
   );
-};
+});
+
+DeleteButton.displayName = "DeleteButton";
 
 export default DeleteButton;
