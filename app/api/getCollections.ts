@@ -8,9 +8,11 @@ export async function getCollections(
   const startTime = performance.now();
   try {
     if (!user_id) {
+      console.warn(`[getCollections] No user_id provided, returning empty array`);
       return [];
     }
 
+    console.log(`[getCollections] Fetching collections for user_id: ${user_id}`);
     const response = await fetch(`${host}/collections/${user_id}/list`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
@@ -18,12 +20,13 @@ export async function getCollections(
 
     if (!response.ok) {
       console.error(
-        `Get Collections error! status: ${response.status} ${response.statusText}`,
+        `[getCollections] Error! status: ${response.status} ${response.statusText}`,
       );
       return [];
     }
 
     const data: CollectionPayload = await response.json();
+    console.log(`[getCollections] Response received:`, data);
     
     // Transform backend response to Collection type
     const collections: Collection[] = (data.collections || []).map((col: any) => ({
@@ -37,7 +40,7 @@ export async function getCollections(
           model: col.embedder_model || "all-minilm-l6-v2",
         },
       },
-      processed: false,
+      processed: col.processed || false,
       prompts: [],
     }));
 

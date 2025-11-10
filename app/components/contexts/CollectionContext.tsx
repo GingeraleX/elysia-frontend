@@ -26,7 +26,7 @@ export const CollectionProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { id } = useContext(SessionContext);
+  const { id, fetchCollectionFlag } = useContext(SessionContext);
   const { showErrorToast, showSuccessToast } = useContext(ToastContext);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loadingCollections, setLoadingCollections] = useState(false);
@@ -38,7 +38,43 @@ export const CollectionProvider = ({
     toastRef.current = { showErrorToast, showSuccessToast };
   }, [showErrorToast, showSuccessToast]);
 
-  // Only fetch when ID actually changes
+  // Core fetch logic shared by both triggers
+  const fetchCollectionsInternal = async () => {
+    if (!id) {
+      console.log(`[CollectionContext] fetchCollectionsInternal called but id is empty`);
+      return;
+    }
+
+    setLoadingCollections(true);
+    try {
+      console.log(`[CollectionContext] Calling getCollections API for id: ${id}`);
+      const result = await getCollections(id);
+      console.log(`[CollectionContext] Received ${result.length} collections`);
+      setCollections(result);
+      if (result.length > 0) {
+        toastRef.current.showSuccessToast(`${result.length} Collections Loaded`);
+      } else {
+        console.log(`[CollectionContext] No collections found for user`);
+      }
+    } catch (error) {
+      console.error(`[CollectionContext] Error fetching collections:`, error);
+      toastRef.current.showErrorToast("Failed to load collections", String(error));
+    } finally {
+      setLoadingCollections(false);
+    }
+  };
+
+  // Listen for fetchCollectionFlag from SessionContext (triggered on login/init)
+  useEffect(() => {
+    if (!id) {
+      console.log(`[CollectionContext] fetchCollectionFlag received but id is empty, skipping`);
+      return;
+    }
+    console.log(`[CollectionContext] fetchCollectionFlag triggered for id: ${id}`);
+    fetchCollectionsInternal();
+  }, [fetchCollectionFlag]);
+
+  // Also fetch when ID initially changes (fallback for cases where flag isn't used)
   useEffect(() => {
     if (!id) {
       setCollections([]);
@@ -46,47 +82,20 @@ export const CollectionProvider = ({
       return;
     }
 
-    // Skip if we already fetched this exact ID
+    // Skip if we already fetched this exact ID (but allow first fetch per component lifetime)
     if (lastFetchedIdRef.current === id) {
+      console.log(`[CollectionContext] Skipping duplicate fetch for id: ${id}`);
       return;
     }
 
+    console.log(`[CollectionContext] ID changed to: ${id}, will fetch via flag instead`);
     lastFetchedIdRef.current = id;
-
-    const loadCollections = async () => {
-      setLoadingCollections(true);
-      try {
-        const result = await getCollections(id);
-        setCollections(result);
-        toastRef.current.showSuccessToast(`${result.length} Collections Loaded`);
-      } catch (error) {
-        toastRef.current.showErrorToast("Failed to load collections", String(error));
-      } finally {
-        setLoadingCollections(false);
-      }
-    };
-
-    // Delay fetch slightly to let SessionContext/settings finish initializing
-    const timer = setTimeout(() => {
-      loadCollections();
-    }, 100);
-
-    return () => clearTimeout(timer);
   }, [id]);
 
   const fetchCollections = async () => {
     if (!id) return;
     
-    setLoadingCollections(true);
-    try {
-      const result = await getCollections(id);
-      setCollections(result);
-      toastRef.current.showSuccessToast(`${result.length} Collections Loaded`);
-    } catch (error) {
-      toastRef.current.showErrorToast("Failed to load collections", String(error));
-    } finally {
-      setLoadingCollections(false);
-    }
+    await fetchCollectionsInternal();
   };
 
   const deleteCollection = async (collection_name: string) => {

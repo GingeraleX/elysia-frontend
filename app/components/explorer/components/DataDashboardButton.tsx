@@ -56,7 +56,7 @@ const WaveText = ({ text }: { text: string }) => {
 interface DashboardButtonProps {
   collection: Collection;
   selectCollection: (collection: Collection) => void;
-  triggerAnalysis: (collection: Collection, user_id: string) => void;
+  triggerAnalysis: (collectionName: string, tenantId: string) => Promise<void>;
   user_id: string;
   currentToasts: Toast[];
   unprocessed: boolean;
@@ -199,7 +199,7 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
             <DropdownMenuContent side="right" align="start">
               <DropdownMenuItem
                 onClick={() => {
-                  triggerAnalysis(collection, user_id);
+                  triggerAnalysis(collection.name, user_id);
                 }}
                 className="text-secondary hover:text-primary"
               >
@@ -222,7 +222,7 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
           <Button
             onClick={(e) => {
               e.stopPropagation();
-              triggerAnalysis(collection, user_id);
+              triggerAnalysis(collection.name, user_id);
             }}
             className="text-highlight border-highlight border bg-highlight/10 hover:bg-highlight/20"
             variant="outline"

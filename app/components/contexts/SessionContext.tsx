@@ -140,9 +140,11 @@ export const SessionProvider = ({
       }
       
       const actualId = getActualUserId();
+      console.log(`[SessionContext] checkAuthState: isAuth=${isAuth}, actualId=${actualId}, previousId=${previousUserIdRef.current}`);
       
       // Only update if userId actually changed (avoid cascading re-renders)
       if (actualId !== previousUserIdRef.current) {
+        console.log(`[SessionContext] userId changed from ${previousUserIdRef.current} to ${actualId}`);
         previousUserIdRef.current = actualId;
         setUserId(actualId);
       }

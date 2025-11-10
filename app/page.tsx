@@ -69,7 +69,17 @@ const LandingPage = dynamic(() => import("./pages/LandingPage"), {
 export default function Home() {
   const { user, isLoading, isGuest } = useAuth();
   const [currentPage, setCurrentPage] = React.useState<string | null>(null);
+  const [isInitializing, setIsInitializing] = React.useState(true);
   const searchParams = useSearchParams();
+
+  // Initial loading - show generic loader before anything else
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitializing(false);
+    }, 1000); // Show loader for at least 1 second
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Determine current page from URL
   React.useEffect(() => {
@@ -92,9 +102,14 @@ export default function Home() {
     }
   }, [user, isGuest, currentPage]);
 
-  // Show loading state
+  // Show initial generic loading screen
+  if (isInitializing) {
+    return <FullScreenLoader />;
+  }
+
+  // Show loading state while auth is checking
   if (isLoading) {
-    return <FullScreenLoader message="Loading your config..." icon="config" />;
+    return <FullScreenLoader />;
   }
 
   // User is authenticated or guest - show main app

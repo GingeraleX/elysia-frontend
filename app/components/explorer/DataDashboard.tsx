@@ -91,8 +91,22 @@ const Dashboard: React.FC = () => {
     setLoading(loadingCollections);
   }, [loadingCollections]);
 
+  // ...existing code...
+
   const selectCollection = (collection: Collection) => {
     changePage("collection", { source: collection.name }, true);
+  };
+
+  // Wrapper for analysis to pass collection name and tenant ID
+  const handleTriggerAnalysis = async (collectionName: string) => {
+    if (!id) {
+      showErrorToast(
+        "Error analyzing collection",
+        "User ID not found"
+      );
+      return;
+    }
+    await triggerAnalysis(collectionName, id);
   };
 
   const triggerSort = (_sortBy: "name" | "total") => {
@@ -365,7 +379,7 @@ const Dashboard: React.FC = () => {
                             key={collection.name}
                             collection={collection}
                             selectCollection={selectCollection}
-                            triggerAnalysis={triggerAnalysis}
+                            triggerAnalysis={handleTriggerAnalysis}
                             user_id={id ?? ""}
                             currentToasts={currentToasts}
                             unprocessed={!collection.processed}
@@ -416,7 +430,7 @@ const Dashboard: React.FC = () => {
                             key={collection.name}
                             collection={collection}
                             selectCollection={selectCollection}
-                            triggerAnalysis={triggerAnalysis}
+                            triggerAnalysis={handleTriggerAnalysis}
                             user_id={id ?? ""}
                             currentToasts={currentToasts}
                             unprocessed={!collection.processed}
