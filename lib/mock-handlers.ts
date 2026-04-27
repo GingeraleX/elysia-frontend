@@ -13,6 +13,50 @@ import {
   MOCK_COLLECTION_METADATA,
 } from "./mock-data";
 
+// Mock conversation rebuild messages (role/content format the backend returns)
+const MOCK_CONVERSATION_REBUILD: Record<string, Array<{ role: "user" | "assistant"; content: string; query_id: string }>> = {
+  "mock-conv-001": [
+    { role: "user",      content: "What is the company remote work policy?",                    query_id: "mock-qid-001" },
+    { role: "assistant", content: "Based on the **Company Knowledge Base**, employees are eligible for full remote work after completing their 90-day onboarding period.\n\n- Up to **3 days remote per week** for hybrid roles\n- **Fully remote** for roles designated as such\n\n> *Source: hr-policies-2025.pdf, p. 14*", query_id: "mock-qid-001" },
+  ],
+  "mock-conv-002": [
+    { role: "user",      content: "What are the top 3 customer complaints this quarter?",      query_id: "mock-qid-002" },
+    { role: "assistant", content: "From the **Customer Support Tickets** collection (Q1 2025):\n\n1. **Billing discrepancies** – 23% of tickets (1,930 cases)\n2. **Login / authentication issues** – 18% of tickets (1,510 cases)\n3. **Slow export performance** – 11% of tickets (923 cases)\n\nAll three categories saw a 15% increase vs Q4 2024.", query_id: "mock-qid-002" },
+  ],
+  "mock-conv-003": [
+    { role: "user",      content: "What features are planned for the next release?",            query_id: "mock-qid-003" },
+    { role: "assistant", content: "According to the **Product Research Notes**, the next release (v2.4) is planned to include:\n\n1. **Bulk export** — CSV and PDF\n2. **Advanced filtering** — multi-field, saved filters\n3. **API rate-limit dashboard** — real-time usage\n\n*Note: This collection has not been fully analysed yet.*", query_id: "mock-qid-003" },
+  ],
+};
+
+// Mock collection records for the data table view
+const MOCK_COLLECTION_RECORDS: Record<string, { properties: Record<string, string>; items: Record<string, string>[] }> = {
+  "Company Knowledge Base": {
+    properties: { title: "string", content: "text", source: "string" },
+    items: Array.from({ length: 20 }, (_, i) => ({
+      title:   i % 2 === 0 ? "Company Handbook" : "HR Policy 2025",
+      content: `This is a sample document excerpt number ${i + 1}. It contains policy text and guidelines for employees.`,
+      source:  i % 2 === 0 ? "company-handbook.pdf" : "hr-policies-2025.pdf",
+    })),
+  },
+  "Customer Support Tickets": {
+    properties: { title: "string", content: "text", status: "string", priority: "string" },
+    items: Array.from({ length: 20 }, (_, i) => ({
+      title:    `Ticket #${10000 + i}: ${["Billing issue", "Login problem", "Export slow", "Feature request", "Bug report"][i % 5]}`,
+      content:  `Customer reported: ${["Charged twice for subscription.", "Cannot log in after password reset.", "CSV export takes >5 minutes.", "Please add dark mode.", "App crashes on mobile."][i % 5]}`,
+      status:   ["open", "resolved", "in_progress", "closed"][i % 4],
+      priority: ["low", "medium", "high", "critical"][i % 4],
+    })),
+  },
+  "Product Research Notes": {
+    properties: { title: "string", content: "text" },
+    items: Array.from({ length: 5 }, (_, i) => ({
+      title:   `Research Note ${i + 1}`,
+      content: `Preliminary research note ${i + 1} — awaiting analysis.`,
+    })),
+  },
+};
+
 // Simulates network latency so the UI loading states are visible
 const delay = (ms = 150) => new Promise((res) => setTimeout(res, ms));
 
@@ -46,6 +90,13 @@ export async function handleMockRequest(endpoint: string, method: string, body?:
   // ── Collection metadata — GET /collections/:id/metadata/:name ────────────
   if (endpoint.includes("/collections/") && endpoint.includes("/metadata/")) {
     return MOCK_COLLECTION_METADATA;
+  }
+
+  // ── Collection data view — POST /collections/:id/view/:name ─────────────
+  if (endpoint.includes("/collections/") && endpoint.includes("/view/")) {
+    const collectionName = decodeURIComponent(endpoint.split("/view/")[1]);
+    const records = MOCK_COLLECTION_RECORDS[collectionName] ?? { properties: {}, items: [] };
+    return { ...records, error: null };
   }
 
   // ── Collections — /collections/:id/list and /collections/mapping_types ────
@@ -89,6 +140,14 @@ export async function handleMockRequest(endpoint: string, method: string, body?:
       return { config: MOCK_USER_CONFIG.backend, frontend_config: MOCK_USER_CONFIG.frontend, warnings: [], error: null };
     if (m === "DELETE") return { success: true, error: null };
   }
+
+  // ── Conversation load — GET /db/:id/load_tree/:conversationId ───────────
+  if (endpoint.includes("/load_tree/")) {
+    const convId = endpoint.split("/load_tree/")[1];
+    const rebuild = MOCK_CONVERSATION_REBUILD[convId] ?? [];
+    return { rebuild, error: null };
+  }
+
 
   // ── Conversations — /db/:id/saved_trees ───────────────────────────────────
   if (endpoint.includes("/saved_trees") && m === "GET") {

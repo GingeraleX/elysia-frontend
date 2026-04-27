@@ -65,7 +65,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     const interval = setInterval(() => {
       if (!socketOnline || socket?.readyState === WebSocket.CLOSED || !socket) {
-        console.log("Elysia not online, trying to reconnect...");
         initialRef.current = false;
         setReconnect((prev) => !prev);
       }
@@ -80,12 +79,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    // Skip WebSocket in mock mode — no backend is running
+    // Skip WebSocket in mock mode — no backend is running; pretend we're online
     if (
       process.env.NEXT_PUBLIC_MOCK_MODE === "true" &&
       typeof window !== "undefined" &&
       localStorage.getItem("mockMode") === "true"
     ) {
+      setSocketOnline(true);
       return;
     }
 

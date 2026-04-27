@@ -1,6 +1,6 @@
 import { CollectionDataPayload } from "@/app/types/payloads";
 import { Filter } from "@/app/types/objects";
-import { host } from "@/app/components/host";
+import { apiClient } from "@/lib/api-client";
 
 export async function getCollectionData(
   user_id: string,
@@ -17,36 +17,13 @@ export async function getCollectionData(
 
   const startTime = performance.now();
   try {
-    const response = await fetch(
-      `${host}/collections/${user_id}/view/${collection_name}`,
+    const data = await apiClient.request<CollectionDataPayload>(
+      `/collections/${user_id}/view/${collection_name}`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          page_number,
-          page_size,
-          sort_on,
-          ascending,
-          filter_config,
-          query,
-        }),
+        body: { page_number, page_size, sort_on, ascending, filter_config, query },
       }
     );
-
-    if (!response.ok) {
-      console.error(
-        `Error fetching collection data! status: ${response.status} ${response.statusText}`
-      );
-      return {
-        properties: {},
-        items: [],
-        error: "Error fetching collection data",
-      };
-    }
-
-    const data: CollectionDataPayload = await response.json();
     return data;
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));

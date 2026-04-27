@@ -1,5 +1,5 @@
 import { ConversationPayload } from "@/app/types/payloads";
-import { host } from "@/app/components/host";
+import { apiClient } from "@/lib/api-client";
 
 export async function loadConversation(
   user_id: string,
@@ -7,24 +7,10 @@ export async function loadConversation(
 ) {
   const startTime = performance.now();
   try {
-    const response = await fetch(
-      `${host}/db/${user_id}/load_tree/${conversation_id}`,
-      {
-        method: "GET",
-      },
+    const data = await apiClient.request<ConversationPayload>(
+      `/db/${user_id}/load_tree/${conversation_id}`,
+      { method: "GET" },
     );
-
-    if (!response.ok) {
-      console.error(
-        `Error fetching saved conversation ${conversation_id}! status: ${response.status} ${response.statusText}`,
-      );
-      return {
-        rebuild: [],
-        error: `Error fetching saved conversation ${conversation_id}`,
-      };
-    }
-
-    const data: ConversationPayload = await response.json();
     return data;
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
