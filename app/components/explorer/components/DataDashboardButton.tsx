@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { motion, useSpring } from "framer-motion";
+import { CollectionContext } from "@/app/components/contexts/CollectionContext";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +18,7 @@ import { PiMagicWandFill } from "react-icons/pi";
 import { SlOptionsVertical } from "react-icons/sl";
 
 import { Collection, Toast } from "@/app/types/objects";
+import { deleteCollection as deleteWeaviateCollection } from "@/app/api/deleteCollection";
 
 // Utility function to format numbers with dots for thousands
 const formatNumber = (num: number): string => {
@@ -72,6 +74,9 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
   unprocessed,
   deleteCollection,
 }) => {
+  // Use fetchCollections from context so "Delete from Weaviate" can refresh the
+  // list without calling deleteCollectionMetadata again (already gone → 404).
+  const { fetchCollections } = useContext(CollectionContext);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -214,6 +219,22 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
               >
                 <GoTrash />
                 <span>Clear Analysis</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={async () => {
+                  const result = await deleteWeaviateCollection(collection.name);
+                  if (result.status === "success") {
+                    // deleteWeaviateCollection already deletes everything (Analysis,
+                    // Collection registry, Weaviate class). Calling deleteCollection
+                    // here would try to DELETE the already-gone metadata → 404 → error toast.
+                    // Just refresh the list instead.
+                    await fetchCollections();
+                  }
+                }}
+                className="text-secondary hover:text-destructive"
+              >
+                <GoTrash />
+                <span>Delete from Weaviate</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

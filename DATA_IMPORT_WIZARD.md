@@ -1,4 +1,4 @@
-﻿# Data Import Wizard - 3-Step Interface
+# Data Import Wizard - 3-Step Interface
 
 ## Overview
 The ImportDataPage now features a **boomer-friendly 3-step wizard** for importing data into Weaviate with automatic embedding via local LLMs.

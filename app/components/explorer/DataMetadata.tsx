@@ -7,6 +7,7 @@ import { UseCollectionMetadataEditorReturn } from "./hooks/useCollectionMetadata
 import MetadataSummaryEditor from "./components/MetadataSummaryEditor";
 import MetadataMappingsEditor from "./components/MetadataMappingsEditor";
 import MetadataFieldsDisplay from "./components/MetadataFieldsEditor";
+import FieldDisplayTypesEditor from "./components/FieldDisplayTypesEditor";
 import { MappingTypesPayload, MetadataPayload } from "@/app/types/payloads";
 import { motion } from "framer-motion";
 
@@ -83,6 +84,33 @@ const DataMetadata: React.FC<DataMetadataProps> = ({
           }}
         />
       </motion.div>
+
+      {/* Field Display Types — auto-detected, user-editable */}
+      {collectionMetadata?.metadata.field_display_types &&
+        Object.keys(collectionMetadata.metadata.field_display_types).length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, type: "tween", delay: 0.25 }}
+          >
+            <FieldDisplayTypesEditor
+              fieldDisplayTypes={collectionMetadata.metadata.field_display_types}
+              fieldDisplayTypesDraft={metadataEditor.fieldDisplayTypesDraft}
+              editing={metadataEditor.editingFieldDisplayTypes}
+              saving={metadataEditor.savingFieldDisplayTypes}
+              hasChanges={metadataEditor.hasFieldDisplayTypesChanges}
+              onEdit={() => metadataEditor.setEditingFieldDisplayTypes(true)}
+              onSave={metadataEditor.handleSaveFieldDisplayTypes}
+              onCancel={() => {
+                metadataEditor.setEditingFieldDisplayTypes(false);
+                metadataEditor.setFieldDisplayTypesDraft(
+                  collectionMetadata.metadata.field_display_types ?? {}
+                );
+              }}
+              onChange={metadataEditor.handleFieldDisplayTypeChange}
+            />
+          </motion.div>
+        )}
 
       {/* Mappings */}
       <motion.div

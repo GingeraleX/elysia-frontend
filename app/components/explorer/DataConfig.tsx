@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CollectionContext } from "../contexts/CollectionContext";
@@ -8,6 +8,7 @@ import { SessionContext } from "../contexts/SessionContext";
 import { PiVectorThreeFill, PiMagicWandFill } from "react-icons/pi";
 import { GoTrash } from "react-icons/go";
 import { FaEdit, FaCheck, FaTimes } from "react-icons/fa";
+import { LuCalendar, LuFile, LuLayers } from "react-icons/lu";
 
 import { Collection } from "@/app/types/objects";
 import { RouterContext } from "../contexts/RouterContext";
@@ -41,6 +42,22 @@ const DataConfig: React.FC<DataConfigProps> = ({
     deleteCollection(collection.name);
     changePage("data", {}, true);
   };
+
+  // Parse ingestion metadata from metadata_json
+  const ingestionMeta = useMemo(() => {
+    if (!collection?.metadata_json) return null;
+    try {
+      const meta = JSON.parse(collection.metadata_json);
+      return {
+        sourceFiles: (meta.source_files as string[]) ?? [],
+        recordCount: meta.record_count as number | undefined,
+        embedderModel: meta.embedder_model as string | undefined,
+        ingestedAt: meta.ingested_at as string | undefined,
+      };
+    } catch {
+      return null;
+    }
+  }, [collection?.metadata_json]);
 
   if (!collection) {
     return null;
@@ -88,6 +105,68 @@ const DataConfig: React.FC<DataConfigProps> = ({
                 </div>
               </div>
             </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Ingestion Details */}
+      {ingestionMeta && (
+        <motion.div
+          className="flex flex-col gap-2 border border-foreground p-4 rounded-md"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3, type: "tween", delay: 0.5 }}
+        >
+          <div className="flex items-center gap-2">
+            <div className="bg-highlight/10 border border-highlight rounded-md p-1">
+              <LuLayers className="text-highlight" size={16} />
+            </div>
+            <p className="font-bold">Ingestion Details</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-background_alt rounded-lg border border-border">
+            {ingestionMeta.ingestedAt && (
+              <div className="flex items-center gap-2">
+                <LuCalendar className="text-secondary w-4 h-4 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-secondary">Ingested</p>
+                  <p className="text-sm text-primary truncate">
+                    {new Date(ingestionMeta.ingestedAt).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            )}
+            {ingestionMeta.sourceFiles.length > 0 && (
+              <div className="flex items-center gap-2">
+                <LuFile className="text-secondary w-4 h-4 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-secondary">Source Files</p>
+                  <p className="text-sm text-primary truncate" title={ingestionMeta.sourceFiles.join(", ")}>
+                    {ingestionMeta.sourceFiles.length} file{ingestionMeta.sourceFiles.length !== 1 ? "s" : ""}: {ingestionMeta.sourceFiles.join(", ")}
+                  </p>
+                </div>
+              </div>
+            )}
+            {ingestionMeta.embedderModel && (
+              <div className="flex items-center gap-2">
+                <PiVectorThreeFill className="text-secondary w-4 h-4 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-secondary">Embedding Model</p>
+                  <p className="text-sm text-primary truncate" title={ingestionMeta.embedderModel}>
+                    {ingestionMeta.embedderModel}
+                  </p>
+                </div>
+              </div>
+            )}
+            {ingestionMeta.recordCount !== undefined && (
+              <div className="flex items-center gap-2">
+                <LuLayers className="text-secondary w-4 h-4 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-secondary">Records Stored</p>
+                  <p className="text-sm text-primary">{ingestionMeta.recordCount}</p>
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
       )}
@@ -303,7 +382,7 @@ const DataConfig: React.FC<DataConfigProps> = ({
         >
           <Button
             className="flex-1 bg-primary/10 border border-primary hover:bg-primary/20"
-            onClick={() => triggerAnalysis(collection, id ?? "")}
+            onClick={() => triggerAnalysis(collection.name, id ?? "")}
           >
             <PiMagicWandFill className="text-primary" />
             <p className="text-primary">Re-Analyze Collection</p>

@@ -24,43 +24,43 @@ export function useConfigValidation(
         base_model: false,
         complex_provider: false,
         complex_model: false,
-
-        // Custom Weaviate validation
         custom_weaviate_http_host: false,
         custom_weaviate_grpc_host: false,
-
-        // Storage validation
         custom_storage_http_host: false,
         custom_storage_grpc_host: false,
       };
     }
 
-    const isWeaviateLocal = currentUserConfig?.settings
-      ?.WEAVIATE_IS_LOCAL as boolean;
-    const isWeaviateCustom = currentUserConfig?.settings
-      ?.WEAVIATE_IS_CUSTOM as boolean;
-    const isStorageCustom =
-      currentFrontendConfig?.save_location_weaviate_is_custom as boolean;
+    const s = currentUserConfig.settings;
+    const mode = (s.PROCESSING_MODE as string) || "cloud";
+    const isCloud = mode === "cloud";
+
+    const isWeaviateLocal  = s.WEAVIATE_IS_LOCAL  as boolean;
+    const isWeaviateCustom = s.WEAVIATE_IS_CUSTOM as boolean;
+    const isStorageCustom  = currentFrontendConfig?.save_location_weaviate_is_custom as boolean;
+
+    // Validate the active mode's provider/model fields
+    const baseProvider    = isCloud ? s.CLOUD_BASE_PROVIDER    : s.LOCAL_BASE_PROVIDER;
+    const baseModel       = isCloud ? s.CLOUD_BASE_MODEL        : s.LOCAL_BASE_MODEL;
+    const complexProvider = isCloud ? s.CLOUD_COMPLEX_PROVIDER  : s.LOCAL_COMPLEX_PROVIDER;
+    const complexModel    = isCloud ? s.CLOUD_COMPLEX_MODEL     : s.LOCAL_COMPLEX_MODEL;
 
     return {
       wcd_url: isWeaviateCustom
         ? true
-        : Boolean(currentUserConfig?.settings?.WCD_URL?.trim()),
-      wcd_api_key:
-        isWeaviateLocal || isWeaviateCustom
-          ? true
-          : Boolean(currentUserConfig?.settings?.WCD_API_KEY?.trim()),
-      base_provider: Boolean(currentUserConfig?.settings?.BASE_PROVIDER?.trim()),
-      base_model: Boolean(currentUserConfig?.settings?.BASE_MODEL?.trim()),
-      complex_provider: Boolean(
-        currentUserConfig?.settings?.COMPLEX_PROVIDER?.trim()
-      ),
-      complex_model: Boolean(currentUserConfig?.settings?.COMPLEX_MODEL?.trim()),
+        : Boolean(s.WCD_URL?.trim()),
+      wcd_api_key: isWeaviateLocal || isWeaviateCustom
+        ? true
+        : Boolean(s.WCD_API_KEY?.trim()),
+      base_provider:    Boolean((baseProvider    as string)?.trim()),
+      base_model:       Boolean((baseModel       as string)?.trim()),
+      complex_provider: Boolean((complexProvider as string)?.trim()),
+      complex_model:    Boolean((complexModel    as string)?.trim()),
       custom_weaviate_http_host: isWeaviateCustom
-        ? Boolean(currentUserConfig?.settings?.CUSTOM_HTTP_HOST?.trim())
+        ? Boolean(s.CUSTOM_HTTP_HOST?.trim())
         : true,
       custom_weaviate_grpc_host: isWeaviateCustom
-        ? Boolean(currentUserConfig?.settings?.CUSTOM_GRPC_HOST?.trim())
+        ? Boolean(s.CUSTOM_GRPC_HOST?.trim())
         : true,
       custom_storage_http_host: isStorageCustom
         ? Boolean(currentFrontendConfig?.save_location_custom_http_host?.trim())
@@ -71,56 +71,35 @@ export function useConfigValidation(
     };
   }, [currentUserConfig, currentFrontendConfig]);
 
-  // API key validation for models - checks if required API keys are available
   const getMissingApiKeys = useMemo(() => {
-    if (!currentUserConfig || !modelsData) return [];
+    if (!currentUserConfig || !currentUserConfig.settings || !modelsData) return [];
+
+    const s = currentUserConfig.settings;
+    const isCloud = ((s.PROCESSING_MODE as string) || "cloud") === "cloud";
+
+    const baseProvider    = (isCloud ? s.CLOUD_BASE_PROVIDER    : s.LOCAL_BASE_PROVIDER)    as string;
+    const baseModel       = (isCloud ? s.CLOUD_BASE_MODEL        : s.LOCAL_BASE_MODEL)        as string;
+    const complexProvider = (isCloud ? s.CLOUD_COMPLEX_PROVIDER  : s.LOCAL_COMPLEX_PROVIDER)  as string;
+    const complexModel    = (isCloud ? s.CLOUD_COMPLEX_MODEL     : s.LOCAL_COMPLEX_MODEL)     as string;
 
     const missingKeys: string[] = [];
-    const availableKeys = Object.keys(
-      currentUserConfig.settings.API_KEYS || {}
-    );
-    const availableKeysLower = availableKeys.map((k) => k.toLowerCase());
+    const availableKeysLower = Object.keys(s.API_KEYS || {}).map((k) => k.toLowerCase());
 
-    // Check base model API keys
-    if (
-      currentUserConfig.settings.BASE_PROVIDER &&
-      currentUserConfig.settings.BASE_MODEL
-    ) {
-      const provider = modelsData?.[currentUserConfig.settings.BASE_PROVIDER];
-      if (provider && provider[currentUserConfig.settings.BASE_MODEL]) {
-        const requiredKeys =
-          provider[currentUserConfig.settings.BASE_MODEL].api_keys;
-        if (requiredKeys && Array.isArray(requiredKeys)) {
-          requiredKeys.forEach((key) => {
-            if (!availableKeysLower.includes(key.toLowerCase())) {
-              missingKeys.push(key);
-            }
-          });
+    const checkKeys = (provider: string, model: string) => {
+      if (!provider || !model) return;
+      const pData = modelsData?.[provider];
+      if (!pData) return;
+      const requiredKeys = pData[model]?.api_keys;
+      if (!requiredKeys || !Array.isArray(requiredKeys)) return;
+      requiredKeys.forEach((key) => {
+        if (!availableKeysLower.includes(key.toLowerCase()) && !missingKeys.includes(key)) {
+          missingKeys.push(key);
         }
-      }
-    }
+      });
+    };
 
-    // Check complex model API keys
-    if (
-      currentUserConfig.settings.COMPLEX_PROVIDER &&
-      currentUserConfig.settings.COMPLEX_MODEL
-    ) {
-      const provider = modelsData?.[currentUserConfig.settings.COMPLEX_PROVIDER];
-      if (provider && provider[currentUserConfig.settings.COMPLEX_MODEL]) {
-        const requiredKeys =
-          provider[currentUserConfig.settings.COMPLEX_MODEL].api_keys;
-        if (requiredKeys && Array.isArray(requiredKeys)) {
-          requiredKeys.forEach((key) => {
-            if (
-              !availableKeysLower.includes(key.toLowerCase()) &&
-              !missingKeys.includes(key)
-            ) {
-              missingKeys.push(key);
-            }
-          });
-        }
-      }
-    }
+    checkKeys(baseProvider, baseModel);
+    checkKeys(complexProvider, complexModel);
 
     return missingKeys;
   }, [currentUserConfig, modelsData]);

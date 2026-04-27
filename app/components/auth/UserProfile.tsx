@@ -1,16 +1,15 @@
-﻿﻿"use client";
+"use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/app/components/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { LogOut, Settings, User as UserIcon } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 
 /**
  * User Profile Component - Elysia styled profile menu
  * Shows user email/avatar in top-right corner using design system colors
  * Provides logout and settings access
  */
-export function UserProfile() {
+export function UserProfile({ inline = false }: { inline?: boolean }) {
   const { user, isGuest, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -37,19 +36,19 @@ export function UserProfile() {
     : "GU";
 
   return (
-    <div className="fixed top-4 right-4 z-50" ref={menuRef}>
-      {/* Avatar Button - Elysia neon accent gradient */}
+    <div className={inline ? "relative" : "fixed top-4 right-4 z-50"} ref={menuRef}>
+      {/* Avatar Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-highlight flex items-center justify-center text-background font-semibold text-sm hover:shadow-lg hover:shadow-accent/50 transition-all duration-300 cursor-pointer border border-accent/30 scale-100 hover:scale-105 active:scale-95"
+        className="w-9 h-9 rounded-full bg-gradient-to-br from-accent to-highlight flex items-center justify-center text-background font-semibold text-sm hover:shadow-lg hover:shadow-accent/50 transition-all duration-300 cursor-pointer border border-accent/30 scale-100 hover:scale-105 active:scale-95"
         title={user ? user.email : "Guest Mode"}
       >
         {initials}
       </button>
 
-      {/* Dropdown Menu - Elysia style popup */}
+      {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-12 right-0 mt-2 w-56 bg-foreground border border-border rounded-lg shadow-lg overflow-hidden fade-in">
+        <div className="absolute top-11 right-0 mt-1 w-56 bg-foreground border border-border rounded-lg shadow-lg overflow-hidden fade-in z-50">
           {/* User Info Section */}
           <div className="p-4 border-b border-border">
             <p className="text-xs text-secondary">

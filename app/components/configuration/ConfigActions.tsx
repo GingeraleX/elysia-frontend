@@ -60,16 +60,18 @@ export default function ConfigActions({
 
   return (
     <div className="flex flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
-      {/* Save as default checkbox */}
-      <div className="flex flex-row items-center gap-2">
-        <Checkbox
-          checked={saveAsDefault}
-          onCheckedChange={(checked) => {
-            onSaveAsDefaultChange(checked as boolean);
-          }}
-        />
-        <p className="text-sm text-secondary">Save as default</p>
-      </div>
+      {/* Save as default checkbox — only for new configs */}
+      {isNewConfig && (
+        <div className="flex flex-row items-center gap-2">
+          <Checkbox
+            checked={saveAsDefault}
+            onCheckedChange={(checked) => {
+              onSaveAsDefaultChange(checked as boolean);
+            }}
+          />
+          <p className="text-sm text-secondary">Save as default</p>
+        </div>
+      )}
 
       {/* Action buttons */}
       <div className="flex flex-row gap-2">

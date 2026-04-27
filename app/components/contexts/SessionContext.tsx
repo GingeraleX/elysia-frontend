@@ -219,8 +219,13 @@ export const SessionProvider = ({
       showErrorToast("Failed to Load Configuration List", configList.error);
     }
 
+    // Deduplicate configs by config_id (in case backend returns duplicates)
+    const uniqueConfigs = Array.from(
+      new Map(configList.configs.map((cfg) => [cfg.config_id, cfg])).values()
+    );
+
     // Sort configs by last_used date in descending order (most recent first)
-    const sortedConfigs = configList.configs.sort((a, b) => {
+    const sortedConfigs = uniqueConfigs.sort((a, b) => {
       return (
         new Date(b.last_update_time).getTime() -
         new Date(a.last_update_time).getTime()
@@ -357,7 +362,7 @@ export const SessionProvider = ({
       setLoadingConfig(false);
       setSavingConfig(false);
       return false;
-    } else if (response.warnings.length > 0) {
+    } else if (response.warnings && response.warnings.length > 0) {
       response.warnings.forEach((warning) => {
         showWarningToast("Configuration Saved with Warning", warning);
       });
@@ -371,6 +376,17 @@ export const SessionProvider = ({
       backend: response.config,
       frontend: response.frontend_config,
     });
+    // Optimistically update configIDs so only the new default shows the indicator
+    // dot — prevents a brief flash where both the old and new show as default.
+    if (setDefault && response.config?.id) {
+      const newDefaultId = response.config.id;
+      setConfigIDs((prev) =>
+        prev.map((c) => ({
+          ...c,
+          default: c.config_id === newDefaultId,
+        }))
+      );
+    }
     getConfigIDs(userId || "");
     setLoadingConfig(false);
     triggerFetchCollection();
@@ -402,47 +418,59 @@ export const SessionProvider = ({
   }, [showErrorToast, showSuccessToast]);
 
   const handleCreateConfig = useCallback(async (user_id: string) => {
-    if (!user_id) {
+    if (!user_id || loadingConfig) {
+      // Prevent duplicate calls while already creating
+      console.log('[SessionContext] Config creation already in progress, ignoring duplicate call');
       return;
     }
+    
     setLoadingConfig(true);
-    const response: ConfigPayload = await createConfig(user_id);
-    if (response.error) {
-      console.error(response.error);
-      showErrorToast("Failed to Create Configuration", response.error);
-      setLoadingConfig(false);
-      return;
-    } else {
+    
+    try {
+      const response: ConfigPayload = await createConfig(user_id);
+      
+      if (response.error) {
+        console.error('[SessionContext] Config creation error:', response.error);
+        showErrorToast("Failed to Create Configuration", response.error);
+        return;
+      }
+
+      // Check if name already exists and generate unique name if needed
+      if (response.config) {
+        const baseName = response.config.name || "New Config";
+        let uniqueName = baseName;
+        let counter = 1;
+
+        while (configIDs.some((config) => config.name === uniqueName)) {
+          uniqueName = `${baseName} ${counter}`;
+          counter++;
+        }
+
+        // Update the config with unique name if needed
+        if (uniqueName !== baseName) {
+          response.config.name = uniqueName;
+        }
+      }
+
+      setUserConfig({
+        backend: response.config,
+        frontend: response.frontend_config,
+      });
+      
       showSuccessToast(
         "Configuration Created",
         "New configuration created successfully."
       );
+      
+      // Refresh config list
+      await getConfigIDs(user_id);
+    } catch (error) {
+      console.error('[SessionContext] Unexpected error creating config:', error);
+      showErrorToast("Failed to Create Configuration", String(error));
+    } finally {
+      setLoadingConfig(false);
     }
-
-    // Check if name already exists and generate unique name if needed
-    if (response.config) {
-      const baseName = response.config.name || "New Config";
-      let uniqueName = baseName;
-      let counter = 1;
-
-      while (configIDs.some((config) => config.name === uniqueName)) {
-        uniqueName = `${baseName} ${counter}`;
-        counter++;
-      }
-
-      // Update the config with unique name if needed
-      if (uniqueName !== baseName) {
-        response.config.name = uniqueName;
-      }
-    }
-
-    setUserConfig({
-      backend: response.config,
-      frontend: response.frontend_config,
-    });
-    getConfigIDs(user_id);
-    setLoadingConfig(false);
-  }, [configIDs, showErrorToast, showSuccessToast]);
+  }, [configIDs, loadingConfig, showErrorToast, showSuccessToast, getConfigIDs]);
 
   const handleDeleteConfig = useCallback(async (
     user_id: string,

@@ -277,9 +277,9 @@ export default function WeaviateSection({
           />
           <SettingInput
             isProtected={true}
-            value={currentUserConfig?.weaviateApiKey || ""}
+            value={currentUserConfig?.settings.WCD_API_KEY || ""}
             onChange={(value) => {
-              onUpdateSettings("weaviateApiKey", value);
+              onUpdateSettings("WCD_API_KEY", value);
             }}
             isInvalid={!isLocal && !isCustom && !wcdApiKeyValid}
           />

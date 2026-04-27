@@ -1,4 +1,4 @@
-﻿// frontend/lib/config.ts
+// frontend/lib/config.ts
 /**
  * Feature toggles for development
  * Disable heavy features to speed up development

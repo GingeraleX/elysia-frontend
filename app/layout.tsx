@@ -13,6 +13,8 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { RouterProvider } from "./components/contexts/RouterContext";
 import { ProcessingProvider } from "./components/contexts/ProcessingContext";
+import { ModeProvider } from "./components/contexts/ModeContext";
+import { StackModeProvider } from "./components/contexts/StackModeContext";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -49,9 +51,13 @@ export default function RootLayout({
         <AuthProvider>
           <ToastProvider>
             <SessionProvider>
-              {/* Heavy providers wrapped conditionally in children */}
-              {children}
-              <Toaster />
+              <ModeProvider>
+                <StackModeProvider>
+                  {/* Heavy providers wrapped conditionally in children */}
+                  {children}
+                </StackModeProvider>
+                <Toaster />
+              </ModeProvider>
             </SessionProvider>
           </ToastProvider>
         </AuthProvider>

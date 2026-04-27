@@ -65,6 +65,7 @@ const ProductView: React.FC<ProductViewProps> = ({ product }) => {
             <motion.img
               src={product.image}
               alt={product.name}
+              referrerPolicy="no-referrer"
               className={`w-full h-full object-cover transition-transform duration-1000 ease-out hover:scale-105 ${
                 imageLoaded ? "opacity-100" : "opacity-0"
               }`}

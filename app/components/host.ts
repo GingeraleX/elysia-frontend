@@ -1,55 +1,59 @@
 "use client";
 
 /**
- * Configuration for backend connectivity
- * Uses environment variables for flexibility across environments
+ * Backend connectivity — three modes:
+ *
+ * PROXY_MODE  (NEXT_PUBLIC_PROXY_MODE=true)       ← Docker/nginx deploy
+ *   HTTP API calls → "" (same-origin, nginx routes to backend:3000)
+ *   WebSocket      → ws(s)://window.location.host/ws/
+ *   Works with cloudflared, .local, direct IP — no URL baked in.
+ *
+ * DIRECT MODE (NEXT_PUBLIC_BACKEND_URL=http://...) ← local dev / run.ps1
+ *   Both HTTP and WS use the explicit configured URL.
+ *
+ * STATIC MODE (NEXT_PUBLIC_IS_STATIC=true)         ← legacy static export
+ *   HTTP → "" (same-origin), WS → window.location.host
  */
+const IS_PROXY_MODE = process.env.NEXT_PUBLIC_PROXY_MODE === "true";
 
-// Parse backend URL from environment, fallback to localhost:3000
 const getBackendUrl = (): string => {
+  if (IS_PROXY_MODE) return "";   // same-origin — nginx proxies to backend
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  if (backendUrl && backendUrl !== "") {
-    return backendUrl;
-  }
-  // Fallback for development
-  return "http://localhost:3000";
+  if (backendUrl && backendUrl !== "") return backendUrl;
+  return "http://localhost:3000"; // dev fallback
 };
 
-// Parse WebSocket protocol from backend URL
 const getWebSocketProtocol = (): string => {
   if (typeof window === "undefined") return "ws";
-  const backendUrl = getBackendUrl();
-  if (backendUrl.startsWith("https")) return "wss";
-  return "ws";
+  return getBackendUrl().startsWith("https") ? "wss" : "ws";
 };
 
-// Parse host from backend URL
 const getHostFromUrl = (url: string): string => {
-  try {
-    const urlObj = new URL(url);
-    return urlObj.host;
-  } catch {
-    // Fallback if URL parsing fails
-    return "localhost:3000";
-  }
+  try { return new URL(url).host; }
+  catch { return "localhost:3000"; }
 };
 
-export const host = process.env.NEXT_PUBLIC_IS_STATIC !== "true" ? getBackendUrl() : "";
+// `host` is prepended to every API fetch call.
+// In proxy mode it is "" so calls become relative paths that nginx routes.
+export const host =
+  IS_PROXY_MODE
+    ? ""
+    : process.env.NEXT_PUBLIC_IS_STATIC !== "true"
+      ? getBackendUrl()
+      : "";
 
 export const public_path =
   process.env.NEXT_PUBLIC_IS_STATIC !== "true" ? "/" : "/static/";
 
+// WebSocket base URL — called client-side only.
 export const getWebsocketHost = () => {
-  if (process.env.NEXT_PUBLIC_IS_STATIC === "true") {
-    // If serving directly through backend, use current location
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const current_host = window.location.host;
-    return `${protocol}//${current_host}/ws/`;
+  // In proxy or static mode: derive from the current browser location so
+  // the same image works behind cloudflared, .local, or a direct IP.
+  if (process.env.NEXT_PUBLIC_IS_STATIC === "true" || IS_PROXY_MODE) {
+    const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+    return `${proto}//${window.location.host}/ws/`;
   }
-  
-  // Use configured backend URL
-  const backendUrl = getBackendUrl();
-  const protocol = getWebSocketProtocol();
-  const host = getHostFromUrl(backendUrl);
-  return `${protocol}://${host}/ws/`;
+  // Direct mode: use explicitly configured backend URL.
+  const url = getBackendUrl();
+  return `${getWebSocketProtocol()}://${getHostFromUrl(url)}/ws/`;
 };

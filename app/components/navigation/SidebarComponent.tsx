@@ -14,6 +14,7 @@ import { IoIosWarning } from "react-icons/io";
 import HomeSubMenu from "@/app/components/navigation/HomeSubMenu";
 import DataSubMenu from "@/app/components/navigation/DataSubMenu";
 import EvalSubMenu from "@/app/components/navigation/EvalSubMenu";
+import ModeToggle from "@/app/components/navigation/ModeToggle";
 
 import { CgFileDocument } from "react-icons/cg";
 
@@ -57,7 +58,7 @@ const SidebarComponent: React.FC = () => {
   const { socketOnline } = useContext(SocketContext);
   const { changePage, currentPage } = useContext(RouterContext);
   const { collections, loadingCollections } = useContext(CollectionContext);
-  const { unsavedChanges } = useContext(SessionContext);
+  const { unsavedChanges, updateUnsavedChanges } = useContext(SessionContext);
 
   const [items, setItems] = useState<
     {
@@ -76,11 +77,11 @@ const SidebarComponent: React.FC = () => {
         title: "Chat",
         mode: ["chat"],
         icon: <MdChatBubbleOutline />,
-        onClick: () => changePage("chat", {}, true, unsavedChanges),
+        onClick: () => changePage("chat", {}, true, unsavedChanges, () => updateUnsavedChanges(false)),
       },
       {
         title: "Data",
-        mode: ["data", "collection"],
+        mode: ["data", "collection", "import", "files"],
         icon: !collections?.some((c) => c.processed === true) ? (
           <IoIosWarning className="text-warning" />
         ) : (
@@ -88,19 +89,19 @@ const SidebarComponent: React.FC = () => {
         ),
         warning: !collections?.some((c) => c.processed === true),
         loading: loadingCollections,
-        onClick: () => changePage("data", {}, true, unsavedChanges),
+        onClick: () => changePage("data", {}, true, unsavedChanges, () => updateUnsavedChanges(false)),
       },
       {
         title: "Settings",
         mode: ["settings", "elysia"],
         icon: <MdOutlineSettingsInputComponent />,
-        onClick: () => changePage("settings", {}, true, unsavedChanges),
+        onClick: () => changePage("settings", {}, true, unsavedChanges, () => updateUnsavedChanges(false)),
       },
       {
         title: "Evaluation",
         mode: ["eval", "feedback", "display"],
         icon: <AiOutlineExperiment />,
-        onClick: () => changePage("eval", {}, true, unsavedChanges),
+        onClick: () => changePage("eval", {}, true, unsavedChanges, () => updateUnsavedChanges(false)),
       },
     ];
     setItems(_items);
@@ -123,6 +124,7 @@ const SidebarComponent: React.FC = () => {
             <p className="text-sm font-bold text-primary">Elysia</p>
           </div>
           <div className="flex items-center justify-center gap-1">
+            <ModeToggle />
             {socketOnline ? (
               <FaCircle scale={0.2} className="text-lg pulsing_color w-5 h-5" />
             ) : (
@@ -176,7 +178,7 @@ const SidebarComponent: React.FC = () => {
         <Separator />
 
         {currentPage === "chat" && <HomeSubMenu />}
-        {(currentPage === "data" || currentPage === "collection" || currentPage === "import") && (
+        {(currentPage === "data" || currentPage === "collection" || currentPage === "import" || currentPage === "files") && (
           <DataSubMenu />
         )}
         {(currentPage === "eval" ||

@@ -19,7 +19,7 @@ import { SessionContext } from "../contexts/SessionContext";
 
 const SettingsSubMenu: React.FC = () => {
   const { changePage, currentPage } = useContext(RouterContext);
-  const { unsavedChanges } = useContext(SessionContext);
+  const { unsavedChanges, updateUnsavedChanges } = useContext(SessionContext);
 
   return (
     <SidebarGroup>
@@ -30,14 +30,14 @@ const SettingsSubMenu: React.FC = () => {
         <SidebarMenuItem className="list-none" key={"settings"}>
           <SidebarMenuButton
             variant={currentPage === "settings" ? "active" : "default"}
-            onClick={() => changePage("settings", {}, true, unsavedChanges)}
+            onClick={() => changePage("settings", {}, true, unsavedChanges, () => updateUnsavedChanges(false))}
           >
             <IoSettingsOutline />
             <p>Configuration</p>
           </SidebarMenuButton>
           <SidebarMenuButton
             variant={currentPage === "elysia" ? "active" : "default"}
-            onClick={() => changePage("elysia", {}, true, unsavedChanges)}
+            onClick={() => changePage("elysia", {}, true, unsavedChanges, () => updateUnsavedChanges(false))}
           >
             <GiAbstract053 />
             <p>Blob</p>

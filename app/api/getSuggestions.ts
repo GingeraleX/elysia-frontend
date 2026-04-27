@@ -5,6 +5,7 @@ export async function getSuggestions(
   user_id: string,
   conversation_id: string,
   auth_key: string,
+  collection_names?: string,
 ) {
   const startTime = performance.now();
   try {
@@ -17,6 +18,7 @@ export async function getSuggestions(
         user_id,
         conversation_id,
         auth_key,
+        collection_names: collection_names ?? "",
       }),
     });
 

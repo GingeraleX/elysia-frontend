@@ -58,6 +58,7 @@ export default function ChatPage() {
     conversations,
     updateFeedbackForQuery,
     loadingConversation,
+    addConversation,
   } = useContext(ConversationContext);
 
   const { getRandomPrompts, collections } = useContext(CollectionContext);
@@ -73,10 +74,16 @@ export default function ChatPage() {
     "chat"
   );
   const [currentTrees, setCurrentTrees] = useState<DecisionTreeNode[]>([]);
+  // Ref for the scrollable chat container — used for jitter-free scroll-to-bottom
+  const chatScrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const displacementStrength = useRef(0.0);
   const distortionStrength = useRef(0.0);
+  // Track query count to prevent scroll-to-bottom firing on feedback updates.
+  // Scroll should only fire when a NEW query is added (count increases), not
+  // when an existing query's feedback field changes.
+  const queryCountRef = useRef(0);
 
   const addDisplacement = (value: number) => {
     displacementStrength.current += value;
@@ -104,19 +111,50 @@ export default function ChatPage() {
     );
 
     if (_conversation === null || _conversation === undefined) {
+      // No conversation in memory yet — auto-create one and send into it.
+      // This covers: (a) fresh users before the context auto-selects, and
+      // (b) any race where currentConversation is still null on first send.
+      if (!id) return;
+      const newConv = await addConversation(id);
+      if (!newConv) return;
+      const treeIndex = newConv.tree?.length ?? 0;
+      const sent = await sendQuery(
+        id,
+        trimmedQuery,
+        newConv.id,
+        query_id,
+        route,
+        mimick,
+        treeIndex
+      );
+      if (sent) {
+        changeBaseToQuery(newConv.id, trimmedQuery);
+        addTreeToConversation(newConv.id);
+        addQueryToConversation(newConv.id, trimmedQuery, query_id);
+      }
       return;
     } else {
-      sendQuery(
+      // tree_index = current tree count before addTreeToConversation is called.
+      // After addTreeToConversation pushes a copy, it becomes c.tree[tree_index].
+      // Fixes GAP-9: backend was always sending tree_index: 0 for all queries.
+      const treeIndex = _conversation.tree?.length ?? 0;
+      const sent = await sendQuery(
         id || "",
         trimmedQuery,
         _conversation.id,
         query_id,
         route,
-        mimick
+        mimick,
+        treeIndex
       );
-      changeBaseToQuery(_conversation.id, trimmedQuery);
-      addTreeToConversation(_conversation.id);
-      addQueryToConversation(_conversation.id, trimmedQuery, query_id);
+      // Only mutate conversation state if the message was actually sent.
+      // Skipping these when sendQuery returns false prevents dangling ghost
+      // queries from appearing in the chat with no response.
+      if (sent) {
+        changeBaseToQuery(_conversation.id, trimmedQuery);
+        addTreeToConversation(_conversation.id);
+        addQueryToConversation(_conversation.id, trimmedQuery, query_id);
+      }
     }
   };
 
@@ -151,34 +189,46 @@ export default function ChatPage() {
     );
   }, [currentConversation, conversations]);
 
+  // Scroll to bottom only when a NEW query is added (count increases).
+  // Feedback updates change currentQuery without increasing the count — those
+  // must NOT trigger a scroll jump.
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-      });
+    const newCount = Object.keys(currentQuery).length;
+    const countIncreased = newCount > queryCountRef.current;
+    queryCountRef.current = newCount;
+    if (countIncreased && chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
     }
-  }, [currentQuery, currentStatus]);
+  }, [currentQuery]);
 
+  // Scroll to keep up with streaming tokens while the AI is responding.
+  useEffect(() => {
+    if (currentStatus && chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [currentStatus]);
+
+  // Instant jump to bottom when switching conversations (no animation needed).
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView();
+      messagesEndRef.current.scrollIntoView({ block: "end" });
     }
-  }, []);
+  }, [currentConversation]);
 
   useEffect(() => {
     setMode("chat");
   }, [currentConversation]);
 
+  // Auto-selection is handled by ConversationContext's URL-sync effect.
+  // Do NOT duplicate it here — it races with programmatic selectConversation().
+
   useEffect(() => {
-    if (collections.length > 0) {
-      setRandomPrompts(getRandomPrompts(4));
-    }
+    setRandomPrompts(getRandomPrompts(4));
   }, [collections]);
 
   if (!socketOnline) {
     return (
-      <div className="flex flex-col w-screen h-screen items-center justify-center">
+      <div className="flex flex-col w-full h-full items-center justify-center">
         <div
           className={`absolute flex pointer-events-none -z-30 items-center justify-center lg:w-fit lg:h-fit w-full h-full fade-in`}
         >
@@ -265,7 +315,7 @@ export default function ChatPage() {
         </div>
       )}
       {mode === "chat" && !loadingConversation ? (
-        <div className="flex flex-col w-full max-h-[calc(100vh-120px)] overflow-y-auto justify-center items-center">
+        <div ref={chatScrollRef} className="flex flex-col w-full max-h-[calc(100dvh-11rem)] lg:max-h-[calc(100dvh-7.5rem)] overflow-y-auto justify-center items-center">
           <div className="flex flex-col w-full md:w-[60vw] lg:w-[40vw] h-[80vh] ">
             {currentQuery &&
               Object.entries(currentQuery)
@@ -281,7 +331,6 @@ export default function ChatPage() {
                       query_start={query.query_start}
                       query_end={query.query_end}
                       _collapsed={index !== array.length - 1}
-                      messagesEndRef={messagesEndRef}
                       NER={query.NER}
                       feedback={query.feedback}
                       updateFeedback={updateFeedbackForQuery}
@@ -292,6 +341,8 @@ export default function ChatPage() {
                     />
                   </ChatProvider>
                 ))}
+            {/* Scroll anchor — always at the bottom of the message list */}
+            <div ref={messagesEndRef} />
             {currentQuery && !(Object.keys(currentQuery).length === 0) && (
               <div>
                 <hr className="w-full border-t border-transparent my-4 mb-20" />

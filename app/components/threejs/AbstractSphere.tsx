@@ -305,6 +305,7 @@ export default function AbstractSphereScene({
         />
       )}
       <Canvas
+        dpr={[1, 2]}
         camera={{ position: [0, 0, 3.2], fov: 45 }}
         style={{ background: "transparent" }}
         gl={{

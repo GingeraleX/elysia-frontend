@@ -16,6 +16,8 @@ import { AggregationResponse } from "@/app/types/display/aggregationExample";
 import { chartResponse } from "@/app/types/display/chartExample";
 import { ChatProvider } from "@/app/components/contexts/ChatContext";
 import { BarChartResponse } from "@/app/types/display/barChartExample";
+import { histogramResponse } from "@/app/types/display/histogramExample";
+import { scatterOrLineResponse } from "@/app/types/display/scatterOrLineExample";
 
 export default function Home() {
   const pathname = usePathname();
@@ -39,6 +41,8 @@ export default function Home() {
     aggregation: [AggregationResponse],
     chart: [chartResponse],
     bar_chart: [BarChartResponse],
+    histogram_chart: [histogramResponse],
+    scatter_or_line_chart: [scatterOrLineResponse],
   };
 
   const textResponseQuery = [TextResponse];

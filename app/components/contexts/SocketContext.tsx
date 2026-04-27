@@ -7,6 +7,7 @@ import { useContext, useRef } from "react";
 import { ConversationContext } from "./ConversationContext";
 import { ToastContext } from "./ToastContext";
 import { AuthContext } from "./AuthContext";
+import { getModeStatus } from "@/app/api/modeToggle";
 
 export const SocketContext = createContext<{
   socketOnline: boolean;
@@ -16,7 +17,8 @@ export const SocketContext = createContext<{
     conversation_id: string,
     query_id: string,
     route?: string,
-    mimick?: boolean
+    mimick?: boolean,
+    tree_index?: number
   ) => Promise<boolean>;
 }>({
   socketOnline: false,
@@ -134,10 +136,31 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     conversation_id: string,
     query_id: string,
     route: string = "",
-    mimick: boolean = false
+    mimick: boolean = false,
+    tree_index: number = 0
   ) => {
+    // Guard: only send if the socket is actually open.
+    // If we optimistically set status then fail to send, the status gets
+    // permanently stuck at "Thinking..." and blocks all future queries.
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn("sendQuery called with socket not OPEN, dropping message");
+      }
+      return Promise.resolve(false);
+    }
+
     setConversationStatus("Thinking...", conversation_id);
     const enabled_collections = getAllEnabledCollections();
+
+    // Fetch the current mode (cloud | local) at send-time so each message
+    // carries the exact mode the user had when they clicked Send.
+    let processing_mode = "cloud";
+    try {
+      const modeStatus = await getModeStatus();
+      processing_mode = modeStatus.mode;
+    } catch {
+      // Fall back to cloud on network error — safe default
+    }
 
     if (process.env.NODE_ENV === "development") {
       console.log(
@@ -145,17 +168,28 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       );
     }
 
-    socket?.send(
-      JSON.stringify({
-        user_id,
-        query,
-        query_id,
-        conversation_id,
-        collection_names: enabled_collections,
-        route,
-        mimick,
-      })
-    );
+    try {
+      socket.send(
+        JSON.stringify({
+          user_id,
+          query,
+          query_id,
+          conversation_id,
+          collection_names: enabled_collections,
+          route,
+          mimick,
+          tree_index,
+          processing_mode,
+        })
+      );
+    } catch (err) {
+      // send() threw (socket closed between the readyState check and the send call)
+      setConversationStatus("", conversation_id);
+      if (process.env.NODE_ENV === "development") {
+        console.error("sendQuery socket.send() threw:", err);
+      }
+      return Promise.resolve(false);
+    }
 
     return Promise.resolve(true);
   };

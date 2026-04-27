@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useContext } from "react";
 import { RouterContext } from "@/app/components/contexts/RouterContext";

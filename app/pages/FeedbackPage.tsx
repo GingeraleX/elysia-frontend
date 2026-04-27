@@ -130,7 +130,7 @@ export default function Home() {
 
     const feedbackData = await getCollectionData(
       id,
-      "ELYSIA_FEEDBACK__",
+      "Feedback",
       feedbackPage - 1, // Convert from 1-based UI to 0-based API
       feedbackPageSize,
       feedbackSortOn,
@@ -474,7 +474,24 @@ export default function Home() {
                     {selectedIndex !== null && feedbackData ? (
                       <div className="h-[40rem] overflow-y-scroll">
                         <FeedbackDetails
-                          feedbackData={feedbackData as Feedback}
+                          feedbackData={{
+                            ...feedbackData,
+                            items: (feedbackData.items ?? []).map((item: any) => ({
+                              query_id:             item.query_id             ?? item.properties?.query_id             ?? "",
+                              conversation_id:      item.conversation_id      ?? item.properties?.conversation_id      ?? "",
+                              user_id:              item.user_id              ?? item.properties?.user_id              ?? "",
+                              feedback:             item.feedback             ?? item.properties?.feedback             ?? 0,
+                              feedback_date:        item.feedback_date        ?? item.properties?.feedback_date        ?? "",
+                              user_prompt:          item.user_prompt          ?? item.properties?.user_prompt          ?? "",
+                              time_taken_seconds:   item.time_taken_seconds   ?? item.properties?.time_taken_seconds   ?? 0,
+                              base_lm_used:         item.base_lm_used         ?? item.properties?.base_lm_used         ?? "—",
+                              complex_lm_used:      item.complex_lm_used      ?? item.properties?.complex_lm_used      ?? "—",
+                              conversation_history: item.conversation_history ?? item.properties?.conversation_history ?? [],
+                              action_information:   item.action_information   ?? item.properties?.action_information   ?? [],
+                              route:                item.route                ?? item.properties?.route                ?? [],
+                              tasks_completed:      item.tasks_completed      ?? item.properties?.tasks_completed      ?? [],
+                            })),
+                          } as Feedback}
                           selectedIndex={selectedIndex}
                           onClose={() => setSelectedIndex(null)}
                         />

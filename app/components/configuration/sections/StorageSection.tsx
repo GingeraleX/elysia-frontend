@@ -241,7 +241,7 @@ export default function StorageSection({
             <SettingItem>
               <SettingTitle
                 title="GRPC Port"
-                description="The GRPCport of the local Weaviate cluster."
+                description="The GRPC port of the local Weaviate cluster."
               />
               <SettingInput
                 isProtected={false}
@@ -250,9 +250,8 @@ export default function StorageSection({
                   50051
                 }
                 onChange={(value) => {
-                  onUpdateFrontend("save_location_weaviate_grpc_port", value);
+                  onUpdateFrontend("save_location_local_weaviate_grpc_port", value);
                 }}
-                disabled={!isLocal}
               />
             </SettingItem>
             <SettingItem>
@@ -266,9 +265,8 @@ export default function StorageSection({
                   currentFrontendConfig?.save_location_local_weaviate_port || 0
                 }
                 onChange={(value) => {
-                  onUpdateFrontend("save_location_weaviate_port", value);
+                  onUpdateFrontend("save_location_local_weaviate_port", value);
                 }}
-                disabled={!isLocal}
               />
             </SettingItem>
           </>

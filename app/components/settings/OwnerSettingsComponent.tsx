@@ -1,4 +1,4 @@
-﻿                  onChange={(e) =>
+                  onChange={(e) =>
                     setFormData({ ...formData, maxTenants: parseInt(e.target.value) })
                   }
                   className="mt-2 w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"

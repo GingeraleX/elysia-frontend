@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";
@@ -129,11 +129,16 @@ export default function CollectionInfoSection({
                   {fieldTypes[col] || "unknown"}
                 </span>
                 {col === selectedEmbedder?.vectorField && (
-                  <span className="flex-shrink-0 text-primary font-bold">✓</span>
+                  <span className="flex-shrink-0 text-primary font-bold ml-1">✓</span>
                 )}
               </div>
             ))}
           </div>
+
+          {/* Display mappings note */}
+          <p className="text-xs text-muted-foreground mt-2 pt-2 border-t border-border">
+            Display mappings auto-detected — review in next step
+          </p>
         </motion.div>
       )}
 

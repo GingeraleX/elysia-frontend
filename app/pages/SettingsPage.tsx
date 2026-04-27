@@ -181,6 +181,7 @@ export default function Home() {
       if (success) {
         setChangedConfig(false);
         setEditName(false);
+        setSaveAsDefault(false);
       }
     }
   };
@@ -396,12 +397,13 @@ export default function Home() {
                     onUpdateSettings={updateSettingsFields}
                   />
 
-                  {/* Models Configuration */}
+                  {/* Models Configuration — includes Online/Offline mode tab switcher */}
                   <ModelsSection
                     currentUserConfig={currentUserConfig}
                     modelsData={modelsData}
                     loadingModels={loadingModels}
                     modelsIssues={getModelsIssues()}
+                    missingApiKeys={getMissingApiKeys}
                     baseProviderValid={currentValidation.base_provider}
                     baseModelValid={currentValidation.base_model}
                     complexProviderValid={currentValidation.complex_provider}

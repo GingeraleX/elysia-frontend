@@ -1,0 +1,23 @@
+﻿# =============================================================================
+# frontend/.dockerignore
+# Prevents dev environment files from being baked into the production image.
+# NEXT_PUBLIC_* vars in .env.local would override proxy mode and cause the
+# browser to call localhost:3000 directly instead of going through nginx.
+# =============================================================================
+
+# Dev environment — must NOT be baked into production build
+.env.local
+.env.*.local
+.env.development
+.env.test
+
+# Build artifacts — Docker starts fresh
+node_modules/
+.next/
+
+# Dev tooling
+*.log
+.DS_Store
+Thumbs.db
+README.md
+

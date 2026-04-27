@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Unified Settings Page - Multi-tiered settings system
  * User | Admin | Owner settings with professional design
  */

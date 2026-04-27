@@ -117,7 +117,8 @@ export type ResultPayload = {
     | "document"
     | "bar_chart"
     | "histogram_chart"
-    | "scatter_or_line_chart";
+    | "scatter_or_line_chart"
+    | "chart";
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
   metadata: any;

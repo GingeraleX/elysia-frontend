@@ -26,7 +26,15 @@ export default function FeedbackDetails({
   selectedIndex: number;
   onClose: () => void;
 }) {
-  const feedbackItem = feedbackData.items[selectedIndex];
+  const feedbackItem = feedbackData?.items?.[selectedIndex];
+
+  if (!feedbackItem) {
+    return (
+      <div className="p-6 text-secondary text-sm flex items-center justify-center">
+        Feedback item not found. It may have been deleted or is still loading.
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -57,10 +65,10 @@ export default function FeedbackDetails({
             >
               <div className="w-full flex justify-between items-center mb-2">
                 <p className="text-sm font-medium text-secondary">Query ID</p>
-                <CopyToClipboardButton copyText={feedbackItem.query_id} />
+                <CopyToClipboardButton copyText={feedbackItem.query_id ?? ""} />
               </div>
               <p className="text-primary text-sm font-mono truncate">
-                {feedbackItem.query_id}
+                {feedbackItem.query_id ?? "—"}
               </p>
             </motion.div>
 
@@ -75,11 +83,11 @@ export default function FeedbackDetails({
                   Conversation ID
                 </p>
                 <CopyToClipboardButton
-                  copyText={feedbackItem.conversation_id}
+                  copyText={feedbackItem.conversation_id ?? ""}
                 />
               </div>
               <p className="text-primary text-sm font-mono truncate">
-                {feedbackItem.conversation_id}
+                {feedbackItem.conversation_id ?? "—"}
               </p>
             </motion.div>
 
@@ -94,7 +102,7 @@ export default function FeedbackDetails({
                 <CopyToClipboardButton copyText={feedbackItem.user_id} />
               </div>
               <p className="text-primary text-sm font-mono truncate">
-                {feedbackItem.user_id}
+                {feedbackItem.user_id ?? "—"}
               </p>
             </motion.div>
           </div>
@@ -110,7 +118,7 @@ export default function FeedbackDetails({
                 Base Model
               </p>
               <p className="text-primary text-sm">
-                {feedbackItem.base_lm_used}
+                {feedbackItem.base_lm_used ?? "—"}
               </p>
             </motion.div>
 
@@ -124,7 +132,7 @@ export default function FeedbackDetails({
                 Complex Model
               </p>
               <p className="text-primary text-sm">
-                {feedbackItem.complex_lm_used}
+                {feedbackItem.complex_lm_used ?? "—"}
               </p>
             </motion.div>
           </div>
@@ -152,7 +160,7 @@ export default function FeedbackDetails({
             <TabsContent value="history" className="mt-0">
               <div className="flex flex-col gap-4 w-full overflow-y-auto">
                 <div className="flex flex-col gap-3 p-4 bg-background_alt rounded-md border border-foreground">
-                  {feedbackItem.conversation_history.map(
+                  {(feedbackItem.conversation_history ?? []).map(
                     (message: DebugMessage, messageIndex: number) => (
                       <motion.div
                         key={messageIndex}
@@ -169,7 +177,7 @@ export default function FeedbackDetails({
                   )}
                 </div>
 
-                {feedbackItem.action_information.length > 0 && (
+                {(feedbackItem.action_information ?? []).length > 0 && (
                   <div className="flex flex-col gap-3 p-4 bg-background_alt rounded-md border border-foreground">
                     <div className="flex items-center gap-2">
                       <p className="text-primary text-sm font-medium">
@@ -178,7 +186,7 @@ export default function FeedbackDetails({
                     </div>
                     <Separator className="my-2" />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {feedbackItem.action_information.map((action, index) => (
+                      {(feedbackItem.action_information ?? []).map((action, index) => (
                         <motion.div
                           key={index}
                           initial={{ opacity: 0, y: 10 }}
@@ -206,7 +214,7 @@ export default function FeedbackDetails({
                 <div className="flex flex-col gap-3 p-4 bg-background_alt rounded-md border border-foreground">
                   <p className="text-primary text-sm font-medium">Task Route</p>
                   <div className="flex flex-row gap-2 items-center w-full justify-center flex-wrap">
-                    {feedbackItem.route.map((step, index) => (
+                    {(feedbackItem.route ?? []).map((step, index) => (
                       <motion.div
                         key={index}
                         initial={{ opacity: 0, scale: 0.8 }}
@@ -217,7 +225,7 @@ export default function FeedbackDetails({
                         <div className="px-3 py-1 bg-accent/10 text-accent rounded-md border border-accent/20">
                           <p className="font-medium text-sm">{step}</p>
                         </div>
-                        {index < feedbackItem.route.length - 1 && (
+                        {index < (feedbackItem.route ?? []).length - 1 && (
                           <span className="mx-2 text-secondary">→</span>
                         )}
                       </motion.div>

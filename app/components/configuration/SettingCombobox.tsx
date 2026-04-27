@@ -18,9 +18,19 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+export type ComboboxOption = string | { value: string; label: string };
+
+function optionValue(o: ComboboxOption): string {
+  return typeof o === "string" ? o : o.value;
+}
+
+function optionLabel(o: ComboboxOption): string {
+  return typeof o === "string" ? o : o.label;
+}
+
 interface SettingComboboxProps {
   value: string;
-  values: string[];
+  values: ComboboxOption[];
   onChange: (value: string) => void;
   placeholder?: string;
   searchPlaceholder?: string;
@@ -42,16 +52,26 @@ const SettingCombobox: React.FC<SettingComboboxProps> = ({
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  // Filter values based on search
-  const filteredValues = values.filter((val) =>
-    val.toLowerCase().includes(searchValue.toLowerCase())
+  // Filter options — search matches on label (display text)
+  const filteredValues = values.filter((opt) =>
+    optionLabel(opt).toLowerCase().includes(searchValue.toLowerCase())
   );
+
+  // Display label for the currently selected value
+  const selectedLabel =
+    values.find((opt) => optionValue(opt) === value)
+      ? optionLabel(values.find((opt) => optionValue(opt) === value)!)
+      : value;
 
   // Show custom option if search value doesn't exactly match any existing values
   const showCustomOption =
     allowCustom &&
     searchValue &&
-    !values.some((val) => val.toLowerCase() === searchValue.toLowerCase());
+    !values.some(
+      (opt) =>
+        optionLabel(opt).toLowerCase() === searchValue.toLowerCase() ||
+        optionValue(opt).toLowerCase() === searchValue.toLowerCase()
+    );
 
   useEffect(() => {
     if (!open) {
@@ -71,7 +91,7 @@ const SettingCombobox: React.FC<SettingComboboxProps> = ({
               isInvalid && "border-warning ring-warning/20 border"
             )}
           >
-            <span className="truncate">{value || placeholder}</span>
+            <span className="truncate">{selectedLabel || placeholder}</span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -92,24 +112,28 @@ const SettingCombobox: React.FC<SettingComboboxProps> = ({
               )}
               {filteredValues.length > 0 && (
                 <CommandGroup>
-                  {filteredValues.map((val) => (
-                    <CommandItem
-                      key={val}
-                      value={val}
-                      onSelect={() => {
-                        onChange(val === value ? "" : val);
-                        setOpen(false);
-                      }}
-                    >
-                      {val}
-                      <Check
-                        className={cn(
-                          "ml-auto h-4 w-4",
-                          value === val ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
+                  {filteredValues.map((opt) => {
+                    const val = optionValue(opt);
+                    const label = optionLabel(opt);
+                    return (
+                      <CommandItem
+                        key={val}
+                        value={val}
+                        onSelect={() => {
+                          onChange(val === value ? "" : val);
+                          setOpen(false);
+                        }}
+                      >
+                        {label}
+                        <Check
+                          className={cn(
+                            "ml-auto h-4 w-4",
+                            value === val ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                      </CommandItem>
+                    );
+                  })}
                 </CommandGroup>
               )}
               {showCustomOption && (

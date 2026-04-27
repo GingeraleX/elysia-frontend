@@ -5,6 +5,37 @@ import MarkdownFormat from "../../chat/components/MarkdownFormat";
 import SaveCancelButtons from "./SaveCancelButtons";
 import { CiTextAlignJustify } from "react-icons/ci";
 
+// Strip residual thinking content from stored summaries.
+// The backend (CollectionAnalysisService) handles this at generation time,
+// but this is a safety-net for old stored data and edge cases.
+function stripThinkingFromSummary(text: string): string {
+  // XML <think>/<thinking> blocks
+  let out = text
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
+    .trim();
+
+  // Plain-text reasoning headings (Qwen3 / DeepSeek chain-of-thought)
+  const THINK_HEADING_RE = /^(Thinking(?: Process)?:|Analyze the Request:|Analyze the Input(?: Data)?:|Chain of Thought:|Reasoning:|Observations?:|Step \d+:|Now,? let'?s|Let me (?:analyze|think|break)|Consider(?:ing)?:|Given the above|Based on the|Summary of [Tt]hinking:|Final [Aa]nswer:)/im;
+
+  let iterations = 0;
+  let m = THINK_HEADING_RE.exec(out);
+  while (m && iterations++ < 20) {
+    const headingEnd = m.index + m[0].length;
+    const after = out.slice(headingEnd);
+    const boundaryIdx = after.search(/\n{2,}\S/);
+    if (boundaryIdx !== -1) {
+      out = (out.slice(0, m.index) + out.slice(headingEnd + boundaryIdx)).trim();
+    } else {
+      out = out.slice(0, m.index).trim();
+      break;
+    }
+    m = THINK_HEADING_RE.exec(out);
+  }
+
+  return out;
+}
+
 interface MetadataSummaryEditorProps {
   summary: string;
   editing: boolean;
@@ -61,7 +92,7 @@ const MetadataSummaryEditor: React.FC<MetadataSummaryEditorProps> = ({
         />
       </div>
     ) : (
-      <MarkdownFormat text={summary} />
+      <MarkdownFormat text={stripThinkingFromSummary(summary)} />
     )}
   </div>
 );

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * useSettings Hook - Manage multi-tiered settings
  * Handles loading, updating, and validation of user/admin/owner settings
  */
@@ -11,7 +11,9 @@ import {
   SettingsState 
 } from "@/app/types/settings";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+import { host } from "@/app/components/host";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || host;
 
 export const useSettings = (userId: string | null, tenantId: string | null) => {
   const [state, setState] = useState<SettingsState>({
@@ -66,7 +68,7 @@ export const useSettings = (userId: string | null, tenantId: string | null) => {
 
       try {
         const response = await fetch(`${API_BASE_URL}/settings/user/${userId}`, {
-          method: "PUT",
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updates),
         });
@@ -105,7 +107,7 @@ export const useSettings = (userId: string | null, tenantId: string | null) => {
         const response = await fetch(
           `${API_BASE_URL}/settings/admin/${tenantId}`,
           {
-            method: "PUT",
+            method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(updates),
           }
@@ -141,7 +143,7 @@ export const useSettings = (userId: string | null, tenantId: string | null) => {
 
       try {
         const response = await fetch(`${API_BASE_URL}/settings/owner`, {
-          method: "PUT",
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updates),
         });

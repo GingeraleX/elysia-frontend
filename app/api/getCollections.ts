@@ -29,20 +29,34 @@ export async function getCollections(
     console.log(`[getCollections] Response received:`, data);
     
     // Transform backend response to Collection type
-    const collections: Collection[] = (data.collections || []).map((col: any) => ({
-      name: col.display_name || col.weaviate_collection_name || "Unknown Collection",
-      total: col.record_count || 0,
-      vectorizer: {
-        fields: {},
-        global: {
-          named_vector: col.vector_field || "vector",
-          vectorizer: col.embedder_provider || "local",
-          model: col.embedder_model || "all-minilm-l6-v2",
+    const collections: Collection[] = (data.collections || []).map((col: any) => {
+      // Resolve embedding model: direct field → metadata_json fallback → "not recorded"
+      let embedModel: string = col.embedder_model || "";
+      let embedProvider: string = col.embedder_provider || "";
+      if (!embedModel && col.metadata_json) {
+        try {
+          const meta = typeof col.metadata_json === "string"
+            ? JSON.parse(col.metadata_json)
+            : col.metadata_json;
+          if (meta?.embedder_model) embedModel = meta.embedder_model;
+        } catch { /* ignore parse errors */ }
+      }
+      return {
+        name: col.display_name || col.name || col.weaviate_collection_name || "Unknown Collection",
+        total: col.total ?? col.record_count ?? 0,
+        vectorizer: {
+          fields: {},
+          global: {
+            named_vector: col.vector_field || "vector",
+            vectorizer: embedProvider || "local",
+            model: embedModel || "not recorded",
+          },
         },
-      },
-      processed: col.processed || false,
-      prompts: [],
-    }));
+        processed: col.processed || col.status === "analyzed" || false,
+        prompts: [],
+        metadata_json: col.metadata_json ?? null,
+      };
+    });
 
     return collections;
   } catch (error) {

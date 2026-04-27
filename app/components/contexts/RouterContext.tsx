@@ -12,7 +12,8 @@ export const RouterContext = createContext<{
     page: string,
     params?: Record<string, any>,
     replace?: boolean,
-    guarded?: boolean
+    guarded?: boolean,
+    onConfirm?: () => void
   ) => void;
 }>({
   currentPage: "chat",
@@ -30,13 +31,17 @@ export const RouterProvider = ({ children }: { children: React.ReactNode }) => {
     page: string,
     params: Record<string, any> = {},
     replace: boolean = false,
-    guarded: boolean = false
+    guarded: boolean = false,
+    onConfirm?: () => void
   ) => {
     if (guarded) {
       showConfirmModal(
         "Unsaved Changes",
         "You have unsaved changes. Are you sure you want to leave this page? You will lose your changes.",
-        () => changePageFunction(page, params, replace)
+        () => {
+          onConfirm?.();
+          changePageFunction(page, params, replace);
+        }
       );
       return;
     } else {
@@ -96,6 +101,7 @@ export const RouterProvider = ({ children }: { children: React.ReactNode }) => {
       "display",
       "login",
       "landing",
+      "files",
     ];
     const validatedPage = validPages.includes(pageParam) ? pageParam : "chat";
 

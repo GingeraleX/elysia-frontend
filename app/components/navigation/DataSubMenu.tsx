@@ -2,6 +2,7 @@
 
 import React, { useContext } from "react";
 import { TbPackageImport } from "react-icons/tb";
+import { LuFolder } from "react-icons/lu";
 
 import {
   SidebarGroup,
@@ -26,6 +27,10 @@ const DataSubMenu: React.FC = () => {
     changePage("import", {}, true);
   };
 
+  const toFiles = () => {
+    changePage("files", {}, true);
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>
@@ -46,6 +51,13 @@ const DataSubMenu: React.FC = () => {
           >
             <TbPackageImport />
             <p>Import Data</p>
+          </SidebarMenuButton>
+          <SidebarMenuButton
+            variant={currentPage === "files" ? "active" : "default"}
+            onClick={toFiles}
+          >
+            <LuFolder />
+            <p>Files</p>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarGroupContent>

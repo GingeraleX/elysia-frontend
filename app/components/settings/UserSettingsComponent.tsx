@@ -1,4 +1,4 @@
-﻿/**
+/**
  * UserSettings Component - Personal preferences and profile
  * Sleek, minimal design with profile card, preferences, and accessibility options
  */

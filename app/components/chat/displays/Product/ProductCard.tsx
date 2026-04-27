@@ -96,6 +96,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <motion.img
               src={product.image}
               alt={product.name}
+              referrerPolicy="no-referrer"
               className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${
                 imageLoaded ? "opacity-100" : "opacity-0"
               }`}

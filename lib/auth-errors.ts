@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Authentication error handler with user-friendly messages and categorization
  */
 

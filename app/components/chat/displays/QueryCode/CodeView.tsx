@@ -46,7 +46,10 @@ const CodeView: React.FC<CodeDisplayProps> = ({
           <IoClose size={12} />
         </Button>
       </div>
-      {payload.map((item, index) => (
+      {payload.map((item, index) => {
+        const code = item?.metadata?.code;
+        if (!code?.text) return null;
+        return (
         <div key={index} className="w-full">
           <div className="flex justify-start items-center w-full">
             <div className="flex gap-2 items-center w-full">
@@ -73,10 +76,10 @@ const CodeView: React.FC<CodeDisplayProps> = ({
                 >
                   <FaTable size={14} className="text-accent" />
                 </Button>
-                <CopyToClipboardButton copyText={item.metadata.code.text} />
+                <CopyToClipboardButton copyText={code.text} />
               </div>
               <SyntaxHighlighter
-                language={item.metadata.code.language}
+                language={code.language ?? "text"}
                 wrapLongLines={true}
                 showLineNumbers={true}
                 style={oneDark}
@@ -88,12 +91,13 @@ const CodeView: React.FC<CodeDisplayProps> = ({
                 }}
                 className="rounded-lg overflow-y-scroll"
               >
-                {item.metadata.code.text}
+                {code.text}
               </SyntaxHighlighter>
             </div>
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

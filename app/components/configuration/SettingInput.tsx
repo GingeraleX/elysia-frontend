@@ -41,8 +41,10 @@ const SettingInput = <T extends string | number>({
     }
   };
 
-  // Determine input type: number inputs are always visible, only string inputs can be protected
-  const inputType = isNumberType ? "number" : visible ? "password" : "text";
+  // Number inputs are always "text" visually (type=number).
+  // Protected string inputs toggle between password/text via eye icon.
+  // Non-protected string inputs are always plain text — no eye icon.
+  const inputType = isNumberType ? "number" : isProtected && visible ? "password" : "text";
 
   return (
     <div className="flex flex-1 items-center justify-start gap-1 w-full sm:w-2/3">
@@ -57,7 +59,8 @@ const SettingInput = <T extends string | number>({
           disabled && "opacity-50 cursor-not-allowed"
         )}
       />
-      {!isNumberType && (
+      {/* Only show the eye toggle for protected (password/API key) fields */}
+      {!isNumberType && isProtected && (
         <Button
           variant="ghost"
           className="h-8 w-8 text-secondary flex-shrink-0"

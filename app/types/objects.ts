@@ -19,6 +19,7 @@ export type Collection = {
   vectorizer: Vectorizer;
   processed: boolean;
   prompts: string[];
+  metadata_json?: string | null;
 };
 
 export type DecisionTreeNode = {
@@ -47,6 +48,7 @@ export type Model = {
 
 export type MetadataCollection = {
   mappings: { [key: string]: { [key: string]: [key: string] } };
+  field_display_types: Record<string, string>;
   fields: { [key: string]: MetadataField };
   length: number;
   summary: string;
@@ -78,6 +80,8 @@ export type MetadataField = {
   description: string;
   date_range: string[];
   date_mean: string;
+  unique_count?: number;
+  null_count?: number;
 };
 
 export type GroupMetadataField = {
@@ -143,10 +147,41 @@ export type Settings = {
   API_KEYS: {
     [key: string]: string;
   };
+  // Active model (reflects the current mode)
   BASE_MODEL: string;
   BASE_PROVIDER: string;
   COMPLEX_MODEL: string;
   COMPLEX_PROVIDER: string;
+  // Per-mode model config — Cloud
+  CLOUD_BASE_PROVIDER: string;
+  CLOUD_BASE_MODEL: string;
+  CLOUD_COMPLEX_PROVIDER: string;
+  CLOUD_COMPLEX_MODEL: string;
+  // Per-mode model config — Local / Offline
+  LOCAL_BASE_PROVIDER: string;
+  LOCAL_BASE_MODEL: string;
+  LOCAL_COMPLEX_PROVIDER: string;
+  LOCAL_COMPLEX_MODEL: string;
+  LOCAL_MODEL_API_BASE: string | null;
+  // Ingestion / Embedding models (set-and-forget in config, not per-import)
+  CLOUD_EMBED_PROVIDER: string;
+  CLOUD_EMBED_MODEL: string;
+  LOCAL_EMBED_PROVIDER: string;
+  LOCAL_EMBED_MODEL: string;
+  /** Cloud OCR/extraction model alias — null = use CLOUD_COMPLEX_MODEL */
+  CLOUD_OCR_MODEL: string | null;
+  /** Local OCR model alias — null = use LOCAL_COMPLEX_MODEL (Qwen 9B) */
+  LOCAL_OCR_MODEL: string | null;
+  // ── Local inference tuning (optional — fall back to model catalog defaults) ──
+  LOCAL_GPU_MEM_GB?: number;          // total GPU/RAM for VRAM chart (default 16)
+  LOCAL_FLASH_TEMPERATURE?: number;   // Flash slot temperature (default from catalog)
+  LOCAL_BRAIN_TEMPERATURE?: number;   // Brain slot temperature
+  LOCAL_OCR_TEMPERATURE?: number;     // OCR slot temperature
+  LOCAL_FLASH_CTX?: number;           // Flash context window override
+  LOCAL_BRAIN_CTX?: number;           // Brain context window override
+  LOCAL_OCR_CTX?: number;             // OCR context window override
+  // Processing mode
+  PROCESSING_MODE: "cloud" | "local";
   LOGGING_LEVEL: string;
   LOGGING_LEVEL_INT: number;
   MODEL_API_BASE: string | null;
@@ -177,6 +212,7 @@ export type PatchCollectionMetadataPayload = {
   }[];
   summary?: string;
   mappings?: Record<string, Record<string, string>>;
+  field_display_types?: Record<string, string>;
   fields?: {
     name: string;
     description: string;

@@ -30,7 +30,7 @@ const MetadataFieldsDisplay: React.FC<MetadataFieldsDisplayProps> = ({
 
   const getFieldTypeIcon = (type: string) => {
     const iconClass = "w-4 h-4";
-    switch (type.toLowerCase()) {
+    switch ((type ?? "").toLowerCase()) {
       case "number":
         return <FaHashtag className={iconClass} />;
       case "text":
@@ -50,7 +50,7 @@ const MetadataFieldsDisplay: React.FC<MetadataFieldsDisplayProps> = ({
   };
 
   const getFieldTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
+    switch ((type ?? "").toLowerCase()) {
       case "number":
         return "text-accent bg-accent/10 border-accent/20";
       case "text":
@@ -127,9 +127,13 @@ const MetadataFieldsDisplay: React.FC<MetadataFieldsDisplayProps> = ({
               </div>
 
               {/* Field Description */}
-              {field.description && (
+              {field.description ? (
                 <div className="text-sm text-secondary border-l-2 border-border pl-3">
                   {field.description}
+                </div>
+              ) : (
+                <div className="text-xs text-secondary/50 italic pl-1">
+                  No description — run &quot;Re-Analyze Collection&quot; to generate one.
                 </div>
               )}
 
@@ -189,7 +193,7 @@ const MetadataFieldsDisplay: React.FC<MetadataFieldsDisplayProps> = ({
                         Unique Values:
                       </span>
                       <span className="font-medium text-sm">
-                        {groupEntries.length}
+                        {field.unique_count ?? groupEntries.length}
                       </span>
                     </div>
                     <div className="max-h-24 overflow-y-auto">

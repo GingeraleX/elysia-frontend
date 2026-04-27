@@ -1,4 +1,4 @@
-﻿﻿interface ApiConfig {
+interface ApiConfig {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: Record<string, string>;
   body?: any;
@@ -21,13 +21,23 @@ export class ApiError extends Error {
   }
 }
 
+import { host as _defaultHost } from "@/app/components/host";
+
 export class ApiClient {
   private baseUrl: string;
   private defaultTimeout: number;
   private authToken: string | null = null;
 
   constructor(baseUrl?: string, timeout?: number) {
-    this.baseUrl = baseUrl || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    // Proxy mode (Docker/nginx deploy): _defaultHost is "" (same-origin).
+    // NEXT_PUBLIC_API_URL is a dev-only convenience var and must NOT override
+    // proxy mode — otherwise the browser tries to call localhost:3000 directly.
+    const IS_PROXY_MODE = process.env.NEXT_PUBLIC_PROXY_MODE === "true";
+    this.baseUrl = baseUrl !== undefined
+      ? baseUrl
+      : IS_PROXY_MODE
+        ? ""
+        : (process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || _defaultHost || "http://localhost:3000");
     this.defaultTimeout = timeout || parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || "10000");
     
     // Try to load token from localStorage on initialization

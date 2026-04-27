@@ -1,71 +1,246 @@
 "use client";
 
-import { TextPayload } from "@/app/types/chat";
+import { TextPayload, ResultPayload } from "@/app/types/chat";
 import MarkdownFormat from "../../components/MarkdownFormat";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import BoringGenericDisplay from "./BoringGeneric";
+import AggregationDisplay from "../ChartTable/AggregationDisplay";
+import BarDisplay from "../ChartTable/BarDisplay";
+import ScatterOrLineDisplay from "../ChartTable/ScatterOrLineDisplay";
+import HistogramDisplay from "../ChartTable/HistogramDisplay";
+import {
+  AggregationPayload,
+  BarPayload,
+  ScatterOrLinePayload,
+} from "@/app/types/displays";
 
 interface TextDisplayProps {
   payload: TextPayload[];
 }
 
-// Animation variants for smooth expand/collapse
-const expandVariants = {
-  collapsed: {
-    height: 0,
-    opacity: 0,
-    transition: {
-      height: {
-        duration: 0.3,
-        ease: "easeInOut" as const,
-      },
-      opacity: {
-        duration: 0.2,
-        delay: 0,
-      },
-    },
-  },
-  expanded: {
-    height: "auto" as const,
-    opacity: 1,
-    transition: {
-      height: {
-        duration: 0.3,
-        ease: "easeInOut" as const,
-      },
-      opacity: {
-        duration: 0.3,
-        delay: 0.1,
-      },
-    },
-  },
-};
+// All payload type values we can render inline
+const DISPLAY_TYPES = new Set([
+  "table",
+  "mapped",
+  "generic",
+  "document",
+  "ticket",
+  "product",
+  "ecommerce",
+  "aggregation",
+  "bar_chart",
+  "histogram_chart",
+  "scatter_or_line_chart",
+  "conversation",
+  "message",
+]);
 
-const itemVariants = {
-  hidden: { opacity: 0, y: -10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring" as const,
-      damping: 20,
-      stiffness: 300,
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: -10,
-    transition: {
-      duration: 0.2,
-    },
-  },
-};
+/**
+ * Parse ```display_payload``` and ```chart_payload``` fenced code blocks
+ * out of the markdown text the LLM streams.
+ *
+ * Returns the cleaned text (blocks removed) plus an array of ResultPayloads
+ * that can be rendered by RenderInlinePayload below.
+ *
+ * During streaming the closing fence hasn't arrived yet so the regex won't
+ * match — we leave the partial block in the text (renders as a code block).
+ * Once the stream is complete the block is fully formed, the regex matches,
+ * and it morphs into the proper component. This produces a clean UX
+ * transition: the user sees the JSON build up then it renders as a table/chart.
+ */
+function extractDisplayBlocks(text: string): {
+  cleanText: string;
+  payloads: ResultPayload[];
+} {
+  const payloads: ResultPayload[] = [];
+
+  // ── 1. ```display_payload … ``` ──────────────────────────────────────────
+  let cleanText = text.replace(
+    /```display_payload\s*\n([\s\S]*?)\n?\s*```/g,
+    (_, jsonStr) => {
+      try {
+        const parsed = JSON.parse(jsonStr.trim());
+        if (
+          parsed.type &&
+          DISPLAY_TYPES.has(parsed.type) &&
+          Array.isArray(parsed.objects)
+        ) {
+          payloads.push({
+            type: parsed.type,
+            objects: parsed.objects,
+            metadata: parsed.metadata ?? null,
+            code: parsed.code ?? (null as any),
+          } as ResultPayload);
+          return ""; // strip from text
+        }
+      } catch {
+        /* malformed JSON – keep as generic code block */
+      }
+      return `\`\`\`json\n${jsonStr}\n\`\`\``;
+    }
+  );
+
+  // ── 2. ```chart_payload … ``` ────────────────────────────────────────────
+  cleanText = cleanText.replace(
+    /```chart_payload\s*\n([\s\S]*?)\n?\s*```/g,
+    (_, jsonStr) => {
+      try {
+        const parsed = JSON.parse(jsonStr.trim());
+        if (
+          parsed.type === "bar_chart" &&
+          parsed.x_labels &&
+          parsed.y_values
+        ) {
+          // chart_payload bar format → BarPayload wrapped in ResultPayload
+          const barPayload: BarPayload = {
+            title: parsed.title ?? "",
+            description: parsed.description ?? "",
+            x_axis_label: parsed.x_axis_label ?? "",
+            y_axis_label: parsed.y_axis_label ?? "",
+            data: { x_labels: parsed.x_labels, y_values: parsed.y_values },
+          };
+          payloads.push({
+            type: "bar_chart",
+            objects: [barPayload],
+            metadata: null,
+            code: null as any,
+          } as ResultPayload);
+          return "";
+        }
+
+        if (parsed.type === "scatter_or_line_chart" && parsed.series) {
+          const scatterPayload: ScatterOrLinePayload = {
+            title: parsed.title ?? "",
+            description: parsed.description ?? "",
+            x_axis_label: parsed.x_axis_label ?? "",
+            y_axis_label: parsed.y_axis_label ?? "",
+            data: {
+              x_axis: [],
+              y_axis: (parsed.series as any[]).map((s) => ({
+                label: s.label,
+                kind: s.kind as "scatter" | "line",
+                data_points: ((s.y as (number | string)[]) ?? []).map(
+                  (v, i) => ({
+                    value: v,
+                    label: s.x ? String(s.x[i]) : null,
+                  })
+                ),
+              })),
+              normalize_y_axis: false,
+            },
+          };
+          payloads.push({
+            type: "scatter_or_line_chart",
+            objects: [scatterPayload],
+            metadata: null,
+            code: null as any,
+          } as ResultPayload);
+          return "";
+        }
+
+        // Fallback: chart_payload that looks like a display_payload
+        if (
+          parsed.type &&
+          DISPLAY_TYPES.has(parsed.type) &&
+          Array.isArray(parsed.objects)
+        ) {
+          payloads.push({
+            type: parsed.type,
+            objects: parsed.objects,
+            metadata: null,
+            code: null as any,
+          } as ResultPayload);
+          return "";
+        }
+      } catch {
+        /* malformed */
+      }
+      return `\`\`\`json\n${jsonStr}\n\`\`\``;
+    }
+  );
+
+  // ── 3. Plain ```json or ``` blocks that look like display payloads ────────
+  // Handles the case where the LLM emits raw JSON without the special language
+  // tag — e.g. ```\n{"type":"table","objects":[…]}\n```
+  cleanText = cleanText.replace(
+    /```(?:json)?\s*\n(\{[\s\S]*?})\s*\n```/g,
+    (match, jsonStr) => {
+      try {
+        const parsed = JSON.parse(jsonStr.trim());
+        if (
+          parsed.type &&
+          DISPLAY_TYPES.has(parsed.type) &&
+          Array.isArray(parsed.objects)
+        ) {
+          payloads.push({
+            type: parsed.type,
+            objects: parsed.objects,
+            metadata: null,
+            code: null as any,
+          } as ResultPayload);
+          return ""; // strip
+        }
+      } catch {
+        /* not a display payload */
+      }
+      return match; // leave unchanged
+    }
+  );
+
+  return { cleanText: cleanText.trim(), payloads };
+}
+
+/** Render a parsed ResultPayload as the right inline display component */
+function RenderInlinePayload({
+  payload,
+}: {
+  payload: ResultPayload;
+  index: number;
+}) {
+  switch (payload.type) {
+    case "table":
+    case "mapped":
+    case "generic":
+      return (
+        <BoringGenericDisplay
+          payload={payload.objects as { [key: string]: string }[]}
+        />
+      );
+    case "aggregation":
+      return (
+        <AggregationDisplay
+          aggregation={payload.objects as AggregationPayload[]}
+        />
+      );
+    case "bar_chart":
+      return <BarDisplay result={payload} />;
+    case "scatter_or_line_chart":
+      return <ScatterOrLineDisplay result={payload} />;
+    case "histogram_chart":
+      return <HistogramDisplay result={payload} />;
+    default:
+      // document, ticket, product, conversation, message — fall back to
+      // a flat table view since those rich components need router context
+      if (
+        Array.isArray(payload.objects) &&
+        payload.objects.length > 0 &&
+        typeof payload.objects[0] === "object"
+      ) {
+        return (
+          <BoringGenericDisplay
+            payload={payload.objects as { [key: string]: string }[]}
+          />
+        );
+      }
+      return null;
+  }
+}
 
 const TextDisplay: React.FC<TextDisplayProps> = ({ payload }) => {
-  const [collapsed, setCollapsed] = useState(true);
-  const triggerCollapse = () => {
-    setCollapsed((prev) => !prev);
-  };
+  // Backend already strips <think>...</think> blocks char-by-char during streaming.
+  // No frontend stripping needed — doing it here risks corrupting partial streamed text.
+  const fullText = payload.map((p) => p.text).join("");
+  const { cleanText, payloads } = extractDisplayBlocks(fullText);
 
   return (
     <motion.div
@@ -74,81 +249,10 @@ const TextDisplay: React.FC<TextDisplayProps> = ({ payload }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", damping: 20, stiffness: 300 }}
     >
-      {/* Animated expandable section for older items */}
-      {payload.length > 1 && (
-        <motion.div
-          variants={expandVariants}
-          initial="collapsed"
-          animate={!collapsed ? "expanded" : "collapsed"}
-          className="overflow-hidden w-full"
-        >
-          <motion.div className="flex flex-col gap-2">
-            <AnimatePresence>
-              {!collapsed &&
-                payload.slice(0, -1).map((item, index) => (
-                  <motion.div
-                    key={`${item.text}-${index}`}
-                    className="flex gap-2 items-center justify-center"
-                    variants={itemVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <motion.p
-                      className="text-xs w-5 h-5 bg-background_alt text-secondary p-2 rounded-full items-center justify-center flex flex-shrink-0"
-                      initial={{ scale: 0, rotate: -180 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{
-                        type: "spring",
-                        damping: 15,
-                        stiffness: 300,
-                        delay: index * 0.05,
-                      }}
-                    >
-                      {index + 1}
-                    </motion.p>
-                    <motion.div className="flex-1 min-w-0">
-                      <MarkdownFormat text={item.text} variant="secondary" />
-                    </motion.div>
-                  </motion.div>
-                ))}
-            </AnimatePresence>
-          </motion.div>
-        </motion.div>
-      )}
-
-      {/* Latest item - always visible */}
-      {payload.length > 0 && (
-        <motion.div
-          className="flex w-full gap-2 items-center cursor-pointer"
-          key={payload[payload.length - 1].text}
-          onClick={triggerCollapse}
-          whileHover={{ x: 2 }}
-          whileTap={{ scale: 0.98 }}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            type: "spring",
-            damping: 20,
-            stiffness: 300,
-            delay: 0.1,
-          }}
-        >
-          {payload.length > 1 && (
-            <motion.p
-              className="text-xs bg-background_alt text-secondary p-2 w-5 h-5 rounded-full items-center justify-center flex flex-shrink-0"
-              whileHover={{ scale: 1.1 }}
-              transition={{ type: "spring", damping: 15, stiffness: 400 }}
-            >
-              {payload.length}
-            </motion.p>
-          )}
-          <motion.div className="flex-1 min-w-0">
-            <MarkdownFormat text={payload[payload.length - 1].text} />
-          </motion.div>
-        </motion.div>
-      )}
+      {cleanText && <MarkdownFormat text={cleanText} />}
+      {payloads.map((p, i) => (
+        <RenderInlinePayload key={`inline-payload-${i}`} payload={p} index={i} />
+      ))}
     </motion.div>
   );
 };

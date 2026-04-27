@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Conversation, initialConversation } from "../types";
 
 import {
@@ -11,6 +11,7 @@ import {
   Message,
   TextPayload,
   UserPromptPayload,
+  ResponsePayload,
 } from "@/app/types/chat";
 import { TreeUpdatePayload } from "@/app/components/types";
 
@@ -32,6 +33,7 @@ import { loadConversation } from "@/app/api/loadConversation";
 import { initializeTree } from "@/app/api/InitializeTree";
 import { getSuggestions } from "@/app/api/getSuggestions";
 import { deleteConversation } from "@/app/api/deleteConversation";
+import { saveConversation } from "@/app/api/saveConversation";
 import { addFeedback } from "@/app/api/addFeedback";
 import { deleteFeedback } from "@/app/api/deleteFeedback";
 import { RouterContext } from "./RouterContext";
@@ -96,6 +98,10 @@ export const ConversationContext = createContext<{
   loadConversationsFromDB: () => void;
   handleWebsocketMessage: (message: Message) => void;
   loadingConversation: boolean;
+  /** Suggestions for the active conversation's last completed query. */
+  currentSuggestions: string[];
+  /** Rename a conversation — updates both local state and persists to backend. */
+  renameConversation: (conversationId: string, newTitle: string) => Promise<void>;
 }>({
   conversations: [],
   setConversations: () => {},
@@ -129,6 +135,8 @@ export const ConversationContext = createContext<{
   addSuggestionToConversation: () => {},
   getAllEnabledCollections: () => [],
   loadConversationsFromDB: () => {},
+  currentSuggestions: [],
+  renameConversation: () => Promise.resolve(),
 });
 
 export const ConversationProvider = ({
@@ -146,6 +154,13 @@ export const ConversationProvider = ({
   const pathname = usePathname();
 
   const initial_ref = useRef<boolean>(false);
+  // When true, the URL-sync effect skips one cycle (programmatic selection in progress)
+  const programmaticSelectRef = useRef<boolean>(false);
+  // Mutex: prevents concurrent executions of loadConversationsFromDB
+  const loadingConvLockRef = useRef<boolean>(false);
+  // Skip the [fetchConversationFlag] effect on initial mount
+  // (initial load is handled exclusively by the [id, initialized] effect)
+  const convFlagMountedRef = useRef<boolean>(false);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [conversationPreviews, setConversationPreviews] = useState<{
@@ -169,25 +184,53 @@ export const ConversationProvider = ({
 
   const loadConversationsFromDB = async () => {
     if (!id) return;
+    // Mutex: if a load is already in progress, skip this call
+    if (loadingConvLockRef.current) return;
+    loadingConvLockRef.current = true;
+
     setLoadingConversations(true);
     const data: SavedConversationPayload = await loadConversations(id || "");
 
     let hasConversations = false;
-    
+    const trees: Record<string, { title: string; last_update_time: string }> = {};
+
     // Safely check if data and data.trees exist before iterating
     if (data && data.trees && typeof data.trees === 'object') {
       for (const [key, value] of Object.entries(data.trees)) {
         if (value && value.title && value.last_update_time) {
-          setConversationPreviews((prev) => ({ ...prev, [key]: value }));
+          trees[key] = value;
           hasConversations = true;
         }
       }
     }
 
-    setLoadingConversations(false);
+    // Deduplicate empty "New Conversation" entries — keep only the most recent one.
+    // Multiple entries accumulate when the app loaded while Weaviate was empty and
+    // auto-created a new conversation each time. Delete the older duplicates.
+    const newConvEntries = Object.entries(trees)
+      .filter(([, v]) => v.title === "New Conversation")
+      .sort(([, a], [, b]) => new Date(b.last_update_time).getTime() - new Date(a.last_update_time).getTime());
 
-    // If no conversations were loaded, automatically create a new one
-    if (!hasConversations && !creatingNewConversation) {
+    if (newConvEntries.length > 1) {
+      // Keep the most recent, delete the rest
+      const toDelete = newConvEntries.slice(1);
+      for (const [key] of toDelete) {
+        delete trees[key];
+        deleteConversation(id || "", key); // fire-and-forget
+      }
+    }
+
+    // Push deduplicated previews into state
+    for (const [key, value] of Object.entries(trees)) {
+      setConversationPreviews((prev) => ({ ...prev, [key]: value }));
+    }
+
+    setLoadingConversations(false);
+    loadingConvLockRef.current = false;
+
+    // Only auto-create if no conversations were found
+    // (mutex above ensures this runs at most once at a time)
+    if (!hasConversations) {
       await startNewConversation();
     }
   };
@@ -198,77 +241,153 @@ export const ConversationProvider = ({
     timestamp: Date
   ) => {
     setLoadingConversation(true);
-    const conversation = conversations.find((c) => c.id === conversationId);
-    if (conversation) {
-      setCurrentConversation(conversationId);
-    } else {
-      const data: ConversationPayload = await loadConversation(
-        id || "",
-        conversationId
-      );
-      setCreatingNewConversation(true);
-      const tree = await getDecisionTree(id || "", conversationId);
-
-      if (tree != null && collections != null && tree.tree != null) {
-        const queries = data.rebuild.filter(
-          (m) => m && m.type === "user_prompt"
+    try {
+      const conversation = conversations.find((c) => c.id === conversationId);
+      if (conversation) {
+        setCurrentConversation(conversationId);
+      } else {
+        const data: ConversationPayload = await loadConversation(
+          id || "",
+          conversationId
         );
-        const prebuiltQueries: { [key: string]: Query } = {};
+        setCreatingNewConversation(true);
+        try {
+          const tree = await getDecisionTree(id || "", conversationId);
+          const treeNode = tree?.tree ?? null;
 
-        for (const query of queries) {
-          const newQuery: Query = createNewQuery(
-            conversationId,
-            (query.payload as UserPromptPayload).prompt,
-            query.query_id,
-            conversations
+          // ── Normalise rebuild data ──────────────────────────────────────
+          // The backend persists history as compact {role,content,query_id} objects.
+          // Convert to equivalent Message objects so downstream logic is uniform.
+          const rawRebuild: any[] = data.rebuild ?? [];
+          let normalizedRebuild: Message[];
+
+          const isRoleFormat =
+            rawRebuild.length > 0 && rawRebuild[0]?.role != null;
+
+          if (isRoleFormat) {
+            normalizedRebuild = [];
+            for (const entry of rawRebuild) {
+              const qid: string = entry.query_id ?? uuidv4();
+              if (entry.role === "user") {
+                normalizedRebuild.push({
+                  type: "user_prompt",
+                  id: uuidv4(),
+                  conversation_id: conversationId,
+                  query_id: qid,
+                  user_id: id || "",
+                  payload: { prompt: entry.content ?? "" } as UserPromptPayload,
+                } as Message);
+              } else if (entry.role === "assistant") {
+                normalizedRebuild.push({
+                  type: "text",
+                  id: uuidv4(),
+                  conversation_id: conversationId,
+                  query_id: qid,
+                  user_id: id || "",
+                  payload: {
+                    type: "response",
+                    metadata: {},
+                    objects: [{ text: entry.content ?? "" }],
+                  } as ResponsePayload,
+                } as Message);
+                // Mark as finished so FeedbackButtons render correctly
+                normalizedRebuild.push({
+                  type: "completed",
+                  id: uuidv4(),
+                  conversation_id: conversationId,
+                  query_id: qid,
+                  user_id: id || "",
+                  payload: { error: "" },
+                } as Message);
+              }
+            }
+          } else {
+            normalizedRebuild = rawRebuild as Message[];
+          }
+
+          // Extract user turns to build the query map
+          const queries = normalizedRebuild.filter(
+            (m): m is Message =>
+              m != null &&
+              m.type === "user_prompt" &&
+              m.payload != null &&
+              typeof (m.payload as UserPromptPayload).prompt === "string"
           );
-          prebuiltQueries[query.query_id] = newQuery;
-        }
 
-        const newConversation: Conversation = {
-          enabled_collections: collections.reduce(
-            (acc, c) => ({ ...acc, [c.name]: true }),
-            {}
-          ),
-          id: conversationId,
-          name: conversationName,
-          tree_updates: [],
-          // Create a new tree for each query with the query name, plus one base tree
-          tree: tree.tree
-            ? [
-                ...queries.map((query) => ({
-                  ...tree.tree!,
-                  name: (query.payload as UserPromptPayload).prompt,
-                })),
-                tree.tree,
-              ]
-            : [],
-          base_tree: tree.tree || null,
-          queries: prebuiltQueries,
-          current: "",
-          initialized: true,
-          error: false,
-          timestamp: timestamp,
-        };
-        // Set tree names to match the user prompts for each query
-        queries.forEach((query) => {
-          const prompt = (query.payload as UserPromptPayload).prompt;
-          changeBaseToQuery(conversationId, prompt);
-        });
+          // Build queries unconditionally — tree is needed for FlowDisplay only,
+          // NOT for basic chat history. Assign sequential index for stable sort.
+          const prebuiltQueries: { [key: string]: Query } = {};
+          let queryIndex = 0;
+          for (const query of queries) {
+            const newQuery: Query = createNewQuery(
+              conversationId,
+              (query.payload as UserPromptPayload).prompt,
+              query.query_id,
+              conversations
+            );
+            prebuiltQueries[query.query_id] = { ...newQuery, index: queryIndex++ };
+          }
 
-        setConversations((prevConversations) => [
-          ...prevConversations,
-          newConversation,
-        ]);
+          const newConversation: Conversation = {
+            enabled_collections: (collections ?? []).reduce(
+              (acc, c) => ({ ...acc, [c.name]: true }),
+              {}
+            ),
+            id: conversationId,
+            name: conversationName,
+            tree_updates: [],
+            tree: treeNode
+              ? [
+                  ...queries.map((query) => ({
+                    ...treeNode!,
+                    name: (query.payload as UserPromptPayload).prompt,
+                  })),
+                  treeNode,
+                ]
+              : [],
+            base_tree: treeNode || null,
+            queries: prebuiltQueries,
+            current: "",
+            initialized: true,
+            error: false,
+            timestamp: timestamp,
+          };
 
-        for (const message of data.rebuild) {
-          handleWebsocketMessage(message);
+          if (treeNode != null) {
+            queries.forEach((query) => {
+              const prompt = (query.payload as UserPromptPayload).prompt;
+              changeBaseToQuery(conversationId, prompt);
+            });
+          }
+
+          setConversations((prevConversations) => [
+            ...prevConversations,
+            newConversation,
+          ]);
+
+          // Always replay messages regardless of treeNode.
+          // 'completed' → finishQuery only (skip suggestion API calls for history).
+          // 'status'    → skip (avoids "Processing…" on finished conversations).
+          for (const message of normalizedRebuild) {
+            try {
+              if (message.type === "completed") {
+                finishQuery(message.conversation_id, message.query_id);
+              } else if (message.type !== "status") {
+                handleWebsocketMessage(message);
+              }
+            } catch { /* malformed message — skip */ }
+          }
+        } finally {
+          setCreatingNewConversation(false);
         }
       }
-
-      setCreatingNewConversation(false);
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[retrieveConversation] Failed:", err);
+      }
+    } finally {
+      setLoadingConversation(false);
     }
-    setLoadingConversation(false);
   };
 
   const addConversation = async (
@@ -328,8 +447,28 @@ export const ConversationProvider = ({
     loadConversationsFromDB();
   };
 
-  const selectConversation = (id: string) => {
-    changePage("chat", { conversation: id }, true);
+  const selectConversation = (conversationId: string) => {
+    if (conversationId === currentConversation) return;
+
+    // Flag so the URL-sync effect doesn't overwrite this selection with stale searchParams
+    programmaticSelectRef.current = true;
+
+    // Direct state update — reliable regardless of URL/searchParams timing
+    const alreadyLoaded = conversations.find((c) => c.id === conversationId);
+    if (!alreadyLoaded) {
+      const preview = conversationPreviews[conversationId];
+      // retrieveConversation sets loadingConversation=true synchronously, so
+      // the chat shows "Loading…" before the first render with empty queries
+      retrieveConversation(
+        conversationId,
+        preview?.title ?? "Conversation",
+        new Date(preview?.last_update_time ?? Date.now())
+      );
+    }
+    setCurrentConversation(conversationId);
+
+    // Also update URL so refresh/back works (pushState → history entry added)
+    changePage("chat", { conversation: conversationId }, false);
   };
 
   const setConversationStatus = (status: string, conversationId: string) => {
@@ -375,13 +514,25 @@ export const ConversationProvider = ({
     queryId: string,
     user_id: string
   ) => {
-    if (!user_id) return;
+    // user_id may be empty (e.g. session not yet resolved) — the backend handles
+    // empty user_id gracefully by generating generic suggestions without history.
     const auth_key = "";
+    // Pass enabled collection names so the LLM can generate collection-aware suggestions
+    const currentConv = conversations.find((c) => c.id === conversationId);
+    const collectionNames = (currentConv?.collections ?? [])
+      .filter((col) => col.enabled)
+      .map((col) => col.name)
+      .join(", ");
+
     const data: SuggestionPayload = await getSuggestions(
       user_id,
       conversationId,
-      auth_key
+      auth_key,
+      collectionNames
     );
+    if (data.error) {
+      console.error("[addSuggestionToConversation] Backend error:", data.error);
+    }
     const newMessage: Message = {
       type: "suggestion",
       id: uuidv4(),
@@ -389,7 +540,7 @@ export const ConversationProvider = ({
       query_id: queryId,
       user_id: user_id,
       payload: {
-        error: "",
+        error: data.error ?? "",
         suggestions: data.suggestions,
       },
     };
@@ -430,14 +581,15 @@ export const ConversationProvider = ({
   };
 
   const getAllEnabledCollections = () => {
-    return conversations.reduce((acc, c) => {
-      const enabledCollectionNames = Object.entries(c.enabled_collections || {})
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .filter(([key, value]) => value === true)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .map(([key, value]) => key);
-      return [...acc, ...enabledCollectionNames];
-    }, [] as string[]);
+    // Return enabled collections for the CURRENT conversation only.
+    // Using all conversations caused duplicates when multiple conversations
+    // shared the same collection (e.g. Wally_servizi_about_vision × 2),
+    // which broke the backend BM25 query path.
+    const current = conversations.find((c) => c.id === currentConversation);
+    if (!current) return [];
+    return Object.entries(current.enabled_collections || {})
+      .filter(([, enabled]) => enabled === true)
+      .map(([name]) => name);
   };
 
   const initializeEnabledCollections = (
@@ -644,7 +796,10 @@ export const ConversationProvider = ({
       index:
         prevConversations.find((c) => c.id === conversationId)?.queries[
           query_id
-        ]?.index || 0,
+        ]?.index ??
+        Object.keys(
+          prevConversations.find((c) => c.id === conversationId)?.queries ?? {}
+        ).length,
       messages: [newMessage, ...messages],
     };
 
@@ -849,6 +1004,31 @@ export const ConversationProvider = ({
     }
   };
 
+  // ── Derived: last suggestion list for the current conversation ────────────
+  const currentSuggestions = useMemo<string[]>(() => {
+    const conv = conversations.find((c) => c.id === currentConversation);
+    if (!conv) return [];
+    const allMessages = Object.values(conv.queries).flatMap((q) => q.messages);
+    const last = [...allMessages].reverse().find((m) => m.type === "suggestion");
+    return (last?.payload as SuggestionPayload)?.suggestions ?? [];
+  }, [conversations, currentConversation]);
+
+  // ── Inline rename: update preview title locally, then persist to backend ──
+  const renameConversation = async (conversationId: string, newTitle: string) => {
+    const trimmed = newTitle.trim();
+    if (!trimmed || !id) return;
+    // Optimistic UI update
+    setConversationPreviews((prev) => ({
+      ...prev,
+      [conversationId]: {
+        ...(prev[conversationId] ?? { last_update_time: new Date().toISOString() }),
+        title: trimmed,
+      },
+    }));
+    // Persist to backend — pass empty rebuild array (title-only update)
+    await saveConversation(id, conversationId, trimmed, []);
+  };
+
   useEffect(() => {
     if (!collections) return;
     setConversations((prevConversations) =>
@@ -878,7 +1058,15 @@ export const ConversationProvider = ({
   }, [id, initialized]);
 
   useEffect(() => {
-    loadConversationsFromDB();
+    // Skip the initial mount run — the [id, initialized] effect owns the first load.
+    // This effect only reacts to genuine flag changes (e.g., after saveConfig).
+    if (!convFlagMountedRef.current) {
+      convFlagMountedRef.current = true;
+      return;
+    }
+    if (id && initial_ref.current) {
+      loadConversationsFromDB();
+    }
   }, [fetchConversationFlag]);
 
   useEffect(() => {
@@ -902,6 +1090,12 @@ export const ConversationProvider = ({
       id &&
       Object.keys(conversationPreviews).length > 0
     ) {
+      // Skip if a programmatic selectConversation() just ran — searchParams is stale
+      if (programmaticSelectRef.current) {
+        programmaticSelectRef.current = false;
+        return;
+      }
+
       const conversationId = searchParams.get("conversation");
 
       if (conversationId) {
@@ -933,7 +1127,10 @@ export const ConversationProvider = ({
         }
         setCurrentConversation(conversationId);
       } else {
-        // No conversation ID in URL - auto-select latest
+        // No conversation ID in URL - auto-select the most recent conversation.
+        // replaceState (used by changePage) does NOT trigger useSearchParams to
+        // update, so we must also call setCurrentConversation directly here —
+        // otherwise currentConversation stays null and sendQuery silently bails.
         const latestConversationId = Object.entries(conversationPreviews).sort(
           ([, a], [, b]) =>
             new Date(b.last_update_time).getTime() -
@@ -941,6 +1138,19 @@ export const ConversationProvider = ({
         )[0][0];
 
         if (latestConversationId !== currentConversation) {
+          // Load conversation data into memory if it hasn't been fetched yet
+          const alreadyLoaded = conversations.find(
+            (c) => c.id === latestConversationId
+          );
+          if (!alreadyLoaded) {
+            const preview = conversationPreviews[latestConversationId];
+            retrieveConversation(
+              latestConversationId,
+              preview?.title ?? "New Conversation",
+              new Date(preview?.last_update_time ?? Date.now())
+            );
+          }
+          setCurrentConversation(latestConversationId);
           changePage("chat", { conversation: latestConversationId }, true);
         }
       }
@@ -982,6 +1192,8 @@ export const ConversationProvider = ({
         loadConversationsFromDB,
         handleWebsocketMessage,
         loadingConversation,
+        currentSuggestions,
+        renameConversation,
       }}
     >
       {children}

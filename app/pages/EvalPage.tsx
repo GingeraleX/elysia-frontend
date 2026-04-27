@@ -182,19 +182,19 @@ export default function Home() {
                     <div className="flex flex-col items-start justify-start border-r border-secondary gap-2 w-1/3 p-2">
                       <p className="text-secondary text-sm">Very Positive</p>
                       <p className="text-highlight text-3xl font-bold">
-                        {feedbackMetadata.feedback_by_value.superpositive}
+                        {feedbackMetadata.feedback_by_value?.superpositive ?? 0}
                       </p>
                     </div>
                     <div className="flex flex-col items-start justify-start border-r border-secondary gap-2 w-1/3 p-2">
                       <p className="text-secondary text-sm">Positive</p>
                       <p className="text-accent text-3xl font-bold">
-                        {feedbackMetadata.feedback_by_value.positive}
+                        {feedbackMetadata.feedback_by_value?.positive ?? 0}
                       </p>
                     </div>
                     <div className="flex flex-col items-start justify-start gap-2 w-1/3 p-2">
                       <p className="text-secondary text-sm">Negative</p>
                       <p className="text-error text-3xl font-bold">
-                        {feedbackMetadata.feedback_by_value.negative}
+                        {feedbackMetadata.feedback_by_value?.negative ?? 0}
                       </p>
                     </div>
                   </div>

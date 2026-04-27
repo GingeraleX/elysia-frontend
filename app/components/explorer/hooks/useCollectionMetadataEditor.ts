@@ -47,6 +47,16 @@ export interface UseCollectionMetadataEditorReturn {
   handleRemoveSubkey: (group: string, subkey: string) => void;
   handleSaveMappings: () => Promise<void>;
 
+  // Field display types (auto-detected, user-editable)
+  editingFieldDisplayTypes: boolean;
+  setEditingFieldDisplayTypes: React.Dispatch<React.SetStateAction<boolean>>;
+  fieldDisplayTypesDraft: Record<string, string>;
+  setFieldDisplayTypesDraft: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  savingFieldDisplayTypes: boolean;
+  hasFieldDisplayTypesChanges: boolean;
+  handleFieldDisplayTypeChange: (field: string, displayType: string) => void;
+  handleSaveFieldDisplayTypes: () => Promise<void>;
+
   // Named vectors
   editingNamedVectors: boolean;
   setEditingNamedVectors: React.Dispatch<React.SetStateAction<boolean>>;
@@ -206,6 +216,40 @@ export function useCollectionMetadataEditor({
     }
   };
 
+  // ── Field display types editing (auto-detected per-field display type)
+  const [editingFieldDisplayTypes, setEditingFieldDisplayTypes] = useState(false);
+  const [fieldDisplayTypesDraft, setFieldDisplayTypesDraft] = useState<Record<string, string>>({});
+  const [savingFieldDisplayTypes, setSavingFieldDisplayTypes] = useState(false);
+
+  // Initialise draft from stored metadata whenever we open edit mode OR metadata refreshes
+  React.useEffect(() => {
+    if (collectionMetadata?.metadata.field_display_types) {
+      setFieldDisplayTypesDraft({ ...collectionMetadata.metadata.field_display_types });
+    }
+  }, [collectionMetadata?.metadata.field_display_types]);
+
+  const handleFieldDisplayTypeChange = (field: string, displayType: string) => {
+    setFieldDisplayTypesDraft(prev => ({ ...prev, [field]: displayType }));
+  };
+
+  const hasFieldDisplayTypesChanges =
+    JSON.stringify(fieldDisplayTypesDraft) !==
+    JSON.stringify(collectionMetadata?.metadata.field_display_types || {});
+
+  const handleSaveFieldDisplayTypes = async () => {
+    if (!collection || !id) return;
+    setSavingFieldDisplayTypes(true);
+    try {
+      await patchCollectionMetadata(id, collection.name, {
+        field_display_types: fieldDisplayTypesDraft,
+      });
+      setEditingFieldDisplayTypes(false);
+      await reloadMetadata();
+    } finally {
+      setSavingFieldDisplayTypes(false);
+    }
+  };
+
   // Named vectors editing
   const [editingNamedVectors, setEditingNamedVectors] = useState(false);
   const [namedVectorsDraft, setNamedVectorsDraft] = useState<
@@ -284,6 +328,15 @@ export function useCollectionMetadataEditor({
     handleAddSubkey,
     handleRemoveSubkey,
     handleSaveMappings,
+    // Field display types
+    editingFieldDisplayTypes,
+    setEditingFieldDisplayTypes,
+    fieldDisplayTypesDraft,
+    setFieldDisplayTypesDraft,
+    savingFieldDisplayTypes,
+    hasFieldDisplayTypesChanges,
+    handleFieldDisplayTypeChange,
+    handleSaveFieldDisplayTypes,
     // Named vectors
     editingNamedVectors,
     setEditingNamedVectors,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { CollectionContext } from "../contexts/CollectionContext";
@@ -62,6 +62,24 @@ const DataExplorer = () => {
       id: typeof id === "string" ? id : null,
     });
 
+  // Keep a stable ref so the event-listener effect doesn't re-register on every render
+  // (loadCollectionMetadata is recreated each render inside useCollectionMetadata).
+  const loadMetadataRef = useRef(loadCollectionMetadata);
+  useEffect(() => { loadMetadataRef.current = loadCollectionMetadata; });
+
+  // Reload metadata when ProcessingContext fires "collection-analysis-complete"
+  // for the currently displayed collection.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ collectionName: string }>).detail;
+      if (collection && detail?.collectionName === collection.name) {
+        loadMetadataRef.current();
+      }
+    };
+    window.addEventListener("collection-analysis-complete", handler);
+    return () => window.removeEventListener("collection-analysis-complete", handler);
+  }, [collection]); // only re-register when the viewed collection changes
+
   const [loadingCollection, setLoadingCollection] = useState(false);
   const [view, setView] = useState<"table" | "metadata" | "configuration">(
     "table"
@@ -117,9 +135,31 @@ const DataExplorer = () => {
 
   const processGlobalVectorizer = (
     vectorizer: Vectorizer,
-    metadata: MetadataPayload | null
+    metadata: MetadataPayload | null,
+    col?: typeof collection
   ) => {
-    // Process global vectorizer
+    // Priority 1: actual runtime embedding model stored in metadata_json during ingestion.
+    // This is always accurate — it records which model actually produced the vectors.
+    const targetCol = col ?? collection;
+    if (targetCol?.metadata_json) {
+      try {
+        const meta = JSON.parse(targetCol.metadata_json);
+        if (meta.embedder_model) {
+          // Derive a human-readable provider label from the model name
+          const modelStr: string = meta.embedder_model;
+          let providerLabel = "local";
+          if (modelStr.includes("gemini")) providerLabel = "google";
+          else if (modelStr.includes("openai") || modelStr.includes("text-embedding")) providerLabel = "openai";
+          else if (modelStr.includes("cohere")) providerLabel = "cohere";
+          else if (modelStr.includes("nomic") || modelStr.includes("mxbai") || modelStr.includes("bge") || modelStr.includes("all-mini")) providerLabel = "local";
+          setGlobalVectorizer({ vectorizer: providerLabel, model: modelStr });
+          return;
+        }
+      } catch { /* ignore */ }
+    }
+
+    // Priority 2: Weaviate schema vectorizer (set at class-creation time).
+    // Only used when metadata_json has no embedder_model (older collections).
     if (
       vectorizer.global &&
       vectorizer.global.model &&
@@ -133,7 +173,6 @@ const DataExplorer = () => {
       metadata?.metadata?.vectorizer?.vectorizer &&
       metadata?.metadata?.vectorizer?.model
     ) {
-      // Fallback to metadata global vectorizer if collection vectorizer doesn't have global
       setGlobalVectorizer({
         vectorizer: metadata.metadata.vectorizer.vectorizer,
         model: metadata.metadata.vectorizer.model,
@@ -173,12 +212,11 @@ const DataExplorer = () => {
   useEffect(() => {
     if (collection) {
       if (collection.vectorizer) {
-        processGlobalVectorizer(collection.vectorizer, collectionMetadata);
+        processGlobalVectorizer(collection.vectorizer, collectionMetadata, collection);
       } else {
-        // If no vectorizer, mark as checked with null result
-        setGlobalVectorizer(null);
+        // No schema vectorizer but might still have metadata_json embedder_model
+        processGlobalVectorizer({ global: null } as unknown as Vectorizer, collectionMetadata, collection);
       }
-    } else {
     }
   }, [collection, collectionMetadata]);
 

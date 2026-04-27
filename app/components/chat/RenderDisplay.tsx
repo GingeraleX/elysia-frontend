@@ -112,6 +112,46 @@ const RenderDisplay: React.FC<RenderDisplayProps> = ({
           }
         />
       );
+    case "chart": {
+      // Legacy "chart" format: objects[].type, objects[].values.x/y
+      // Transform to ScatterOrLinePayload format expected by ScatterOrLineDisplay
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const legacyObjects = payload.objects as any[];
+      const transformedPayload = {
+        ...payload,
+        type: "scatter_or_line_chart",
+        objects: legacyObjects.map((obj) => ({
+          _REF_ID: obj._REF_ID,
+          title: payload.metadata?.title || "",
+          description: obj.description || "",
+          x_axis_label: obj.values?.x?.label || "X",
+          y_axis_label: obj.values?.y?.label || "Y",
+          data: {
+            x_axis: (obj.values?.x?.data || []).map(
+              (v: string | number) => ({ value: v, label: null })
+            ),
+            y_axis: [
+              {
+                label: obj.values?.y?.label || "Value",
+                kind: (obj.type === "scatter" ? "scatter" : "line") as
+                  | "scatter"
+                  | "line",
+                data_points: (obj.values?.y?.data || []).map(
+                  (v: number) => ({ value: v, label: null })
+                ),
+              },
+            ],
+            normalize_y_axis: false,
+          },
+        })),
+      };
+      return (
+        <ScatterOrLineDisplay
+          key={`${keyBase}-chart`}
+          result={transformedPayload as ResultPayload}
+        />
+      );
+    }
     case "bar_chart":
       return <BarDisplay key={`${keyBase}-chart`} result={payload} />;
     case "scatter_or_line_chart":

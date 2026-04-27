@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Settings Types - Multi-tiered settings system
  * - USER: Personal preferences (language, theme, notifications)
  * - ADMIN: Tenant management (knowledge, permissions, billing)

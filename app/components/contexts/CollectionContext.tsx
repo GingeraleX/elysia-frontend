@@ -6,6 +6,7 @@ import { getCollections } from "@/app/api/getCollections";
 import { SessionContext } from "./SessionContext";
 import { deleteCollectionMetadata } from "@/app/api/deleteCollectionMetadata";
 import { ToastContext } from "./ToastContext";
+// example_prompts removed — replaced by context-aware generation in getRandomPrompts
 
 export const CollectionContext = createContext<{
   collections: Collection[];
@@ -115,12 +116,65 @@ export const CollectionProvider = ({
   };
 
   const getRandomPrompts = (amount: number = 4) => {
-    const allPrompts = collections.reduce((acc: string[], collection) => {
+    // 1. Prefer per-collection prompts stored from analysis
+    const collectionPrompts = collections.reduce((acc: string[], collection) => {
       return acc.concat(collection.prompts || []);
     }, []);
+    if (collectionPrompts.length > 0) {
+      return [...collectionPrompts].sort(() => 0.5 - Math.random()).slice(0, amount);
+    }
 
-    const shuffled = allPrompts.sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, amount);
+    // 2. Derive questions from analyzed collections (have metadata_json)
+    const analyzedCollections = collections.filter((c) => c.processed && c.metadata_json);
+    if (analyzedCollections.length > 0) {
+      const derived: string[] = [];
+      for (const col of analyzedCollections) {
+        // Human-readable collection label: strip tenant prefix, underscores → spaces, trim trailing _
+        const label = col.name
+          .replace(/^[a-f0-9-]{8,}_/i, "") // strip leading UUID-like prefix
+          .replace(/_+/g, " ")
+          .replace(/\s+$/, "")
+          .trim();
+
+        // Parse metadata for richer question generation
+        let meta: Record<string, unknown> = {};
+        try { meta = JSON.parse(col.metadata_json!); } catch { /* ignore */ }
+
+        const recordCount = (meta.record_count as number | undefined) ?? col.total ?? 0;
+        const sourceFile = (meta.source_files as string[] | undefined)?.[0] ?? "";
+
+        derived.push(`What does the ${label} dataset contain?`);
+        derived.push(`Summarize the key insights from ${label}`);
+        if (recordCount > 0) derived.push(`Show me the most important records from ${label}`);
+        if (sourceFile) derived.push(`What are the main findings in ${sourceFile.replace(/\.[^.]+$/, "")}?`);
+        derived.push(`What trends can you identify in ${label}?`);
+        derived.push(`Give me a breakdown of the data in ${label}`);
+      }
+      if (derived.length > 0) {
+        return [...derived].sort(() => 0.5 - Math.random()).slice(0, amount);
+      }
+    }
+
+    // 3. Collections exist but not yet analyzed — prompt to explore them
+    if (collections.length > 0) {
+      const names = collections.map((c) =>
+        c.name.replace(/_+/g, " ").trim()
+      );
+      return [
+        `What's in the ${names[0]} collection?`,
+        "Summarize the available data sources",
+        "What can you tell me about my imported data?",
+        "Show me an overview of the knowledge base",
+      ].slice(0, amount);
+    }
+
+    // 4. No collections at all — Elysia capability questions
+    return [
+      "What can you help me with?",
+      "How do I import data into Elysia?",
+      "What types of files can I upload for analysis?",
+      "How does Elysia search through my documents?",
+    ].slice(0, amount);
   };
 
   return (

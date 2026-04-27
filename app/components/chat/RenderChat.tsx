@@ -41,7 +41,8 @@ interface RenderChatProps {
   _collapsed: boolean;
   conversationID: string;
   queryID: string;
-  messagesEndRef: React.RefObject<HTMLDivElement>;
+  /** @deprecated Scroll anchor is now in ChatPage. This prop is ignored. */
+  messagesEndRef?: React.RefObject<HTMLDivElement>;
   finished: boolean;
   query_start: Date;
   query_end: Date | null;
@@ -61,7 +62,6 @@ interface RenderChatProps {
 const RenderChat: React.FC<RenderChatProps> = ({
   messages,
   _collapsed,
-  messagesEndRef,
   conversationID,
   queryID,
   finished,
@@ -89,7 +89,10 @@ const RenderChat: React.FC<RenderChatProps> = ({
   } = useContext(ChatContext);
 
   const filterMessages = (_messages: Message[]) => {
-    return _messages.filter((message) => message.type !== "training_update");
+    return _messages.filter(
+      (message) =>
+        message.type !== "training_update" && message.type !== "user_prompt"
+    );
   };
 
   useEffect(() => {
@@ -465,7 +468,6 @@ const RenderChat: React.FC<RenderChatProps> = ({
                 ))}
             </div>
           )}
-          {!collapsed && <div ref={messagesEndRef} />}
           {!socketOnline && (
             <div className="w-full flex justify-center items-center">
               <p className="text-primary text-sm shine">

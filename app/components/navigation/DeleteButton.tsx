@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, forwardRef } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
@@ -24,23 +24,19 @@ interface DeleteButtonProps {
   classNameDefault?: string;
 }
 
-export const DeleteButton = forwardRef<HTMLButtonElement, DeleteButtonProps>(
-  (
-    {
-      icon,
-      text,
-      confirmText,
-      confirmIcon,
-      onClick,
-      variant = "destructive",
-      size = "default",
-      classNameDefault = "",
-      classNameConfirm = "",
-      disabled = false,
-      timerDuration = 3000,
-    },
-    ref
-  ) => {
+export const DeleteButton = React.forwardRef<HTMLDivElement, DeleteButtonProps>(({
+  icon,
+  text,
+  confirmText,
+  confirmIcon,
+  onClick,
+  variant = "destructive",
+  size = "default",
+  classNameDefault = "",
+  classNameConfirm = "",
+  disabled = false,
+  timerDuration = 3000,
+}, ref) => {
     const [isConfirming, setIsConfirming] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0);
 
@@ -182,6 +178,7 @@ export const DeleteButton = forwardRef<HTMLButtonElement, DeleteButtonProps>(
 
   return (
     <motion.div
+      ref={ref}
       variants={buttonVariants}
       animate={isConfirming ? "confirming" : "normal"}
       whileTap="tap"
