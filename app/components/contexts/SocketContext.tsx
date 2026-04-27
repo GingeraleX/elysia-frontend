@@ -54,6 +54,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
+    // No reconnect loop in mock mode
+    if (
+      process.env.NEXT_PUBLIC_MOCK_MODE === "true" &&
+      typeof window !== "undefined" &&
+      localStorage.getItem("mockMode") === "true"
+    ) {
+      return;
+    }
+
     const interval = setInterval(() => {
       if (!socketOnline || socket?.readyState === WebSocket.CLOSED || !socket) {
         console.log("Elysia not online, trying to reconnect...");
@@ -68,6 +77,15 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Don't connect if not authenticated
     if (!user && !isGuest) {
+      return;
+    }
+
+    // Skip WebSocket in mock mode — no backend is running
+    if (
+      process.env.NEXT_PUBLIC_MOCK_MODE === "true" &&
+      typeof window !== "undefined" &&
+      localStorage.getItem("mockMode") === "true"
+    ) {
       return;
     }
 
