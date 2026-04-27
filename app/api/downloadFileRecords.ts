@@ -1,4 +1,4 @@
-﻿import { host } from "@/app/components/host";
+import { host } from "@/app/components/host";
 
 /**
  * Download the original source file that was ingested.

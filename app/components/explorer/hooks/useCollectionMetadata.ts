@@ -24,7 +24,7 @@ export function useCollectionMetadata({
     const properties: Record<string, string> = {};
     const columns: Record<string, string[]> = {};
     let maxLength = 0;
-    for (const fieldKey in metadata.metadata.fields) {
+    for (const fieldKey in metadata.metadata?.fields) {
       const _field = metadata.metadata.fields[fieldKey];
       const field = {
         type: _field?.type || "",

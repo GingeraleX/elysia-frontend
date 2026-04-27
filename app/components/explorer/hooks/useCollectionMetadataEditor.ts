@@ -86,13 +86,13 @@ export function useCollectionMetadataEditor({
   const [savingSummary, setSavingSummary] = useState(false);
 
   useEffect(() => {
-    if (collectionMetadata?.metadata.summary) {
-      setSummaryDraft(collectionMetadata.metadata.summary);
+    if (collectionMetadata?.metadata?.summary) {
+      setSummaryDraft(collectionMetadata?.metadata?.summary);
     }
-  }, [collectionMetadata?.metadata.summary]);
+  }, [collectionMetadata?.metadata?.summary]);
 
   const hasSummaryChanges =
-    summaryDraft !== (collectionMetadata?.metadata.summary || "");
+    summaryDraft !== (collectionMetadata?.metadata?.summary || "");
 
   const handleSaveSummary = async () => {
     if (!collection || !id) return;
@@ -117,12 +117,12 @@ export function useCollectionMetadataEditor({
   const [showAddGroupDropdown, setShowAddGroupDropdown] = useState(false);
 
   useEffect(() => {
-    if (editingMappings && collectionMetadata?.metadata.mappings) {
+    if (editingMappings && collectionMetadata?.metadata?.mappings) {
       const converted: Record<string, Record<string, string>> = {};
-      for (const group in collectionMetadata.metadata.mappings) {
+      for (const group in collectionMetadata?.metadata?.mappings) {
         converted[group] = {};
-        for (const subkey in collectionMetadata.metadata.mappings[group]) {
-          const val = collectionMetadata.metadata.mappings[group][subkey];
+        for (const subkey in collectionMetadata?.metadata?.mappings[group]) {
+          const val = collectionMetadata?.metadata?.mappings[group][subkey];
           const stringVal = Array.isArray(val) ? val[0] || "" : val || "";
           converted[group][subkey] = stringVal;
         }
@@ -200,7 +200,7 @@ export function useCollectionMetadataEditor({
 
   const hasMappingsChanges =
     JSON.stringify(mappingsDraft) !==
-    JSON.stringify(collectionMetadata?.metadata.mappings || {});
+    JSON.stringify(collectionMetadata?.metadata?.mappings || {});
 
   const handleSaveMappings = async () => {
     if (!collection || !id) return;
@@ -223,10 +223,10 @@ export function useCollectionMetadataEditor({
 
   // Initialise draft from stored metadata whenever we open edit mode OR metadata refreshes
   React.useEffect(() => {
-    if (collectionMetadata?.metadata.field_display_types) {
-      setFieldDisplayTypesDraft({ ...collectionMetadata.metadata.field_display_types });
+    if (collectionMetadata?.metadata?.field_display_types) {
+      setFieldDisplayTypesDraft({ ...collectionMetadata?.metadata?.field_display_types });
     }
-  }, [collectionMetadata?.metadata.field_display_types]);
+  }, [collectionMetadata?.metadata?.field_display_types]);
 
   const handleFieldDisplayTypeChange = (field: string, displayType: string) => {
     setFieldDisplayTypesDraft(prev => ({ ...prev, [field]: displayType }));
@@ -234,7 +234,7 @@ export function useCollectionMetadataEditor({
 
   const hasFieldDisplayTypesChanges =
     JSON.stringify(fieldDisplayTypesDraft) !==
-    JSON.stringify(collectionMetadata?.metadata.field_display_types || {});
+    JSON.stringify(collectionMetadata?.metadata?.field_display_types || {});
 
   const handleSaveFieldDisplayTypes = async () => {
     if (!collection || !id) return;
@@ -258,8 +258,8 @@ export function useCollectionMetadataEditor({
   const [savingNamedVectors, setSavingNamedVectors] = useState(false);
 
   useEffect(() => {
-    if (editingNamedVectors && collectionMetadata?.metadata.named_vectors) {
-      setNamedVectorsDraft(collectionMetadata.metadata.named_vectors);
+    if (editingNamedVectors && collectionMetadata?.metadata?.named_vectors) {
+      setNamedVectorsDraft(collectionMetadata?.metadata?.named_vectors);
     }
     if (!editingNamedVectors) {
       setNamedVectorsDraft([]);
@@ -279,7 +279,7 @@ export function useCollectionMetadataEditor({
 
   const hasNamedVectorsChanges =
     JSON.stringify(namedVectorsDraft) !==
-    JSON.stringify(collectionMetadata?.metadata.named_vectors || {});
+    JSON.stringify(collectionMetadata?.metadata?.named_vectors || {});
 
   const handleSaveNamedVectors = async () => {
     if (!collection || !id) return;

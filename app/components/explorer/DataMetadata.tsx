@@ -68,7 +68,7 @@ const DataMetadata: React.FC<DataMetadataProps> = ({
         }}
       >
         <MetadataSummaryEditor
-          summary={collectionMetadata?.metadata.summary || ""}
+          summary={collectionMetadata?.metadata?.summary || ""}
           editing={metadataEditor.editingSummary}
           summaryDraft={metadataEditor.summaryDraft}
           saving={metadataEditor.savingSummary}
@@ -79,14 +79,14 @@ const DataMetadata: React.FC<DataMetadataProps> = ({
           onCancel={() => {
             metadataEditor.setEditingSummary(false);
             metadataEditor.setSummaryDraft(
-              collectionMetadata?.metadata.summary || ""
+              collectionMetadata?.metadata?.summary || ""
             );
           }}
         />
       </motion.div>
 
       {/* Field Display Types — auto-detected, user-editable */}
-      {collectionMetadata?.metadata.field_display_types &&
+      {collectionMetadata?.metadata?.field_display_types &&
         Object.keys(collectionMetadata.metadata.field_display_types).length > 0 && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
@@ -136,7 +136,7 @@ const DataMetadata: React.FC<DataMetadataProps> = ({
           onMappingChange={metadataEditor.handleMappingChange}
           saving={metadataEditor.savingMappings}
           hasChanges={metadataEditor.hasMappingsChanges}
-          currentMappings={collectionMetadata?.metadata.mappings || {}}
+          currentMappings={collectionMetadata?.metadata?.mappings || {}}
         />
       </motion.div>
 
@@ -151,7 +151,7 @@ const DataMetadata: React.FC<DataMetadataProps> = ({
         }}
       >
         <MetadataFieldsDisplay
-          fields={collectionMetadata?.metadata.fields || {}}
+          fields={collectionMetadata?.metadata?.fields || {}}
         />
       </motion.div>
     </motion.div>

@@ -40,7 +40,7 @@ export async function getTreeConfig(
   } catch (error) {
     console.error("Get Tree Config error:", error);
     return {
-      error: error as string,
+      error: error instanceof Error ? error.message : String(error),
       config: null,
     };
   } finally {

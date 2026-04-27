@@ -15,6 +15,7 @@ import { RouterProvider } from "./components/contexts/RouterContext";
 import { ProcessingProvider } from "./components/contexts/ProcessingContext";
 import { ModeProvider } from "./components/contexts/ModeContext";
 import { StackModeProvider } from "./components/contexts/StackModeContext";
+import { MockToggle } from "./components/MockToggle";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -57,6 +58,7 @@ export default function RootLayout({
                   {children}
                 </StackModeProvider>
                 <Toaster />
+                <MockToggle /> {/* no-op in prod if NEXT_PUBLIC_MOCK_MODE not set */}
               </ModeProvider>
             </SessionProvider>
           </ToastProvider>

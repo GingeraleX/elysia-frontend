@@ -46,8 +46,8 @@ export interface PlanResult {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function fmtGb(gb: number): string {
-  if (gb <= 0) return "0";
+function fmtGb(gb: number | undefined | null): string {
+  if (gb == null || !isFinite(gb) || gb <= 0) return "0";
   if (gb < 1)  return `${Math.round(gb * 1024)} MB`;
   return `${gb % 1 === 0 ? gb : gb.toFixed(1)} GB`;
 }
@@ -155,7 +155,8 @@ export default function ModelMemoryBar({ planResult, loading, error, onApplyReme
     );
   }
 
-  const { fits, budgetGb, totalGb, freeGb, perSlot, remediations } = planResult;
+
+  const { fits, budgetGb, totalGb, freeGb, perSlot = [], remediations = [] } = planResult;
   const displayTotal = fits ? budgetGb : totalGb;
 
   const slots = perSlot.map((s) => ({

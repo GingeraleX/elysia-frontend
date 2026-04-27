@@ -1,4 +1,4 @@
-﻿import { BasePayload } from "@/app/types/payloads";
+import { BasePayload } from "@/app/types/payloads";
 import { host } from "@/app/components/host";
 
 export async function saveConversation(

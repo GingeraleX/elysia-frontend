@@ -37,7 +37,7 @@ export async function getConfig(
   } catch (error) {
     console.error("Get Config error:", error);
     return {
-      error: error as string,
+      error: error instanceof Error ? error.message : String(error),
       config: null,
       frontend_config: null,
       warnings: [],

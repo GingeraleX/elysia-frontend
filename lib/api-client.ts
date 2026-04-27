@@ -22,6 +22,7 @@ export class ApiError extends Error {
 }
 
 import { host as _defaultHost } from "@/app/components/host";
+import { handleMockRequest } from "./mock-handlers";
 
 export class ApiClient {
   private baseUrl: string;
@@ -86,6 +87,16 @@ export class ApiClient {
       body,
       timeout = this.defaultTimeout,
     } = config;
+
+    // ── MOCK INTERCEPT (only active when NEXT_PUBLIC_MOCK_MODE=true) ──────────
+    if (
+      process.env.NEXT_PUBLIC_MOCK_MODE === "true" &&
+      typeof window !== "undefined" &&
+      localStorage.getItem("mockMode") === "true"
+    ) {
+      return handleMockRequest(endpoint, method, body) as Promise<T>;
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     const url = `${this.baseUrl}${endpoint}`;
     

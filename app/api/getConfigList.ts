@@ -39,7 +39,7 @@ export async function getConfigList(
   } catch (error) {
     console.error("Get Config List error:", error);
     return {
-      error: error as string,
+      error: error instanceof Error ? error.message : String(error),
       configs: [],
       warnings: [],
     };

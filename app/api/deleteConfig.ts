@@ -36,7 +36,7 @@ export async function deleteConfig(
   } catch (error) {
     console.error("Deleting Config error:", error);
     return {
-      error: error as string,
+      error: error instanceof Error ? error.message : String(error),
     };
   } finally {
     if (process.env.NODE_ENV === "development") {

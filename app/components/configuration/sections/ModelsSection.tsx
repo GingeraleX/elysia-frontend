@@ -811,7 +811,7 @@ export default function ModelsSection({
                     { key: "ocr",    label: "OCR-VL :8083" },
                   ] as { key: keyof typeof modelStatus.slots; label: string }[]
                 ).map(({ key, label }) => {
-                  const slot = modelStatus.slots[key];
+                  const slot = modelStatus?.slots?.[key];
                   if (!slot) return null;
                   // Brain is not loaded in ingestion/ocr-solo modes
                   const notApplicable =
