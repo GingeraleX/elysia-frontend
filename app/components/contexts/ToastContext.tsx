@@ -31,7 +31,7 @@ const ErrorToastActions: React.FC<{ errorText: string }> = ({ errorText }) => {
         variant="ghost"
         size="sm"
         className="h-8 shrink-0 px-3 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive"
-        title="Copy error to clipboard"
+        title="Copia errore negli appunti"
       >
         {copied ? (
           <IoCheckmarkOutline className="h-4 w-4" />
@@ -115,7 +115,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
 
   const showErrorToast = useCallback(
     (title: string, description?: string) => {
-      const errorText = description || "An error occurred. Please try again.";
+      const errorText = description || "Si è verificato un errore. Riprova.";
       const fullErrorText = `${title}: ${errorText}`;
 
       toast({
@@ -143,9 +143,9 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     (title: string, description?: string) => {
       toast({
         title,
-        description: description || "Please review this warning.",
+        description: description || "Controlla questo avviso.",
         variant: "warning",
-        action: <ToastAction altText="Dismiss">Dismiss</ToastAction>,
+        action: <ToastAction altText="Chiudi">Chiudi</ToastAction>,
       });
     },
     [toast]
@@ -192,8 +192,8 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
       if (isProcessing) {
         setTimeout(() => {
           toast({
-            title: "Already analyzing " + collection.name + "...",
-            description: "Please wait for it to finish before analyzing again.",
+            title: "Analisi già in corso per " + collection.name + "...",
+            description: "Attendi il completamento prima di riavviare l'analisi.",
           });
         }, 0);
         return;
@@ -202,8 +202,8 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
       setTimeout(() => {
         const startTime = Date.now();
         const _toast = toast({
-          title: "0% - Starting analysis of " + collection.name + "...",
-          description: "Connecting to server... (0s)",
+          title: "0% - Avvio analisi di " + collection.name + "...",
+          description: "Connessione al server... (0s)",
           progress: 0,
           duration: 1000000,
         });
@@ -216,7 +216,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
               toast: _toast,
               progress: 0,
               startTime: startTime, // Add start time
-              currentMessage: "Connecting to server...", // Initial message
+              currentMessage: "Connessione al server...", // Initial message
             },
           ];
 
@@ -228,8 +228,8 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
             socket.send(JSON.stringify(payload));
           } else {
             showErrorToast(
-              "Error analyzing " + collection.name + "...",
-              "Connection to Elysia lost (Socket: " +
+              "Errore durante l'analisi di " + collection.name + "...",
+              "Connessione a Elysia persa (Socket: " +
                 socket +
                 ") (ID: " +
                 user_id +
@@ -267,7 +267,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
 
       currentToast.toast.update({
         id: currentToast.toast.id,
-        title: `${Math.round(newProgress)}% - Analyzing ${currentToast.collection_name}...`,
+        title: `${Math.round(newProgress)}% - Analisi di ${currentToast.collection_name}...`,
         description: `${message} (${elapsedTime})`,
         progress: newProgress,
       });
@@ -299,12 +299,12 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
       const finalElapsedTime = formatElapsedTime(currentToast.startTime);
 
       if (error) {
-        const errorDescription = `${error} (Total time: ${finalElapsedTime})`;
-        const fullErrorText = `Error analyzing ${currentToast.collection_name}: ${errorDescription}`;
+        const errorDescription = `${error} (Tempo totale: ${finalElapsedTime})`;
+        const fullErrorText = `Errore durante l'analisi di ${currentToast.collection_name}: ${errorDescription}`;
 
         currentToast.toast.update({
           id: currentToast.toast.id,
-          title: `100% - Error analyzing ${currentToast.collection_name}...`,
+          title: `100% - Errore durante l'analisi di ${currentToast.collection_name}...`,
           variant: "destructive",
           description: errorDescription,
           progress: 100,
@@ -313,15 +313,15 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         currentToast.toast.update({
           id: currentToast.toast.id,
-          title: `100% - Done!`,
-          description: `Collection analyzed successfully (Total time: ${finalElapsedTime})`,
+          title: `100% - Completato!`,
+          description: `Collezione analizzata con successo (Tempo totale: ${finalElapsedTime})`,
           progress: 100,
           action: (
             <ToastAction
-              altText="Close"
+              altText="Chiudi"
               onClick={() => currentToast.toast.dismiss()}
             >
-              Close
+              Chiudi
             </ToastAction>
           ),
         });
@@ -342,7 +342,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
               const elapsedTime = formatElapsedTime(toastItem.startTime);
               toastItem.toast.update({
                 id: toastItem.toast.id,
-                title: `${Math.round(toastItem.progress)}% - Analyzing ${toastItem.collection_name}...`,
+                title: `${Math.round(toastItem.progress)}% - Analisi di ${toastItem.collection_name}...`,
                 description: `${toastItem.currentMessage} (${elapsedTime})`,
                 progress: toastItem.progress,
               });

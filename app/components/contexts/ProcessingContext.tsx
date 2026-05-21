@@ -22,14 +22,14 @@ export const ProcessingProvider = ({
   const triggerAnalysis = useCallback(
     async (collectionName: string, userId: string) => {
       if (!userId) {
-        showErrorToast("Error processing collection", "User ID not found");
+        showErrorToast("Errore durante l'elaborazione della collezione", "ID utente non trovato");
         return;
       }
 
       try {
         showSuccessToast(
-          `Analysing ${collectionName}…`,
-          "Running LLM field analysis — this may take 30–60 s"
+          `Analisi di ${collectionName}…`,
+          "Analisi campi con LLM in corso — può richiedere 30-60 s"
         );
 
         const result = await analyzeCollectionApi(userId, collectionName);
@@ -42,10 +42,10 @@ export const ProcessingProvider = ({
             0;
 
           showSuccessToast(
-            `✓ ${collectionName} analysed`,
+            `✓ ${collectionName} analizzata`,
             fieldCount
-              ? `${fieldCount} fields mapped — metadata updated`
-              : "Collection metadata updated"
+              ? `${fieldCount} campi mappati — metadati aggiornati`
+              : "Metadati collezione aggiornati"
           );
 
           // Refresh the collection list so processed flag / metadata_json updates
@@ -61,15 +61,15 @@ export const ProcessingProvider = ({
           }
         } else {
           showErrorToast(
-            `Error analysing ${collectionName}`,
-            result.error || "Unknown error"
+            `Errore durante l'analisi di ${collectionName}`,
+            result.error || "Errore sconosciuto"
           );
         }
       } catch (error) {
         console.error("[triggerAnalysis] Error:", error);
         showErrorToast(
-          `Error analysing ${collectionName}`,
-          error instanceof Error ? error.message : "Unknown error"
+          `Errore durante l'analisi di ${collectionName}`,
+          error instanceof Error ? error.message : "Errore sconosciuto"
         );
       }
     },
@@ -82,4 +82,3 @@ export const ProcessingProvider = ({
     </ProcessingContext.Provider>
   );
 };
-

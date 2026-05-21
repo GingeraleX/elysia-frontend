@@ -34,37 +34,61 @@ interface ModeContextValue {
 }
 
 export const ModeContext = createContext<ModeContextValue>({
-  mode: "cloud",
+  mode: "local",
   switching: false,
   loading: true,
   switchMode: async () => false,
 });
 
+const MODE_STORAGE_KEY = "elysia_processing_mode";
+
+function getStoredMode(): SystemMode {
+  if (typeof window === "undefined") return "local";
+  return localStorage.getItem(MODE_STORAGE_KEY) === "cloud" ? "cloud" : "local";
+}
+
 export function ModeProvider({ children }: { children: React.ReactNode }) {
-  const [mode, setMode] = useState<SystemMode>("cloud");
+  const [mode, setMode] = useState<SystemMode>("local");
   const [switching, setSwitching] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Fetch the real mode once on mount — keeps it in sync after page refresh.
+  // Local-first default: if nothing was chosen, start offline/local.
   useEffect(() => {
+    const storedMode = getStoredMode();
+    setMode(storedMode);
+
     getModeStatus()
-      .then((res) => setMode(res.mode))
-      .catch(() => {/* leave default "cloud" on network error */})
+      .then((res) => {
+        const hasStoredMode = localStorage.getItem(MODE_STORAGE_KEY);
+        if (hasStoredMode) return;
+        if (res.mode === "local") {
+          setMode("local");
+        }
+      })
+      .catch(() => {/* keep local-first UI state */})
       .finally(() => setLoading(false));
   }, []);
 
   const switchMode = useCallback(async (to: SystemMode): Promise<boolean> => {
     if (to === mode || switching) return false;
     setSwitching(true);
+    setMode(to);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(MODE_STORAGE_KEY, to);
+    }
+
     try {
       const res = await apiToggleMode(to);
       if (res.success) {
         setMode(res.mode);
+        if (typeof window !== "undefined") {
+          localStorage.setItem(MODE_STORAGE_KEY, res.mode);
+        }
         return true;
       }
-      return false;
+      return true;
     } catch {
-      return false;
+      return true;
     } finally {
       setSwitching(false);
     }
@@ -81,4 +105,3 @@ export function ModeProvider({ children }: { children: React.ReactNode }) {
 export function useMode(): ModeContextValue {
   return useContext(ModeContext);
 }
-

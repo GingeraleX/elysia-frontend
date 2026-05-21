@@ -31,7 +31,7 @@ const DisplayTypeSelect: React.FC<DisplayTypeSelectProps> = ({
       <PopoverTrigger asChild>
         <Button>
           <FaPlus className="text-secondary" />
-          <p className="text-secondary">Add Display</p>
+          <p className="text-secondary">Aggiungi vista</p>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[600px] p-4 bg-foreground ">

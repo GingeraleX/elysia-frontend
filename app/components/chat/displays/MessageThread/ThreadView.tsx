@@ -15,7 +15,7 @@ const ThreadView: React.FC<ThreadViewProps> = ({ thread }) => {
   const uniqueAuthors = [...new Set(authors)];
   const authorsTitle =
     uniqueAuthors.length > 4
-      ? `${uniqueAuthors[0]} & others`
+      ? `${uniqueAuthors[0]} e altri`
       : uniqueAuthors.join(", ");
   const chunks = thread.messages.filter((message) => message.relevant === true);
 
@@ -49,12 +49,12 @@ const ThreadView: React.FC<ThreadViewProps> = ({ thread }) => {
               {showChunksOnly ? (
                 <>
                   <LuMessageSquareText />
-                  <span>Show All</span>
+                  <span>Mostra tutto</span>
                 </>
               ) : (
                 <>
                   <LuMessageSquareText />
-                  <span>Show Relevant Messages</span>
+                  <span>Mostra messaggi rilevanti</span>
                 </>
               )}
             </Button>

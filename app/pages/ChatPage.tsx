@@ -4,39 +4,18 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import { motion } from "framer-motion";
 
 import { Query } from "@/app/types/chat";
-import { DecisionTreeNode } from "@/app/types/objects";
-import { MdChatBubbleOutline } from "react-icons/md";
-import { LuChevronDown } from "react-icons/lu";
+import { Sparkles, RefreshCw, ArrowRight } from "lucide-react";
 
 import QueryInput from "../components/chat/QueryInput";
 import RenderChat from "../components/chat/RenderChat";
-import { BsChatFill } from "react-icons/bs";
-import { RiFlowChart } from "react-icons/ri";
-import FlowDisplay from "../components/chat/FlowDisplay";
-import { ReactFlowProvider } from "@xyflow/react";
-import { CgDebug } from "react-icons/cg";
-import DebugView from "../components/debugging/debug";
 import { SocketContext } from "../components/contexts/SocketContext";
 import { SessionContext } from "../components/contexts/SessionContext";
 import { ConversationContext } from "../components/contexts/ConversationContext";
 import { ChatProvider } from "../components/contexts/ChatContext";
 import { v4 as uuidv4 } from "uuid";
-import { useDebug } from "../components/debugging/useDebug";
 import RateLimitDialog from "../components/navigation/RateLimitDialog";
-import { IoRefresh } from "react-icons/io5";
-import { TbSettings } from "react-icons/tb";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-import { Button } from "@/components/ui/button";
 
 import dynamic from "next/dynamic";
-import { Separator } from "@/components/ui/separator";
 import { CollectionContext } from "../components/contexts/CollectionContext";
 import TreeSettingsView from "../components/configuration/TreeSettingsView";
 
@@ -63,17 +42,11 @@ export default function ChatPage() {
 
   const { getRandomPrompts, collections } = useContext(CollectionContext);
 
-  const { fetchDebug } = useDebug(id || "");
-
   const [currentQuery, setCurrentQuery] = useState<{
     [key: string]: Query;
   }>({});
-  const [currentTitle, setCurrentTitle] = useState<string>("");
   const [currentStatus, setCurrentStatus] = useState<string>("");
-  const [mode, setMode] = useState<"chat" | "flow" | "debug" | "settings">(
-    "chat"
-  );
-  const [currentTrees, setCurrentTrees] = useState<DecisionTreeNode[]>([]);
+  const [mode, setMode] = useState<"chat" | "settings">("chat");
   // Ref for the scrollable chat container — used for jitter-free scroll-to-bottom
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -177,16 +150,6 @@ export default function ChatPage() {
         ? conversations.find((c) => c.id === currentConversation)?.current || ""
         : ""
     );
-    setCurrentTrees(
-      currentConversation && conversations.length > 0
-        ? conversations.find((c) => c.id === currentConversation)?.tree || []
-        : []
-    );
-    setCurrentTitle(
-      currentConversation && conversations.length > 0
-        ? conversations.find((c) => c.id === currentConversation)?.name || ""
-        : ""
-    );
   }, [currentConversation, conversations]);
 
   // Scroll to bottom only when a NEW query is added (count increases).
@@ -228,13 +191,9 @@ export default function ChatPage() {
 
   if (!socketOnline) {
     return (
-      <div className="flex flex-col w-full h-full items-center justify-center">
-        <div
-          className={`absolute flex pointer-events-none -z-30 items-center justify-center lg:w-fit lg:h-fit w-full h-full fade-in`}
-        >
-          <div
-            className={`cursor-pointer lg:w-[35vw] lg:h-[35vw] w-[90vw] h-[90vw]  `}
-          >
+      <div className="flex flex-col w-full h-full items-center justify-center fade-in">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-30 -z-30">
+          <div className="lg:w-[28vw] lg:h-[28vw] w-[70vw] h-[70vw]">
             <AbstractSphereScene
               debug={false}
               displacementStrength={displacementStrength}
@@ -242,80 +201,22 @@ export default function ChatPage() {
             />
           </div>
         </div>
-        <p className="text-primary text-xl shine">Loading Elysia...</p>
+        <p className="text-[13px] text-primary shine">Connessione a Elysia…</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col w-full h-full items-center justify-start gap-3">
-      <div className="flex w-full justify-start items-center lg:sticky z-20 top-0 lg:p-0 p-4 gap-5 bg-background">
-        {currentConversation != null && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="bg-accent/10 hover:bg-accent/20 border-accent border">
-                {mode === "chat" ? (
-                  <>
-                    <BsChatFill size={14} className="text-accent" />
-                    <p className="text-accent">Chat</p>
-                  </>
-                ) : mode === "flow" ? (
-                  <>
-                    <RiFlowChart size={14} className="text-accent" />
-                    <p className="text-accent">Tree</p>
-                  </>
-                ) : mode === "debug" ? (
-                  <>
-                    <CgDebug size={14} className="text-accent" />
-                    <p className="text-accent">Debug</p>
-                  </>
-                ) : mode === "settings" ? (
-                  <>
-                    <TbSettings size={14} className="text-accent" />
-                    <p className="text-accent">Settings</p>
-                  </>
-                ) : null}
-                <LuChevronDown size={14} className="text-accent" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setMode("chat")}>
-                <BsChatFill size={14} />
-                Chat
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setMode("flow")}>
-                <RiFlowChart size={14} />
-                Tree
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setMode("settings")}>
-                <TbSettings size={14} />
-                Settings
-              </DropdownMenuItem>
-              {process.env.NODE_ENV === "development" && (
-                <DropdownMenuItem onClick={() => setMode("debug")}>
-                  <CgDebug size={14} />
-                  Debug
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-        <div className="flex gap-2 items-center justify-center fade-in">
-          <p className="text-primary text-sm">
-            {currentTitle && currentTitle != "New Conversation"
-              ? currentTitle
-              : ""}
-          </p>
-        </div>
-      </div>
-      {currentConversation != null && <Separator className="w-full" />}
+    <div className="flex flex-col w-full h-full items-center justify-start">
       {loadingConversation && (
         <div className="flex w-full h-screen justify-center items-center">
-          <p className="text-primary text-xl shine">Loading Conversation...</p>
+          <p className="text-[13px] text-primary shine">
+            Caricamento conversazione…
+          </p>
         </div>
       )}
       {mode === "chat" && !loadingConversation ? (
-        <div ref={chatScrollRef} className="flex flex-col w-full max-h-[calc(100dvh-11rem)] lg:max-h-[calc(100dvh-7.5rem)] overflow-y-auto justify-center items-center">
+        <div ref={chatScrollRef} className="flex flex-col w-full max-h-[calc(100dvh-8rem)] lg:max-h-[calc(100dvh-5rem)] overflow-y-auto justify-center items-center">
           <div className="flex flex-col w-full md:w-[60vw] lg:w-[40vw] h-[80vh] ">
             {currentQuery &&
               Object.entries(currentQuery)
@@ -360,12 +261,8 @@ export default function ChatPage() {
             />
           </div>
           {Object.keys(currentQuery).length === 0 && (
-            <div
-              className={`absolute flex pointer-events-none -z-30 items-center justify-center lg:w-fit lg:h-fit w-full h-full fade-in`}
-            >
-              <div
-                className={`cursor-pointer lg:w-[35vw] lg:h-[35vw] w-[90vw] h-[90vw]  `}
-              >
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-30 -z-30 fade-in">
+              <div className="lg:w-[28vw] lg:h-[28vw] w-[80vw] h-[80vw]">
                 <AbstractSphereScene
                   debug={false}
                   displacementStrength={displacementStrength}
@@ -375,111 +272,71 @@ export default function ChatPage() {
             </div>
           )}
           {Object.keys(currentQuery).length === 0 && (
-            <div className="absolute flex flex-col justify-center items-center w-full h-full gap-3 fade-in">
-              <div className="flex items-center gap-4">
-                <p className="text-primary text-3xl font-semibold">
-                  Ask Elysia
+            <div className="absolute inset-0 flex flex-col justify-center items-center px-6 pb-40 fade-in">
+              <div className="w-full md:w-[60vw] lg:w-[44vw] max-w-2xl flex flex-col items-center text-center">
+                <p className="text-[14px] text-primary font-medium">
+                  Chiedi a Elysia
                 </p>
-                <Button
-                  variant="default"
-                  className="w-10"
-                  onClick={() => {
-                    setRandomPrompts(getRandomPrompts(4));
-                  }}
-                >
-                  <IoRefresh />
-                </Button>
-              </div>
+                <p className="mt-1 text-[12.5px] text-secondary/80 max-w-sm">
+                  Domanda in linguaggio naturale sui tuoi dati.
+                </p>
 
-              <motion.div
-                className="flex flex-col w-full md:w-[60vw] lg:w-[40vw] gap-3"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{
-                  staggerChildren: 0.03, // Reduced from 0.1
-                  delayChildren: 0.05, // Reduced from 0.2
-                }}
-              >
-                {randomPrompts.map((prompt, index) => (
-                  <motion.button
-                    key={index + "prompt"}
-                    onClick={() => handleSendQuery(prompt)}
-                    className="whitespace-normal px-4 pt-2 text-left h-auto hover:bg-foreground text-sm rounded-lg transition-all duration-200 ease-in-out flex flex-col items-start justify-start overflow-hidden relative group"
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{
-                      duration: 0.2, // Reduced from 0.5
-                      delay: index * 0.03, // Reduced from 0.1
-                      ease: "easeOut",
-                    }}
-                    whileHover={{
-                      scale: 1.02,
-                      y: -2,
-                      transition: { duration: 0.1 }, // Reduced from default
-                    }}
-                    whileTap={{
-                      scale: 0.98,
-                      y: 0,
-                    }}
-                  >
-                    <div className="flex items-center justify-start gap-2 relative z-10">
-                      <motion.div
-                        whileHover={{
-                          scale: 1.1,
-                          rotate: [0, -10, 10, -5, 5, 0],
-                          transition: {
-                            duration: 0.5,
-                            ease: "easeInOut",
-                            times: [0, 0.2, 0.4, 0.6, 0.8, 1],
-                          },
-                        }}
+                {randomPrompts.length > 0 && (
+                  <div className="mt-7 w-full">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11.5px] text-secondary/70">
+                        Suggerimenti
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setRandomPrompts(getRandomPrompts(4))}
+                        className="inline-flex items-center gap-1 text-[11px] text-secondary/70 hover:text-primary transition-colors"
                       >
-                        <MdChatBubbleOutline size={14} />
-                      </motion.div>
-                      <motion.p
-                        className="text-primary text-sm truncate lg:w-[35vw] w-[80vw]"
-                        initial={{ opacity: 0.8 }}
-                        whileHover={{
-                          opacity: 1,
-                          transition: { duration: 0.2 },
-                        }}
-                      >
-                        {prompt}
-                      </motion.p>
+                        <RefreshCw className="h-3 w-3" strokeWidth={1.8} />
+                        Rigenera
+                      </button>
                     </div>
-                    <motion.div
-                      className="border-b border-foreground w-full pt-2 origin-left"
-                      initial={{ scaleX: 0, opacity: 0.3 }}
-                      whileHover={{
-                        scaleX: 1,
-                        opacity: 1,
-                        transition: { duration: 0.3, ease: "easeOut" },
-                      }}
-                    />
 
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg opacity-0"
-                      whileHover={{
-                        opacity: 1,
-                        transition: { duration: 0.3 },
-                      }}
-                    />
-                  </motion.button>
-                ))}
-              </motion.div>
+                      className="grid grid-cols-1 md:grid-cols-2 gap-1.5"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ staggerChildren: 0.04, delayChildren: 0.05 }}
+                    >
+                      {randomPrompts.map((prompt, index) => (
+                        <motion.button
+                          key={index + "prompt"}
+                          onClick={() => handleSendQuery(prompt)}
+                          className="group/p relative flex items-center gap-2.5 rounded-lg border border-border/40 bg-background_alt/25 backdrop-blur-sm px-3 py-2.5 text-left transition-all duration-200 hover:border-accent/40 hover:bg-background_alt/45"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{
+                            duration: 0.2,
+                            delay: index * 0.04,
+                            ease: "easeOut",
+                          }}
+                          whileTap={{ scale: 0.99 }}
+                        >
+                          <Sparkles
+                            className="h-3 w-3 text-accent/70 shrink-0"
+                            strokeWidth={1.8}
+                          />
+                          <p className="flex-1 text-[12px] text-primary/90 leading-snug line-clamp-2">
+                            {prompt}
+                          </p>
+                          <ArrowRight
+                            className="h-3 w-3 text-secondary/50 group-hover/p:text-accent group-hover/p:translate-x-0.5 transition-all shrink-0"
+                            strokeWidth={1.8}
+                          />
+                        </motion.button>
+                      ))}
+                    </motion.div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
-      ) : mode === "flow" ? (
-        <ReactFlowProvider>
-          <FlowDisplay currentTrees={currentTrees} />
-        </ReactFlowProvider>
-      ) : mode === "debug" ? (
-        <DebugView
-          fetchDebug={fetchDebug}
-          currentConversation={currentConversation || ""}
-          conversations={conversations}
-        />
       ) : mode === "settings" ? (
         <TreeSettingsView
           user_id={id || ""}

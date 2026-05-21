@@ -15,7 +15,7 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ tasks_completed }) => {
       <div className="flex items-center justify-center w-full p-8 bg-background_alt rounded-md border border-foreground">
         <div className="flex flex-col items-center gap-3 text-secondary">
           <MdTask size={32} className="opacity-50" />
-          <p className="text-sm">No tasks completed</p>
+          <p className="text-sm">Nessun task completato</p>
         </div>
       </div>
     );
@@ -40,7 +40,7 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ tasks_completed }) => {
                 </span>
               </div>
               <p className="text-secondary text-sm font-medium">
-                Task {groupIndex + 1}
+                Attività {groupIndex + 1}
               </p>
             </div>
             <div className="p-3 bg-background rounded-md border border-foreground">
@@ -74,13 +74,13 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ tasks_completed }) => {
                       </p>
                       {task.reasoning && (
                         <p className="text-secondary text-xs leading-relaxed">
-                          <span className="font-medium">Reasoning:</span>{" "}
+                          <span className="font-medium">Motivazione:</span>{" "}
                           {task.reasoning}
                         </p>
                       )}
                       {task.extra_string && (
                         <p className="text-secondary text-xs leading-relaxed">
-                          <span className="font-medium">Details:</span>{" "}
+                          <span className="font-medium">Dettagli:</span>{" "}
                           {task.extra_string}
                         </p>
                       )}
@@ -94,11 +94,11 @@ const TaskDisplay: React.FC<TaskDisplayProps> = ({ tasks_completed }) => {
                     {task.task}
                   </Badge>
                   <Badge className="text-xs bg-highlight/10 text-highlight border-highlight/20">
-                    Count: {task.count}
+                    Conteggio: {task.count}
                   </Badge>
                   {task.action && (
                     <Badge className="text-xs bg-secondary/10 text-secondary border-secondary/20">
-                      Action: {task.action}
+                      Azione: {task.action}
                     </Badge>
                   )}
                 </div>

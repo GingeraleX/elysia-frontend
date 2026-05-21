@@ -65,13 +65,13 @@ const MetadataSummaryEditor: React.FC<MetadataSummaryEditorProps> = ({
         <div className="bg-highlight/10 border border-highlight rounded-md p-1">
           <CiTextAlignJustify className="text-highlight" />
         </div>
-        <p className="font-bold">Summary</p>
+        <p className="font-bold">Riepilogo</p>
       </div>
 
       {!editing && (
         <Button onClick={onEdit} className="">
           <FaEdit className="text-secondary" />
-          <p className="text-secondary">Edit</p>
+          <p className="text-secondary">Modifica</p>
         </Button>
       )}
     </div>

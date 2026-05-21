@@ -5,12 +5,12 @@ export const useApiErrorHandler = () => {
   const { showErrorToast, showSuccessToast } = useContext(ToastContext);
 
   const handleApiError = (error: string, customTitle?: string) => {
-    const title = customTitle || "Operation Failed";
+    const title = customTitle || "Operazione non riuscita";
     showErrorToast(title, error);
   };
 
   const handleApiSuccess = (message: string, customTitle?: string) => {
-    const title = customTitle || "Success";
+    const title = customTitle || "Successo";
     showSuccessToast(title, message);
   };
 
@@ -34,7 +34,7 @@ export const useApiErrorHandler = () => {
       return result;
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "An unexpected error occurred";
+        error instanceof Error ? error.message : "Si è verificato un errore imprevisto";
       handleApiError(errorMessage, errorTitle);
       return null;
     }

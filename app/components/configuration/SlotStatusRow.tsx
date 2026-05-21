@@ -75,7 +75,7 @@ export default function SlotStatusRow({
     // Booting: show amber dots
     statusContent = <LoadingDots className="text-amber-400/80" />;
   } else if (ready) {
-    const displayName = model ?? "Ready";
+    const displayName = model ?? "Pronto";
     statusContent = (
       <span className="text-xs text-primary font-mono truncate" title={displayName}>
         {displayName}
@@ -83,7 +83,7 @@ export default function SlotStatusRow({
     );
   } else {
     // Not running
-    statusContent = <span className="text-xs text-secondary/50">Not running</span>;
+    statusContent = <span className="text-xs text-secondary/50">Non in esecuzione</span>;
   }
 
   if (variant === "user") {
@@ -100,8 +100,8 @@ export default function SlotStatusRow({
               : loading && !ready
                 ? <LoadingDots className="text-amber-400/80" />
                 : ready
-                  ? (model ?? "Ready")
-                  : "Not running"}
+                  ? (model ?? "Pronto")
+                  : "Non in esecuzione"}
           </span>
         </div>
       </div>
@@ -118,18 +118,17 @@ export default function SlotStatusRow({
       </div>
       {cudaWarning && (
         <div className="ml-8 flex items-center gap-1 text-[10px] text-red-400/90 leading-snug">
-          <span>⚠ CUDA {cudaVersion} detected — GGUF outputs may be incorrect.</span>
+          <span>⚠ Rilevata CUDA {cudaVersion} — gli output GGUF potrebbero essere errati.</span>
           <a
             href="https://unsloth.ai/docs/get-started/requirements"
             target="_blank"
             rel="noreferrer"
             className="underline opacity-70 hover:opacity-100"
           >
-            Upgrade to CUDA 12.4+
+            Aggiorna a CUDA 12.4+
           </a>
         </div>
       )}
     </div>
   );
 }
-

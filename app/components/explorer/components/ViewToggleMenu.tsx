@@ -53,7 +53,7 @@ const ViewToggleMenu: React.FC<ViewToggleMenuProps> = ({
           <p
             className={`${view === "table" ? "text-accent" : "text-secondary"}`}
           >
-            Table
+            Tabella
           </p>
         </Button>
       </motion.div>
@@ -69,7 +69,7 @@ const ViewToggleMenu: React.FC<ViewToggleMenuProps> = ({
           <p
             className={`${view === "metadata" ? "text-highlight" : "text-secondary"}`}
           >
-            Metadata
+            Metadati
           </p>
         </Button>
       </motion.div>
@@ -85,7 +85,7 @@ const ViewToggleMenu: React.FC<ViewToggleMenuProps> = ({
           <p
             className={`${view === "configuration" ? "text-alt_color_a" : "text-secondary"}`}
           >
-            Configuration
+            Configurazione
           </p>
         </Button>
       </motion.div>

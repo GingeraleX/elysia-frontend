@@ -11,13 +11,13 @@ interface SingleMessageProps {
 const SingleMessageDisplay: React.FC<SingleMessageProps> = ({ payload }) => {
   const formatDate = (date: string) => {
     const dateObj = new Date(date);
-    return dateObj.toLocaleDateString("en-US", {
+    return dateObj.toLocaleDateString("it-IT", {
       year: "numeric",
       month: "numeric",
       day: "numeric",
       hour: "numeric",
       minute: "numeric",
-      hour12: true,
+      hour12: false,
     });
   };
 

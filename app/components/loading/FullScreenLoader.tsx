@@ -15,7 +15,7 @@ export function FullScreenLoader() {
         <div className="h-12 w-12 rounded-full border-3 border-border border-t-accent border-r-accent animate-spin" />
         
         {/* Loading text with shine effect */}
-        <p className="text-primary font-medium shine">Loading...</p>
+        <p className="text-primary font-medium shine">Caricamento...</p>
       </div>
     </div>
   );
@@ -26,7 +26,7 @@ export function FullScreenLoader() {
  * Use within sections instead of full-screen
  */
 export function CompactLoader({
-  message = "Loading...",
+  message = "Caricamento...",
   size = "medium"
 }: {
   message?: string;
@@ -47,4 +47,3 @@ export function CompactLoader({
     </div>
   );
 }
-

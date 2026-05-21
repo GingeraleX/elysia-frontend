@@ -6,7 +6,6 @@ export const dynamic = "force-dynamic";
 
 import { useAuth } from "@/app/components/contexts/AuthContext";
 import { ShellLayout } from "@/app/components/layout/ShellLayout";
-import { UserProfile } from "@/app/components/auth/UserProfile";
 import React, { useContext, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import nextDynamic from "next/dynamic";
@@ -44,16 +43,13 @@ const ImportDataPage = nextDynamic(() => import("./pages/ImportDataPage"), {
 const SettingsPage = nextDynamic(() => import("./pages/SettingsPage"), { 
   loading: () => <PageLoader /> 
 });
+const ModelsPage = nextDynamic(() => import("./pages/ModelsPage"), {
+  loading: () => <PageLoader />
+});
 const EvalPage = nextDynamic(() => import("./pages/EvalPage"), { 
   loading: () => <PageLoader /> 
 });
-const FeedbackPage = nextDynamic(() => import("./pages/FeedbackPage"), { 
-  loading: () => <PageLoader /> 
-});
 const ElysiaPage = nextDynamic(() => import("./pages/ElysiaPage"), { 
-  loading: () => <PageLoader /> 
-});
-const DisplayPage = nextDynamic(() => import("./pages/DisplayPage"), { 
   loading: () => <PageLoader /> 
 });
 const LoginPage = nextDynamic(() => import("./pages/LoginPage"), { 
@@ -64,6 +60,9 @@ const LandingPage = nextDynamic(() => import("./pages/LandingPage"), {
 });
 const FilesPage = nextDynamic(() => import("./pages/FilesPage"), { 
   loading: () => <PageLoader /> 
+});
+const DocumentationPage = nextDynamic(() => import("./pages/DocumentationPage"), {
+  loading: () => <PageLoader />
 });
 
 
@@ -140,10 +139,6 @@ function HomeContent() {
 
     return (
       <AppProviders>
-        {/* Fixed avatar — desktop only. Mobile gets it inline in MobileHeader. */}
-        <div className="hidden lg:block">
-          <UserProfile />
-        </div>
         <AuthenticatedApp />
       </AppProviders>
     );
@@ -199,7 +194,6 @@ function AppProviders({ children }: { children: React.ReactNode }) {
 /**
  * Mobile-only top bar with hamburger trigger.
  * Hidden on lg+ (desktop already shows the persistent sidebar).
- * h-14 = 56px — exactly fits the avatar button (top-0 + h-9 = 36px centred in 56px).
  */
 function MobileHeader() {
   return (
@@ -213,8 +207,7 @@ function MobileHeader() {
         <span className="text-sm font-bold text-primary">Elysia</span>
       </div>
 
-      {/* Right: profile avatar — inline (not fixed) so it sits inside this bar */}
-      <UserProfile inline />
+      <div className="h-9 w-9 shrink-0" />
     </header>
   );
 }
@@ -243,14 +236,16 @@ function AuthenticatedApp() {
             {currentPage === "data" && <DataPage />}
             {currentPage === "collection" && <CollectionPage />}
             {currentPage === "import" && <ImportDataPage />}
+            {currentPage === "models" && <ModelsPage />}
             {currentPage === "settings" && <SettingsPage />}
-            {currentPage === "eval" && <EvalPage />}
-            {currentPage === "feedback" && <FeedbackPage />}
+            {(currentPage === "eval" ||
+              currentPage === "feedback" ||
+              currentPage === "display") && <EvalPage />}
             {currentPage === "elysia" && <ElysiaPage />}
-            {currentPage === "display" && <DisplayPage />}
             {currentPage === "login" && <LoginPage />}
             {currentPage === "landing" && <LandingPage />}
             {currentPage === "files" && <FilesPage />}
+            {currentPage === "documentation" && <DocumentationPage />}
           </main>
         </div>
       </div>

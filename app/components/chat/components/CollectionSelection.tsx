@@ -72,7 +72,7 @@ const CollectionSelection: React.FC = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel className="text-secondary">
-          Select Data Sources
+          Seleziona sorgenti dati
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup className="flex gap-2">
@@ -83,7 +83,7 @@ const CollectionSelection: React.FC = () => {
               size={"sm"}
               className="w-full flex-grow"
             >
-              Select All
+              Seleziona tutto
             </Button>
           </DropdownMenuItem>
           <DropdownMenuItem className="flex flex-grow">
@@ -93,7 +93,7 @@ const CollectionSelection: React.FC = () => {
               size={"sm"}
               className="w-full flex-grow"
             >
-              Deselect All
+              Deseleziona tutto
             </Button>
           </DropdownMenuItem>
         </DropdownMenuGroup>

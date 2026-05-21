@@ -35,7 +35,7 @@ export function LoadingSpinner({ size = "medium", fullScreen = false }: { size?:
       <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 fade-in">
         <div className="bg-foreground border border-border rounded-lg p-8 text-center">
           {spinnerContent}
-          <p className="text-secondary text-sm mt-4">Loading...</p>
+          <p className="text-secondary text-sm mt-4">Caricamento...</p>
         </div>
       </div>
     );
@@ -52,7 +52,7 @@ export function LoadingSpinner({ size = "medium", fullScreen = false }: { size?:
 export function PageLoader() {
   return (
     <div className="flex items-center justify-center h-full w-full">
-      <p className="text-primary text-lg shine">Loading...</p>
+      <p className="text-primary text-lg shine">Caricamento...</p>
     </div>
   );
 }
@@ -80,4 +80,3 @@ export function SkeletonLoader({ className = "" }: { className?: string }) {
     <div className={`bg-foreground_alt rounded-lg animate-pulse ${className}`} />
   );
 }
-

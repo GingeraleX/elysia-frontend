@@ -2,117 +2,319 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Cross-browser scrollbar styling */
-/* Webkit browsers (Chrome, Safari, newer versions of Opera) */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-  background-color: hsl(var(--background));
-}
+/* ============================================================
+   ELYSIA — Design System
+   "Cinematic Editorial × Iridescent Violet"
+   ============================================================ */
 
-::-webkit-scrollbar-thumb {
-  background-color: hsl(var(--secondary) / 0.35);
-  border-radius: 4px;
-  border: 1px solid hsl(var(--background));
-}
+@layer base {
+  :root {
+    /* Surface stack — deep midnight ink, neutral-cool */
+    --background: 240 18% 5%;
+    --background_alt: 240 14% 8%;
+    --foreground: 240 12% 12%;
+    --foreground_alt: 240 10% 16%;
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: hsl(var(--secondary) / 0.5);
-}
+    /* Text */
+    --primary: 250 25% 96%;
+    --secondary: 240 8% 60%;
 
-::-webkit-scrollbar-track {
-  background-color: hsl(var(--background));
-}
+    /* Primary accent — vibrant violet */
+    --accent: 268 86% 70%;
+    --background_accent: 268 52% 16%;
+    --accent-foreground: 268 90% 78%;
 
-/* Fix the white blocks in the scrollbar corner */
-::-webkit-scrollbar-corner {
-  background-color: hsl(var(--background));
-}
+    /* Iridescent partners */
+    --highlight: 200 90% 72%;     /* icy cyan */
+    --accent-2: 320 80% 72%;      /* magenta */
+    --accent-3: 248 88% 76%;      /* periwinkle */
 
-/* Firefox and other browsers that support scrollbar-color */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--secondary) / 0.35) hsl(var(--background));
-}
+    /* Status */
+    --error: 4 70% 62%;
+    --background_error: 4 50% 14%;
+    --warning: 32 95% 64%;
 
-/* More specific targeting for Firefox */
-html {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--secondary) / 0.35) hsl(var(--background));
-}
+    /* Legacy compat tokens */
+    --alt_color_a: 172 70% 60%;
+    --alt_color_b: 268 86% 76%;
 
-/* Fallback for older browsers or unsupported cases */
-body {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--secondary) / 0.35) hsl(var(--background));
-}
+    /* shadcn primitives */
+    --muted: 240 10% 22%;
+    --muted-foreground: 240 6% 60%;
+    --destructive: 4 70% 58%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 10% 22%;
+    --input: 240 10% 18%;
+    --ring: 268 80% 70%;
+    --card: 240 14% 8%;
+    --card-foreground: 250 25% 96%;
+    --popover: 240 16% 7%;
+    --popover-foreground: 250 25% 96%;
+    --chart-1: 268 86% 70%;
+    --chart-2: 200 90% 72%;
+    --chart-3: 320 80% 72%;
+    --chart-4: 248 88% 76%;
+    --chart-5: 4 70% 62%;
+    --sidebar-ring: 268 80% 70%;
+    --primary-foreground: 240 18% 5%;
 
-/* Force dark scrollbars on elements that might override */
-div, section, main, aside, article {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--secondary) / 0.35) hsl(var(--background));
-}
+    --radius: 0.75rem;
 
-/* Additional targeting for problematic elements */
-.overflow-auto, .overflow-x-auto, .overflow-y-auto, 
-.overflow-scroll, .overflow-x-scroll, .overflow-y-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--secondary) / 0.35) hsl(var(--background));
-}
+    /* Font tokens — set from layout via next/font */
+    --font-display: "Instrument Serif", "Fraunces", Georgia, serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-/* Internet Explorer/Edge legacy support */
-@supports (-ms-overflow-style: auto) {
+    /* Iridescent gradients */
+    --grad-aurora: linear-gradient(
+      135deg,
+      hsl(268 86% 70%) 0%,
+      hsl(248 88% 76%) 40%,
+      hsl(200 90% 72%) 100%
+    );
+    --grad-aurora-soft: linear-gradient(
+      135deg,
+      hsl(268 86% 70% / 0.2) 0%,
+      hsl(320 80% 72% / 0.18) 50%,
+      hsl(200 90% 72% / 0.2) 100%
+    );
+    --grad-aurora-conic: conic-gradient(
+      from 200deg at 50% 50%,
+      hsl(268 86% 70%),
+      hsl(320 80% 72%),
+      hsl(248 88% 76%),
+      hsl(200 90% 72%),
+      hsl(268 86% 70%)
+    );
+  }
+
+  :root { color-scheme: dark; }
+
   * {
-    -ms-overflow-style: -ms-autohiding-scrollbar;
+    @apply border-border;
+    border-color: hsl(var(--border) / 0.55);
+  }
+
+  html, body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--primary));
+  }
+
+  body {
+    @apply font-text antialiased;
+    font-feature-settings: "ss01", "cv11", "cv02";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: hsl(var(--accent) / 0.4);
+    color: hsl(var(--primary));
   }
 }
 
-/* For browsers that support color-scheme */
-:root {
-  color-scheme: dark;
+/* ============================================================
+   Atmospheric backdrop
+   ============================================================ */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(900px 700px at 95% 100%, hsl(268 60% 24% / 0.16), transparent 70%),
+    radial-gradient(900px 700px at 50% 0%, hsl(240 50% 16% / 0.16), transparent 70%);
 }
 
-/* Ensure iframe scrollbars are also dark */
-iframe {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--secondary) / 0.35) hsl(var(--background));
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
 }
 
-/* Ensure the overall dark mode aesthetics for the scrollbars */
-body {
-  background-color: #121212; /* Optional: ensure the rest of the page is dark-themed */
-  color: #ffffff; /* Optional: set text color for dark mode */
+/* ============================================================
+   Scrollbars — hairline
+   ============================================================ */
+::-webkit-scrollbar { width: 10px; height: 10px; background-color: transparent; }
+::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--accent) / 0.22);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: hsl(var(--accent) / 0.45); }
+::-webkit-scrollbar-track { background-color: transparent; }
+::-webkit-scrollbar-corner { background-color: transparent; }
+* { scrollbar-width: thin; scrollbar-color: hsl(var(--accent) / 0.25) transparent; }
+
+/* ============================================================
+   Type utilities
+   ============================================================ */
+
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
 }
 
+.font-display-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+}
+
+.font-mono-soft {
+  font-family: var(--font-mono);
+  letter-spacing: 0.01em;
+  font-variant-ligatures: none;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: hsl(var(--secondary));
+}
+
+.text-aurora {
+  background: var(--grad-aurora);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ============================================================
+   Surfaces
+   ============================================================ */
+
+.surface {
+  background-color: hsl(var(--background_alt) / 0.65);
+  border: 1px solid hsl(var(--border) / 0.5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.surface-glass {
+  background:
+    linear-gradient(180deg, hsl(240 14% 14% / 0.55), hsl(240 18% 6% / 0.65));
+  border: 1px solid hsl(var(--border) / 0.55);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow:
+    0 1px 0 hsl(250 25% 96% / 0.04) inset,
+    0 30px 60px -30px hsl(0 0% 0% / 0.6);
+}
+
+.surface-iridescent {
+  position: relative;
+  background:
+    linear-gradient(180deg, hsl(240 14% 12% / 0.7), hsl(240 18% 6% / 0.85));
+  border: 1px solid hsl(var(--border) / 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  isolation: isolate;
+  overflow: hidden;
+}
+.surface-iridescent::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: var(--grad-aurora-soft);
+  opacity: 0.25;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.hairline {
+  background: linear-gradient(to right, transparent, hsl(var(--border)) 20%, hsl(var(--border)) 80%, transparent);
+  height: 1px;
+}
+
+.aurora-border {
+  position: relative;
+  background: hsl(var(--background_alt));
+  border-radius: var(--radius);
+}
+.aurora-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--grad-aurora);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.glow-violet {
+  box-shadow:
+    0 0 0 1px hsl(var(--accent) / 0.4),
+    0 10px 40px -10px hsl(var(--accent) / 0.6),
+    0 0 60px -15px hsl(320 80% 72% / 0.4);
+}
+
+/* ============================================================
+   Legacy buttons
+   ============================================================ */
 .btn {
-  @apply flex items-center cursor-pointer gap-2 hover:bg-foreground_alt hover:text-primary hover:scale-105 active:scale-95 transition-all duration-300 p-3 rounded-lg;
+  @apply inline-flex items-center cursor-pointer gap-2 px-3.5 py-2 rounded-md text-sm transition-all duration-200;
+  background-color: hsl(var(--background_alt));
+  color: hsl(var(--primary));
+  border: 1px solid hsl(var(--border) / 0.55);
 }
+.btn:hover {
+  background-color: hsl(var(--foreground_alt));
+  border-color: hsl(var(--accent) / 0.4);
+  transform: translateY(-1px);
+}
+.btn:active { transform: translateY(0); }
 
 .btn-static {
-  @apply flex items-center cursor-pointer gap-2 hover:bg-foreground_alt hover:text-primary transition-all duration-300 p-2 rounded-lg;
+  @apply inline-flex items-center cursor-pointer gap-2 px-3 py-1.5 rounded-md text-sm transition-colors duration-200;
+  color: hsl(var(--secondary));
 }
+.btn-static:hover { background-color: hsl(var(--foreground_alt) / 0.6); color: hsl(var(--primary)); }
 
 .btn-round {
-  @apply flex items-center cursor-pointer justify-start gap-2 hover:bg-foreground_alt hover:text-primary hover:scale-105 active:scale-95 transition-all duration-300 p-2 rounded-full;
+  @apply inline-flex items-center cursor-pointer gap-2 px-3 py-1.5 rounded-full text-sm transition-all duration-200;
+  color: hsl(var(--secondary));
 }
+.btn-round:hover { background-color: hsl(var(--foreground_alt)); color: hsl(var(--primary)); }
+
+/* ============================================================
+   Animations
+   ============================================================ */
 
 @keyframes dropAndBounce {
-  0% {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  0% { transform: translateY(8px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
+.chat-animation { animation: dropAndBounce 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
-.chat-animation {
-  animation: dropAndBounce 0.6s ease-in-out forwards;
+@keyframes shine {
+  0%   { background-position-x: -50%; }
+  100% { background-position-x: 140%; }
 }
-
 .shine {
-  background: linear-gradient(90deg, #4e4e4e 35%, #fff 50%, #4e4e4e 65%);
+  background: linear-gradient(90deg, hsl(var(--secondary) / 0.7) 35%, hsl(var(--primary)) 50%, hsl(var(--secondary) / 0.7) 65%);
   background-size: 200% 200%;
   background-clip: text;
   -webkit-background-clip: text;
@@ -120,126 +322,76 @@ body {
   animation: shine 4s ease-in-out infinite;
 }
 
-@keyframes shine {
-  0% {
-    background-position-x: -50%;
-  }
-  100% {
-    background-position-x: 140%;
-  }
-}
-
 @keyframes pulsing {
-  0% {
-    scale: 0.2;
-    color: #4e4e4e;
-  }
-  50% {
-    scale: 0.4;
-    color: #fff;
-  }
-  100% {
-    scale: 0.2;
-    color: #4e4e4e;
-  }
+  0%, 100% { scale: 0.55; opacity: 0.4; }
+  50%      { scale: 0.85; opacity: 1; }
 }
-
 @keyframes pulsing_color {
-  0% {
-    scale: 0.2;
-    color: #a5ff90;
-  }
-  50% {
-    scale: 0.4;
-    color: #74d7ff;
-  }
-  100% {
-    scale: 0.2;
-    color: #a5ff90;
-  }
+  0%   { color: hsl(var(--accent)); }
+  50%  { color: hsl(var(--highlight)); }
+  100% { color: hsl(var(--accent)); }
 }
-
-.pulsing {
-  animation: pulsing 5s ease-in-out infinite;
-}
-
-.pulsing_color {
-  animation: pulsing_color 5s ease-in-out infinite;
-}
+.pulsing { animation: pulsing 2.2s ease-in-out infinite; }
+.pulsing_color { animation: pulsing_color 5s ease-in-out infinite; }
 
 @keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
+  0%   { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
-
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out forwards;
-}
+.fade-in { animation: fadeIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
 @keyframes fadeOut {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+.fade-out { animation: fadeOut 0.35s ease-in-out forwards; }
+
+@keyframes shimmerLine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.shimmer-line { position: relative; overflow: hidden; }
+.shimmer-line::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, hsl(var(--accent) / 0.5), transparent);
+  animation: shimmerLine 2.4s ease-in-out infinite;
 }
 
-.fade-out {
-  animation: fadeOut 0.5s ease-in-out forwards;
+@keyframes auroraDrift {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%  { transform: translate3d(-5%, 3%, 0) rotate(180deg); }
+  100% { transform: translate3d(0, 0, 0) rotate(360deg); }
 }
+.aurora-drift { animation: auroraDrift 28s linear infinite; }
 
-.markdown-container {
-  overflow-wrap: break-word;
+@keyframes marqueeX {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
+.marquee { display: flex; width: max-content; animation: marqueeX 38s linear infinite; }
 
-@layer base {
-  :root {
-    --background: 0 0% 9%;
-    --background_alt: 0 0% 14%;
-    --foreground: 0 0% 18%;
-    --foreground_alt: 0 0% 20%;
-    --primary: 0 0% 95%;
-    --secondary: 0 0% 50%;
-    --accent: 151 46% 51%;
-    --background_accent: 151 52% 28%;
-    --highlight: 202 54% 59%;
-    --error: 353 49% 44%;
-    --background_error: 340 52% 25%;
-    --warning: 18 72% 49%;
-    --accent-foreground: 134 80% 32%;
-    --alt_color_a: 172 83% 55%;
-    --alt_color_b: 71 61% 64%;
-
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 31%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-  }
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
 }
+.cursor-blink { animation: blink 1.05s steps(2) infinite; }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-primary;
+.stagger > * { opacity: 0; animation: fadeIn 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger > *:nth-child(2) { animation-delay: 0.13s; }
+.stagger > *:nth-child(3) { animation-delay: 0.21s; }
+.stagger > *:nth-child(4) { animation-delay: 0.29s; }
+.stagger > *:nth-child(5) { animation-delay: 0.37s; }
+.stagger > *:nth-child(6) { animation-delay: 0.45s; }
+.stagger > *:nth-child(7) { animation-delay: 0.53s; }
+.stagger > *:nth-child(8) { animation-delay: 0.61s; }
+
+.markdown-container { overflow-wrap: break-word; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

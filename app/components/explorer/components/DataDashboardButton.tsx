@@ -22,7 +22,7 @@ import { deleteCollection as deleteWeaviateCollection } from "@/app/api/deleteCo
 
 // Utility function to format numbers with dots for thousands
 const formatNumber = (num: number): string => {
-  return new Intl.NumberFormat("de-DE").format(num);
+  return new Intl.NumberFormat("it-IT").format(num);
 };
 
 // Wave animation component for processing text
@@ -118,7 +118,7 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
   return (
     <motion.div
       key={collection.name}
-      className="flex justify-between items-center w-full mt-1 gap-2"
+      className="flex justify-between items-center w-full gap-2"
       initial={{ opacity: 0, y: 20, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{
@@ -130,13 +130,13 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
     >
       {/* Main clickable button with border and badge */}
       <motion.div
-        className="flex items-center justify-between w-full border border-foreground/20 hover:border-foreground/40 bg-background hover:bg-foreground_alt/50 p-3 rounded-lg cursor-pointer transition-all duration-200 gap-3"
+        className="flex min-h-11 items-center justify-between w-full border border-border/60 hover:border-border bg-background hover:bg-foreground_alt/50 px-3 py-2 rounded-md cursor-pointer transition-colors duration-200 gap-3"
         onClick={() => selectCollection(collection)}
         whileHover={{
-          scale: 1.02,
+          scale: 1.005,
           transition: { type: "spring", stiffness: 400, damping: 25 },
         }}
-        whileTap={{ scale: 0.98 }}
+        whileTap={{ scale: 0.995 }}
       >
         {/* Collection name */}
         <motion.p
@@ -154,7 +154,7 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
             unprocessed
               ? "bg-warning/10 text-warning"
               : "bg-highlight/10 text-highlight"
-          } rounded-lg px-3 py-1 flex-shrink-0 min-w-[3rem]`}
+          } rounded-md px-2.5 py-1 flex-shrink-0 min-w-[3rem]`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
@@ -209,7 +209,7 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
                 className="text-secondary hover:text-primary"
               >
                 <PiMagicWandFill />
-                <span>Re-Analyze</span>
+                <span>Riesegui analisi</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -218,7 +218,7 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
                 className="text-secondary hover:text-error"
               >
                 <GoTrash />
-                <span>Clear Analysis</span>
+                <span>Cancella analisi</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={async () => {
@@ -234,7 +234,7 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
                 className="text-secondary hover:text-destructive"
               >
                 <GoTrash />
-                <span>Delete from Weaviate</span>
+                <span>Elimina da Weaviate</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -248,7 +248,7 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
             className="text-highlight border-highlight border bg-highlight/10 hover:bg-highlight/20"
             variant="outline"
           >
-            <span>Analyze</span>
+            <span>Analizza</span>
           </Button>
         )}
         {isProcessing && (
@@ -257,7 +257,7 @@ const DashboardButton: React.FC<DashboardButtonProps> = ({
             variant="outline"
             className="text-highlight border-highlight border bg-highlight/10 hover:bg-highlight/20"
           >
-            <WaveText text={`Analyzing... ${progress}%`} />
+            <WaveText text={`Analisi in corso... ${progress}%`} />
           </Button>
         )}
       </motion.div>

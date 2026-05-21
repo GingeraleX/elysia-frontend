@@ -27,7 +27,7 @@ const CollectionBreadcrumb: React.FC<CollectionBreadcrumbProps> = ({
             className="cursor-pointer text-lg flex items-center gap-2"
             onClick={() => changePage("data", {}, true)}
           >
-            Data Dashboard
+            Dashboard Dati
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
@@ -55,7 +55,7 @@ const CollectionBreadcrumb: React.FC<CollectionBreadcrumbProps> = ({
               >
                 <LuDatabase size={18} />
               </motion.div>
-              {collectionName || "Loading..."}
+              {collectionName || "Caricamento..."}
             </motion.div>
           </BreadcrumbPage>
         </BreadcrumbItem>

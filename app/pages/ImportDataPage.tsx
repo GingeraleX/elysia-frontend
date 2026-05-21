@@ -116,25 +116,25 @@ function ResultCard({
     <div className="mt-4 flex flex-col gap-0 border border-foreground rounded-md overflow-hidden">
       <div className={`flex items-center justify-between px-4 py-3 border-b border-foreground ${hasRecords ? "bg-background_alt" : "bg-background"}`}>
         <span className={`font-bold text-sm ${hasRecords ? "text-primary" : "text-secondary"}`}>
-          {hasRecords ? `✓ ${total} records ingested` : "⚠ No records extracted"}
+          {hasRecords ? `✓ ${total} record importati` : "⚠ Nessun record estratto"}
         </span>
         <button
           onClick={onClose}
           className="text-xs px-3 py-1 rounded border border-foreground text-secondary hover:text-primary transition-colors bg-background"
         >
-          Reset
+          Reimposta
         </button>
       </div>
       <div className="px-4 py-3 bg-background_alt">
         {hasRecords ? (
           <p className="text-sm text-secondary">
-            Stored in <span className="text-primary font-mono">{collectionName}</span>{" "}
+            Salvati in <span className="text-primary font-mono">{collectionName}</span>{" "}
             · <span className="text-primary font-semibold">{duration.toFixed(1)}s</span>
           </p>
         ) : (
           <p className="text-sm text-secondary">
-            Pipeline completed in <span className="text-primary font-semibold">{duration.toFixed(1)}s</span> but no structured records were produced.
-            Try a different file or check the extraction model in Settings.
+            Pipeline completata in <span className="text-primary font-semibold">{duration.toFixed(1)}s</span> but non sono stati prodotti record strutturati.
+            Prova un file diverso o controlla il modello di estrazione nelle Impostazioni.
           </p>
         )}
       </div>
@@ -150,42 +150,46 @@ function toFriendlyError(raw: string, mode: string, stackMode: string): string {
 
   // Big Brain not ready
   if (lower.includes("big brain") || (stackMode === "big_brain" && (lower.includes("brain") || lower.includes("not ready") || lower.includes("not running")))) {
-    return "🧠 Big Brain model is still loading — please wait 1–2 minutes for it to be ready, then try again.";
+    return "🧠 Il modello Big Brain è ancora in caricamento: attendi 1-2 minuti e riprova.";
   }
   // OCR / image reader not running
   if (lower.includes("ocr vision") || lower.includes("ocr slot") || lower.includes(":8083") || lower.includes("image reader")) {
-    return "📄 The image reader is not running. Switch the stack to Ingestion mode (slider above), wait for it to load, then try again.";
+    return "📄 Il lettore immagini non è in esecuzione. Passa la stack in modalità Ingestion (slider sopra), attendi il caricamento e riprova.";
   }
   // Flash not running
   if (lower.includes("flash") && lower.includes("not reachable")) {
     if (stackMode === "big_brain") {
-      return "🧠 Big Brain model is still loading — please wait 1–2 minutes, then try again.";
+      return "🧠 Il modello Big Brain è ancora in caricamento: attendi 1-2 minuti e riprova.";
     }
-    return "⚡ The processing engine is not running. Switch the stack to Ingestion mode, wait for it to load, then retry.";
+    return "⚡ Il motore di elaborazione non è in esecuzione. Passa alla modalità Ingestion, attendi il caricamento e riprova.";
   }
   // Generic "model not running / not reachable"
   if (lower.includes("not reachable") || lower.includes("not running") || lower.includes("not ready")) {
     return mode === "local"
-      ? "The AI model is not ready. Check the stack mode slider and wait for models to finish loading."
-      : "Could not reach the AI service. Check your internet connection and API key in Settings.";
+      ? "Il modello AI non è pronto. Controlla lo slider della stack e attendi il caricamento dei modelli."
+      : "Impossibile raggiungere il servizio AI. Controlla connessione internet e API key nelle Impostazioni.";
   }
   // Rate / quota errors
   if (lower.includes("quota") || lower.includes("rate limit") || lower.includes("429")) {
-    return "⏱ API rate limit reached — please wait a few seconds and try again.";
+    return "⏱ Limite API raggiunto: attendi qualche secondo e riprova.";
   }
   // Context length
   if (lower.includes("context limit") || lower.includes("context length") || lower.includes("too large")) {
-    return "📃 The document is too large to process in one go. Try uploading fewer pages at a time.";
+    return "📃 Il documento è troppo grande per essere elaborato in una volta sola. Prova a caricare meno pagine per volta.";
   }
   // Timeout
   if (lower.includes("timed out") || lower.includes("timeout")) {
-    return "⏳ The model took too long to respond — it may still be loading. Wait a moment and try again.";
+    return "⏳ Il modello ha impiegato troppo tempo a rispondere: potrebbe essere ancora in caricamento. Attendi e riprova.";
   }
   return raw;
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
-export default function ImportDataPage() {
+export default function ImportDataPage({
+  embedded = false,
+}: {
+  embedded?: boolean;
+} = {}) {
   const { id, userConfig } = useContext(SessionContext);
   const { showErrorToast, showSuccessToast } = useContext(ToastContext);
   const { fetchCollections } = useContext(CollectionContext);
@@ -193,7 +197,7 @@ export default function ImportDataPage() {
   // Mirrors backend toWeaviateClassName — Weaviate class names must start with [A-Z]
   // and contain only [A-Za-z0-9_]. No leading underscores or digits.
   const sanitizeClassName = (raw: string): string => {
-    let name = raw
+    const name = raw
       .trim()
       .replace(/[^a-zA-Z0-9_]+/g, "_")  // non-alphanumeric → _
       .replace(/^[_0-9]+/, "")           // strip leading underscores/digits
@@ -220,13 +224,13 @@ export default function ImportDataPage() {
   const [result, setResult] = useState<{ total: number; duration: number } | null>(null);
   // null = not processing, true/false = vision on/off for the current page
   const [visionActive, setVisionActive] = useState<boolean | null>(null);
-  // Per-file extraction progress driven by ingestion_progress WS events
+  // Per-file extraction progress driven by ingestion_progress WSeventi
   const [fileProgress, setFileProgress] = useState<Map<string, { step: string; count?: number }>>(new Map());
   // Non-fatal warnings from the backend (0-records, model routing issues, etc.)
-  const [warnings, setWarnings] = useState<string[]>([]);
+  const [warnings, setAvvisi] = useState<string[]>([]);
 
   // Stack mode from shared context — stays in sync with Settings page
-  const { stackMode, stackBooting, slotApplying, scriptsConfigured } = useStackMode();
+  const { stackMode, stackBooting, slotApplying } = useStackMode();
 
   // Compute model overrides from user settings so the stack toggle on this page
   // loads the same models the user configured in Settings, not start_agents.sh defaults.
@@ -241,10 +245,10 @@ export default function ImportDataPage() {
     };
   })();
 
-  // ── Pipeline Trace (debug) ────────────────────────────────────────────────
+  // ── Traccia pipeline (debug) ────────────────────────────────────────────────
   // Records every WS event with a timestamp + summary so you can see the full
   // pipeline flow in the UI without opening DevTools.
-  // All events are ALSO logged to console with [FRONTEND PIPELINE] prefix.
+  // Alleventi are ALSO logged to console with [FRONTEND PIPELINE] prefix.
   const [pipelineLogs, setPipelineLogs] = useState<
     Array<{ ts: string; type: string; summary: string; raw: string }>
   >([]);
@@ -301,7 +305,7 @@ export default function ImportDataPage() {
   const settings = userConfig?.backend?.settings as Record<string, unknown> | undefined;
 
   // ── OCR combo analysis ────────────────────────────────────────────────────
-  // Used to show targeted warnings in the "Active pipeline" card for non-tech users.
+  // Used to show targeted warnings in the "Pipeline attiva" card for non-tech users.
   const ocrAlias: string = isLocal
     ? ((settings?.LOCAL_OCR_MODEL as string) || "")
     : "";
@@ -342,7 +346,7 @@ export default function ImportDataPage() {
 
   async function handleIngest() {
     if (!files.length || !collectionName.trim()) {
-      showErrorToast("Missing fields", "Upload at least one file and enter a collection name.");
+      showErrorToast("Campi mancanti", "Carica almeno un file e inserisci un nome collezione.");
       return;
     }
     if (running) return;
@@ -351,9 +355,9 @@ export default function ImportDataPage() {
     setError(null);
     setResult(null);
     setPercent(2);
-    setLabel("Initialising…");
+    setLabel("Inizializzazione…");
     setVisionActive(null);
-    setWarnings([]);
+    setAvvisi([]);
     setPipelineLogs([]); // clear previous run's log
     startTsRef.current = Date.now();
 
@@ -362,7 +366,7 @@ export default function ImportDataPage() {
     // This eliminates all browser-side pdfjs-dist usage (and its webpack breakage).
     const filePayloads: { filename: string; content_b64: string; mime_type: string }[] = [];
 
-    setLabel("Preparing files…");
+    setLabel("Preparazione file…");
     setPercent(3);
 
     for (const file of files) {
@@ -408,15 +412,15 @@ export default function ImportDataPage() {
         logPipelineEvent(msg as Record<string, unknown>);
         if (msg.type === "progress") {
           setPercent(msg.percent ?? 0);
-          setLabel(msg.label ?? "Processing…");
+          setLabel(msg.label ?? "Elaborazione…");
           // Update vision indicator only when backend tells us (pages being analyzed)
           if (typeof msg.vision === "boolean") {
             setVisionActive(msg.vision);
           }
         } else if (msg.type === "extraction_warning") {
           // Non-fatal warning — model returned 0 records for a file
-          const warnMsg: string = msg.message ?? "No records extracted from a file";
-          setWarnings((prev) => [...prev, warnMsg]);
+          const warnMsg: string = msg.message ?? "Nessun record estratto da un file";
+          setAvvisi((prev) => [...prev, warnMsg]);
         } else if (msg.type === "ingestion_progress") {
           // Per-file granular progress: step = "extracting" | "parsed" | "stored"
           const filename: string = msg.file ?? "";
@@ -428,9 +432,9 @@ export default function ImportDataPage() {
             });
           }
         } else if (msg.type === "error") {
-          setError(msg.message ?? "Unknown error");
+          setError(msg.message ?? "Errore sconosciuto");
           setPercent(0);
-          setLabel("Error");
+          setLabel("Errore");
           setVisionActive(null);
           setRunning(false);
           ws.close();
@@ -438,12 +442,12 @@ export default function ImportDataPage() {
           const duration = (Date.now() - startTsRef.current) / 1000;
           const total = msg.total ?? 0;
           setPercent(100);
-          setLabel("Completed");
+          setLabel("Completato");
           setVisionActive(null);
           setFileProgress(new Map());
           setResult({ total, duration });
           if (total > 0) {
-            showSuccessToast("Import complete", `${total} records ingested`);
+            showSuccessToast("Import completato", `${total} record importati`);
             setTimeout(() => fetchCollections(), 1500);
           }
           setRunning(false);
@@ -453,14 +457,14 @@ export default function ImportDataPage() {
     };
 
     ws.onerror = () => {
-      logPipelineEvent({ type: "ws_error", message: "WebSocket connection failed — is the backend running?" } as unknown as Record<string, unknown>);
-      setError("WebSocket connection failed — is the backend running on port 3000?");
+      logPipelineEvent({ type: "ws_error", message: "Connessione WebSocket non riuscita: il backend è attivo?" } as unknown as Record<string, unknown>);
+      setError("Connessione WebSocket non riuscita: il backend è attivo sulla porta 3000?");
       setVisionActive(null);
       setRunning(false);
     };
   }
 
-  function handleReset() {
+  function handleReimposta() {
     wsRef.current?.close();
     setFiles([]);
     setCollectionName("");
@@ -472,7 +476,7 @@ export default function ImportDataPage() {
     setRunning(false);
     setVisionActive(null);
     setFileProgress(new Map());
-    setWarnings([]);
+    setAvvisi([]);
   }
 
   // Model readiness — poll router :8090 when in local mode (works over SSH tunnel)
@@ -491,7 +495,7 @@ export default function ImportDataPage() {
   // Derive displayed model names — always in sync with current stackMode + settings
   // (settings is already declared above, before ocrAlias)
 
-  /** Maps raw local model aliases → short human-readable labels for the "Active pipeline" UI. */
+  /** Maps raw local model aliases → short human-readable labels for the "Pipeline attiva" UI. */
   const LOCAL_OCR_DISPLAY: Record<string, string> = {
     "gemini-ocr-2":           "DeepSeek OCR 2",
     "gemini-1.5-pro-vision":  "Qwen3-VL-8B Thinking",
@@ -561,34 +565,47 @@ export default function ImportDataPage() {
       })();
 
   return (
-    <div className="flex flex-col w-full h-full overflow-auto fade-in p-2 lg:p-4">
-
+    <div
+      className={
+        embedded
+          ? "flex flex-col w-full gap-4 fade-in"
+          : "flex flex-col w-full h-full overflow-auto fade-in p-2 lg:p-4"
+      }
+    >
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 py-4 flex-shrink-0 border-b border-foreground mb-6">
-        <div className="flex items-center gap-3">
-          <div className="h-7 w-7 bg-alt_color_a rounded-md flex items-center justify-center">
-            <TbDatabaseImport className="text-background" size={14} />
+      {!embedded && (
+        <div className="flex items-center justify-between gap-4 py-4 flex-shrink-0 border-b border-foreground mb-6">
+          <div className="flex items-center gap-3">
+            <div className="h-7 w-7 bg-alt_color_a rounded-md flex items-center justify-center">
+              <TbDatabaseImport className="text-background" size={14} />
+            </div>
+            <div>
+              <p className="text-primary text-lg">Ingestione dati</p>
+              <p className="text-sm text-secondary">Pipeline estrazione → embedding → indicizzazione</p>
+            </div>
           </div>
-          <div>
-            <p className="text-primary text-lg">Data Ingestion</p>
-            <p className="text-sm text-secondary">Extract → embed → index pipeline</p>
+          <div className="flex items-center gap-2 px-3 py-1.5 border border-foreground rounded-md text-sm font-medium text-secondary">
+            {isLocal ? <FaServer size={12} /> : <MdCloudQueue size={14} />}
+            <span>{isLocal ? "Locale" : "Cloud"}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 border border-foreground rounded-md text-sm font-medium text-secondary">
-          {isLocal ? <FaServer size={12} /> : <MdCloudQueue size={14} />}
-          <span>{isLocal ? "Local" : "Cloud"}</span>
-        </div>
-      </div>
+      )}
 
-      {/* 3-column grid — always 3 cols; Big Brain moved into col 03 */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      {/* 3-column grid in full page, stacked cards in embedded mode */}
+      <div
+        className={
+          embedded
+            ? "grid grid-cols-1 gap-3"
+            : "grid grid-cols-1 gap-4 lg:grid-cols-3"
+        }
+      >
 
-        {/* 01 / Source */}
+        {/* 01 / Sorgente */}
         <SettingCard>
           <SettingGroup>
             <div>
-              <p className="text-secondary text-xs font-bold uppercase tracking-widest">01 / Source</p>
-              <p className="text-primary text-base mt-0.5">Upload Files</p>
+              <p className="text-secondary text-xs font-semibold uppercase tracking-widest">01 / Sorgente</p>
+              <p className="text-primary text-base font-semibold mt-0.5">Carica file</p>
             </div>
 
             <div
@@ -596,11 +613,11 @@ export default function ImportDataPage() {
               onDragLeave={() => setIsDragging(false)}
               onDrop={onDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed py-6 cursor-pointer transition-all
-                ${isDragging ? "border-highlight bg-highlight/5" : "border-foreground hover:border-secondary"}`}
+              className={`flex min-h-[9rem] flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-6 cursor-pointer transition-colors
+                ${isDragging ? "border-highlight bg-highlight/10" : "border-border/70 bg-background/35 hover:border-highlight/60 hover:bg-highlight/5"}`}
             >
               <IoCloudUploadOutline size={24} className="text-secondary" />
-              <span className="text-xs text-secondary text-center">Click or drag & drop</span>
+              <span className="text-xs text-secondary text-center">Clicca o trascina qui</span>
               <span className="text-xs text-secondary opacity-50">{ACCEPT_LABEL}</span>
               <input
                 ref={fileInputRef}
@@ -615,7 +632,7 @@ export default function ImportDataPage() {
             {files.length > 0 && (
               <div className="flex flex-col gap-1 max-h-36 overflow-y-auto">
                 {files.map((f) => (
-                  <div key={f.name} className="flex items-center gap-2 text-xs border border-foreground rounded px-2.5 py-1.5 bg-background">
+                  <div key={f.name} className="flex min-h-8 items-center gap-2 text-xs border border-border/60 rounded-md px-2.5 py-1.5 bg-background">
                     <span className="truncate text-secondary flex-1">{f.name}</span>
                     <span className="text-secondary opacity-50 shrink-0">{(f.size / 1024).toFixed(0)} KB</span>
                     <button
@@ -629,185 +646,188 @@ export default function ImportDataPage() {
           </SettingGroup>
         </SettingCard>
 
-        {/* 02 / Destination */}
+        {/* 02 / Destinazione */}
         <SettingCard>
           <SettingGroup>
             <div>
-              <p className="text-secondary text-xs font-bold uppercase tracking-widest">02 / Destination</p>
-              <p className="text-primary text-base mt-0.5">Target Collection</p>
+              <p className="text-secondary text-xs font-semibold uppercase tracking-widest">02 / Destinazione</p>
+              <p className="text-primary text-base font-semibold mt-0.5">Collezione di destinazione</p>
             </div>
 
             <div className="flex flex-col gap-1">
-              <p className="text-xs text-secondary">Collection name</p>
+              <p className="text-xs text-secondary">Nome collezione</p>
               <input
                 type="text"
                 value={collectionName}
                 onChange={(e) => setCollectionName(sanitizeClassName(e.target.value))}
                 placeholder="e.g. Finance_Docs_2024"
-                className="w-full px-3 py-2 text-sm bg-background border border-foreground rounded-md text-primary placeholder-secondary focus:outline-none focus:border-secondary transition-colors"
+                className="h-9 w-full rounded-md border border-border/70 bg-background px-3 py-2 text-sm text-primary placeholder:text-secondary focus:outline-none focus:border-primary transition-colors"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <p className="text-xs text-secondary">Context label <span className="opacity-50">(optional)</span></p>
+              <p className="text-xs text-secondary">Etichetta contesto <span className="opacity-50">(opzionale)</span></p>
               <input
                 type="text"
                 value={context}
                 onChange={(e) => setContext(e.target.value)}
                 placeholder="e.g. Aurora Studio 2024"
-                className="w-full px-3 py-2 text-sm bg-background border border-foreground rounded-md text-primary placeholder-secondary focus:outline-none focus:border-secondary transition-colors"
+                className="h-9 w-full rounded-md border border-border/70 bg-background px-3 py-2 text-sm text-primary placeholder:text-secondary focus:outline-none focus:border-primary transition-colors"
               />
             </div>
 
-            {/* Active model read-out — always synced to stackMode + settings + live readiness */}
-            <div className="flex flex-col gap-1 border border-foreground rounded px-3 py-2.5">
-              <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-0.5">Active pipeline</p>
+            {!embedded && (
+              <div className="flex flex-col gap-1 border border-foreground rounded px-3 py-2.5">
+                <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-0.5">Pipeline attiva</p>
 
-              {/* Big Brain mode notice */}
-              {isLocal && isBigBrain && (
-                <p className="text-[11px] text-purple-400/80 mb-1 leading-snug">
-                  🧠 Brain mode — single model handles all steps (configured in Settings → Complex Model)
-                </p>
-              )}
+                {/* Big Brain mode notice */}
+                {isLocal && isBigBrain && (
+                  <p className="text-[11px] text-purple-400/80 mb-1 leading-snug">
+                    🧠 Modalità Brain: un unico modello gestisce tutti i passaggi (configurato in Impostazioni → Modello complesso)
+                  </p>
+                )}
 
-              {/* Router unreachable hint (non-big-brain) */}
-              {isLocal && !isBigBrain && modelStatus?.mode === "local" && modelStatus.router_reachable === false && (
-                <p className="text-[11px] text-amber-500/60 mb-1 leading-snug">
-                  ⚠ Router unreachable — open SSH tunnel
-                </p>
-              )}
+                {/* Router unreachable hint (non-big-brain) */}
+                {isLocal && !isBigBrain && modelStatus?.mode === "local" && modelStatus.router_reachable === false && (
+                  <p className="text-[11px] text-amber-500/60 mb-1 leading-snug">
+                    ⚠ Router unreachable — open SSH tunnel
+                  </p>
+                )}
 
-              {/* Extraction row
-                  · big_brain: uses brain slot (Qwen3-VL-32B handles vision + text)
-                  · ingestion / ingestion-full / ocr-solo: uses OCR slot
-                  · conversation / flash: OCR slot not started — text extraction routes
-                    through the Complex/Brain model on :8081 */}
-              {isBigBrain ? (
+                {/* Extraction row
+                    · big_brain: uses brain slot (Qwen3-VL-32B handles vision + text)
+                    · ingestion / ingestion-full / ocr-solo: uses OCR slot
+                    · conversation / flash: OCR slot not started — text extraction routes
+                      through the Complex/Brain model on :8081 */}
+                {isBigBrain ? (
+                  <SlotStatusRow
+                    variant="user"
+                    label="Extraction"
+                    ready={modelStatus?.slots?.brain?.ready ?? false}
+                    model={ocrModel}
+                    loading={isLocal && (stackBooting || slotApplying) && !(modelStatus?.slots?.brain?.ready)}
+                  />
+                ) : isLocal && (stackMode === "conversation" || stackMode === "flash") ? (
+                  // Chat-only stack modes: OCR slot is not running, but text extraction
+                  // still works via the Complex model (Brain slot :8081).
+                  <SlotStatusRow
+                    variant="user"
+                    label="Extraction"
+                    ready={modelStatus?.slots?.brain?.ready ?? false}
+                    model={(() => {
+                      const raw = (settings?.LOCAL_COMPLEX_MODEL as string) || "gemini-1.5-flash";
+                      return (LOCAL_OCR_DISPLAY[raw] ?? raw) + " (Complex)";
+                    })()}
+                    loading={isLocal && (stackBooting || slotApplying) && !(modelStatus?.slots?.brain?.ready)}
+                  />
+                ) : (
+                  <SlotStatusRow
+                    variant="user"
+                    label="Extraction"
+                    ready={!isLocal || (modelStatus?.slots?.ocr?.ready ?? false)}
+                    model={ocrModel}
+                    loading={isLocal && (stackBooting || slotApplying) && !(modelStatus?.slots?.ocr?.ready)}
+                  />
+                )}
+
+                {/* Embedding row — always "ready" (runs in-process) */}
                 <SlotStatusRow
                   variant="user"
-                  label="Extraction"
-                  ready={modelStatus?.slots?.brain?.ready ?? false}
-                  model={ocrModel}
-                  loading={isLocal && (stackBooting || slotApplying) && !(modelStatus?.slots?.brain?.ready)}
+                  label="Embedding"
+                  ready={true}
+                  model={embedModel}
                 />
-              ) : isLocal && (stackMode === "conversation" || stackMode === "flash") ? (
-                // Chat-only stack modes: OCR slot is not running, but text extraction
-                // still works via the Complex model (Brain slot :8081).
-                <SlotStatusRow
-                  variant="user"
-                  label="Extraction"
-                  ready={modelStatus?.slots?.brain?.ready ?? false}
-                  model={(() => {
-                    const raw = (settings?.LOCAL_COMPLEX_MODEL as string) || "gemini-1.5-flash";
-                    return (LOCAL_OCR_DISPLAY[raw] ?? raw) + " (Complex)";
-                  })()}
-                  loading={isLocal && (stackBooting || slotApplying) && !(modelStatus?.slots?.brain?.ready)}
-                />
-              ) : (
-                <SlotStatusRow
-                  variant="user"
-                  label="Extraction"
-                  ready={!isLocal || (modelStatus?.slots?.ocr?.ready ?? false)}
-                  model={ocrModel}
-                  loading={isLocal && (stackBooting || slotApplying) && !(modelStatus?.slots?.ocr?.ready)}
-                />
-              )}
 
-              {/* Embedding row — always "ready" (runs in-process) */}
-              <SlotStatusRow
-                variant="user"
-                label="Embedding"
-                ready={true}
-                model={embedModel}
-              />
+                {/* Flash / Processing row (local only)
+                    · big_brain: brain handles everything → not applicable
+                    · ocr-solo: flash not started → not applicable
+                    · otherwise: show flash slot status */}
+                {isLocal && (
+                  <SlotStatusRow
+                    variant="user"
+                    label="Elaborazione"
+                    ready={modelStatus?.slots?.flash?.ready ?? false}
+                    model={modelStatus?.slots?.flash?.ready
+                      ? (modelStatus.slots.flash?.model ?? LOCAL_OCR_DISPLAY[(settings?.LOCAL_BASE_MODEL as string) || "gemini-1.5-flash"] ?? "Qwen3.5 4B")
+                      : LOCAL_OCR_DISPLAY[(settings?.LOCAL_BASE_MODEL as string) || "gemini-1.5-flash"] ?? "Qwen3.5 4B"}
+                    loading={(stackBooting || slotApplying) && !(modelStatus?.slots?.flash?.ready)}
+                    notApplicable={stackMode === "ocr-solo" || stackMode === "big_brain"}
+                  />
+                )}
 
-              {/* Flash / Processing row (local only)
-                  · big_brain: brain handles everything → not applicable
-                  · ocr-solo: flash not started → not applicable
-                  · otherwise: show flash slot status */}
-              {isLocal && (
-                <SlotStatusRow
-                  variant="user"
-                  label="Processing"
-                  ready={modelStatus?.slots?.flash?.ready ?? false}
-                  model={modelStatus?.slots?.flash?.ready
-                    ? (modelStatus.slots.flash?.model ?? LOCAL_OCR_DISPLAY[(settings?.LOCAL_BASE_MODEL as string) || "gemini-1.5-flash"] ?? "Qwen3.5 4B")
-                    : LOCAL_OCR_DISPLAY[(settings?.LOCAL_BASE_MODEL as string) || "gemini-1.5-flash"] ?? "Qwen3.5 4B"}
-                  loading={(stackBooting || slotApplying) && !(modelStatus?.slots?.flash?.ready)}
-                  notApplicable={stackMode === "ocr-solo" || stackMode === "big_brain"}
-                />
-              )}
+                {/* ── Combo warnings — non-technical language ─────────────────────
+                    Shown when the current stack mode + OCR model combination has
+                    a known limitation the user needs to know about. */}
+                {isLocal && !isBigBrain && (
+                  <>
+                    {/* Case 1: Auto OCR or brain-slot model in Ingest mode
+                        Text-only files (CSV, TXT, MD, JSON) route to the Complex model
+                        which is on the Brain slot (port 8081) — NOT started in Ingest.
+                        PDFs and images still work because they go directly to port 8083. */}
+                    {isIngestionMode && ocrUsesBrainForText && (
+                      <p className="text-[11px] text-amber-400/80 mt-1.5 leading-snug">
+                        ⚠️ I <strong>file testuali</strong> (.txt, .csv, .md) non verranno estratti in modalità Ingest
+                        {ocrAlias === "" ? " with the default OCR model" : ` with "${ocrAlias}"`}.
+                        Usa la <strong>modalità Chat</strong> per documenti solo testo,
+                        oppure scegli un modello OCR vision (es. VL-8B).
+                      </p>
+                    )}
 
-              {/* ── Combo warnings — non-technical language ─────────────────────
-                  Shown when the current stack mode + OCR model combination has
-                  a known limitation the user needs to know about. */}
-              {isLocal && !isBigBrain && (
-                <>
-                  {/* Case 1: Auto OCR or brain-slot model in Ingest mode
-                      Text-only files (CSV, TXT, MD, JSON) route to the Complex model
-                      which is on the Brain slot (port 8081) — NOT started in Ingest.
-                      PDFs and images still work because they go directly to port 8083. */}
-                  {isIngestionMode && ocrUsesBrainForText && (
-                    <p className="text-[11px] text-amber-400/80 mt-1.5 leading-snug">
-                      ⚠️ <strong>Text files</strong> (.txt, .csv, .md) won&apos;t extract in Ingest mode
-                      {ocrAlias === "" ? " with the default OCR model" : ` with "${ocrAlias}"`}.
-                      Switch to <strong>Chat mode</strong> for text-only documents,
-                      or pick a vision OCR model (e.g. VL-8B).
-                    </p>
-                  )}
+                    {/* Case 2: Solo OCR mode is active (30B model, Flash not loaded)
+                        The Ingest button auto-routed to ocr-solo. User should know Flash isn't running. */}
+                    {stackMode === "ocr-solo" && (
+                      <p className="text-[11px] text-green-400/70 mt-1.5 leading-snug">
+                        📡 <strong>Modalità Solo OCR</strong>: è attivo solo il modello vision
+                        (~18 GB). Flash non è caricato. Formattazione e post-processing
+                        sono gestiti direttamente dal modello OCR.
+                      </p>
+                    )}
 
-                  {/* Case 2: Solo OCR mode is active (30B model, Flash not loaded)
-                      The Ingest button auto-routed to ocr-solo. User should know Flash isn't running. */}
-                  {stackMode === "ocr-solo" && (
-                    <p className="text-[11px] text-green-400/70 mt-1.5 leading-snug">
-                      📡 <strong>Solo OCR mode</strong> — only the vision model is running
-                      (~18 GB). Flash is not loaded. Text formatting and post-processing
-                      are handled by the OCR model directly.
-                    </p>
-                  )}
+                    {/* Case 3: Big Brain OCR alias selected but stack is not big_brain
+                        (already narrowed by !isBigBrain parent condition)
+                        gemini-big-brain / gemini-vl-32b require Brain mode. */}
+                    {ocrNeedsBigBrain && (
+                      <p className="text-[11px] text-purple-400/80 mt-1.5 leading-snug">
+                        🧠 Il tuo modello OCR richiede la <strong>modalità Brain</strong>
+                        (il modello 32B richiede tutta la VRAM). Premi <strong>Brain</strong>
+                        nello slider sopra, oppure scegli un OCR più leggero.
+                      </p>
+                    )}
 
-                  {/* Case 3: Big Brain OCR alias selected but stack is not big_brain
-                      (already narrowed by !isBigBrain parent condition)
-                      gemini-big-brain / gemini-vl-32b require Brain mode. */}
-                  {ocrNeedsBigBrain && (
-                    <p className="text-[11px] text-purple-400/80 mt-1.5 leading-snug">
-                      🧠 Your OCR model requires <strong>Brain mode</strong>
-                      (32B model needs the full VRAM). Click the <strong>Brain</strong> button
-                      in the slider above, or choose a smaller OCR model.
-                    </p>
-                  )}
+                    {/* Case 4: DeepSeek-OCR-2 — text-based document OCR, 8k context limit */}
+                    {ocrIsDeepSeekOcr2 && (
+                      <p className="text-[11px] text-blue-400/60 mt-1.5 leading-snug">
+                        📄 <strong>DeepSeek OCR 2</strong> è ottimizzato per documenti scansionati
+                        ma ha un limite di contesto a 8k: pagine molto lunghe possono essere tagliate.
+                      </p>
+                    )}
+                  </>
+                )}
 
-                  {/* Case 4: DeepSeek-OCR-2 — text-based document OCR, 8k context limit */}
-                  {ocrIsDeepSeekOcr2 && (
-                    <p className="text-[11px] text-blue-400/60 mt-1.5 leading-snug">
-                      📄 <strong>DeepSeek OCR 2</strong> is optimised for scanned documents
-                      but has an 8k context limit — very long pages may be cut off.
-                    </p>
-                  )}
-                </>
-              )}
-
-              <p className="text-xs text-secondary opacity-40 mt-1">Settings → Models to change</p>
-            </div>
+                <p className="text-xs text-secondary opacity-40 mt-1">Impostazioni → Modelli per cambiare</p>
+              </div>
+            )}
           </SettingGroup>
         </SettingCard>
 
-        {/* 03 / Execute */}
-        <SettingCard>
+        {/* 03 / Esecuzione */}
+        <SettingCard unstyled={embedded}>
           <SettingGroup>
-            <div>
-              <p className="text-secondary text-xs font-bold uppercase tracking-widest">03 / Execute</p>
-              <p className="text-primary text-base mt-0.5">Run Pipeline</p>
-            </div>
+            {!embedded && (
+              <div>
+                <p className="text-secondary text-xs font-semibold uppercase tracking-widest">03 / Esecuzione</p>
+                <p className="text-primary text-base font-semibold mt-0.5">Esegui pipeline</p>
+              </div>
+            )}
 
             {/* Stack mode slider — local only */}
-            {isLocal && <StackModeSlider compact overrides={stackOverrides} />}
+            {isLocal && !embedded && <StackModeSlider compact overrides={stackOverrides} />}
 
             {/* Slot readiness guard — show a loading state while local models boot */}
-            {isLocal && stackBooting && (
+            {isLocal && stackBooting && !embedded && (
               <div className="flex items-center gap-2 text-xs text-secondary py-1">
                 <LoadingDots />
-                <span>Waiting for models to load — this may take 30–90 seconds…</span>
+                <span>Attendo il caricamento dei modelli: può richiedere 30–90 secondi…</span>
               </div>
             )}
 
@@ -856,26 +876,26 @@ export default function ImportDataPage() {
               );
               return (
                 <>
-                  {showSoftWarning && (
+                  {showSoftWarning && !embedded && (
                     <p className="text-[11px] text-amber-400/80 leading-snug">
-                      ⚠️ Text files only — processing in <strong>{stackMode}</strong> mode.
-                      Quality may be lower than Ingestion mode, but import is allowed.
+                      ⚠️ Solo file testuali: elaborazione in modalità <strong>{stackMode}</strong>.
+                      La qualità può essere inferiore rispetto a Ingestion, ma l&apos;import è consentito.
                     </p>
                   )}
-                  {hasPdfInChatMode && (
+                  {hasPdfInChatMode && !embedded && (
                     <p className="text-[11px] text-amber-400/80 leading-snug">
-                      ⚠️ PDF in <strong>{stackMode}</strong> mode — text will be extracted via pdf-parse (no vision).
-                      Switch to <strong>Ingestion</strong> mode for image-based PDF pages.
+                      ⚠️ PDF in modalità <strong>{stackMode}</strong>: il testo sarà estratto via pdf-parse (senza vision).
+                      Usa <strong>Ingestion</strong> per pagine PDF basate su immagini.
                     </p>
                   )}
-                  {isLocal && !safeToIngest && hasImageFiles && (
+                  {isLocal && !safeToIngest && hasImageFiles && !embedded && (
                     <p className="text-[11px] text-red-400/80 leading-snug">
-                      🔴 Images require the OCR slot — switch to <strong>Ingestion</strong> mode.
+                      🔴 Le immagini richiedono lo slot OCR: passa a <strong>Ingestion</strong>.
                     </p>
                   )}
-                  {isLocal && !safeToIngest && !hasImageFiles && hasNonTextFiles && (
+                  {isLocal && !safeToIngest && !hasImageFiles && hasNonTextFiles && !embedded && (
                     <p className="text-[11px] text-red-400/80 leading-snug">
-                      🔴 Images/PDFs require Ingestion mode and a running OCR slot.
+                      🔴 Immagini/PDF richiedono modalità Ingestion e slot OCR attivo.
                     </p>
                   )}
                   <button
@@ -884,17 +904,17 @@ export default function ImportDataPage() {
                     title={
                       !safeToIngest
                         ? isLocal && stackBooting
-                          ? "Models are still loading — please wait"
-                          : "Images require Ingestion mode and a running OCR slot"
+                          ? "I modelli sono ancora in caricamento: attendi"
+                          : "Le immagini richiedono modalità Ingestion e slot OCR attivo"
                         : undefined
                     }
-                    className="w-full py-2 text-sm font-semibold rounded-md border border-highlight text-highlight hover:bg-highlight/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    className={`${embedded ? "h-11 rounded-lg" : "h-9 rounded-md"} w-full border border-highlight/50 text-sm font-semibold text-highlight hover:bg-highlight/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed`}
                   >
                     {running
-                      ? "Ingesting…"
+                      ? "Importazione…"
                       : isLocal && stackBooting
-                      ? "Models loading…"
-                      : "Analyse & Ingest"}
+                      ? "Caricamento modelli…"
+                      : "Analizza e importa"}
                   </button>
                 </>
               );
@@ -905,7 +925,7 @@ export default function ImportDataPage() {
               <ProgressBar percent={percent} label={label} visionActive={visionActive} />
             )}
 
-            {/* Per-file extraction status rows (driven by ingestion_progress WS events) */}
+            {/* Per-file extraction status rows (driven by ingestion_progress WSeventi) */}
             {running && fileProgress.size > 0 && (
               <div className="flex flex-col gap-0.5 mt-1">
                 {Array.from(fileProgress.entries()).map(([filename, fp]) => {
@@ -930,15 +950,15 @@ export default function ImportDataPage() {
 
             {error && (
               <div className="flex flex-col gap-1 border border-foreground rounded px-3 py-2.5">
-                <p className="text-xs font-semibold text-primary">Something went wrong</p>
+                <p className="text-xs font-semibold text-primary">Qualcosa è andato storto</p>
                 <p className="text-xs text-secondary">{toFriendlyError(error, mode, stackMode)}</p>
               </div>
             )}
 
-            {/* Extraction warnings — non-fatal issues like 0-records per file */}
+            {/* Avvisi di estrazione — non-fatal issues like 0-records per file */}
             {warnings.length > 0 && (
               <div className="flex flex-col gap-1 border border-amber-500/30 rounded px-3 py-2.5 bg-amber-500/5">
-                <p className="text-[11px] font-semibold text-amber-400/80 uppercase tracking-wide">Extraction warnings</p>
+                <p className="text-[11px] font-semibold text-amber-400/80 uppercase tracking-wide">Avvisi di estrazione</p>
                 {warnings.map((w, i) => (
                   <p key={i} className="text-[11px] text-amber-300/70 leading-snug">{w}</p>
                 ))}
@@ -950,34 +970,34 @@ export default function ImportDataPage() {
                 total={result.total}
                 duration={result.duration}
                 collectionName={collectionName}
-                onClose={handleReset}
+                onClose={handleReimposta}
               />
             )}
 
-            {(files.length > 0 || error) && !running && !result && (
+            {(files.length > 0 || error) && !running && !result && !embedded && (
               <button
-                onClick={handleReset}
+                onClick={handleReimposta}
                 className="text-xs text-secondary opacity-50 hover:opacity-100 transition-opacity underline text-left"
               >
-                Reset
+                Reimposta
               </button>
             )}
           </SettingGroup>
         </SettingCard>
 
-        {/* ── Pipeline Trace debug panel ──────────────────────────────────── */}
+        {/* ── Traccia pipeline debug panel ──────────────────────────────────── */}
         {/* Shows after the first WS event — always visible during active run and stays
-            until Reset. All events also go to console with [FRONTEND PIPELINE] prefix. */}
+            until Reimposta. Alleventi also go to console with [FRONTEND PIPELINE] prefix. */}
         {pipelineLogs.length > 0 && (
           <SettingCard>
             <SettingGroup>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-secondary uppercase tracking-wide">
-                    Pipeline Trace
+                    Traccia pipeline
                   </span>
-                  <span className="text-[10px] text-secondary/50 bg-background_alt px-1.5 py-0.5 rounded">
-                    {pipelineLogs.length} events
+                    <span className="text-[10px] text-secondary/50 bg-background_alt px-1.5 py-0.5 rounded">
+                    {pipelineLogs.length} eventi
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -989,15 +1009,15 @@ export default function ImportDataPage() {
                       navigator.clipboard?.writeText(text).catch(() => {});
                     }}
                     className="text-[10px] text-secondary/60 hover:text-secondary transition-colors"
-                    title="Copy plain text log"
+                    title="Copia log testuale"
                   >
-                    Copy
+                    Copia
                   </button>
                   <button
                     onClick={() => setShowPipelineLog((v) => !v)}
                     className="text-[10px] text-secondary/60 hover:text-secondary transition-colors"
                   >
-                    {showPipelineLog ? "Hide" : "Show"}
+                    {showPipelineLog ? "Nascondi" : "Mostra"}
                   </button>
                 </div>
               </div>
@@ -1040,7 +1060,7 @@ export default function ImportDataPage() {
               {/* Quick counters row — always visible */}
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-[10px] text-secondary/60">
                 <span>
-                  📄 Files sent:{" "}
+                  📄 File inviati:{" "}
                   <span className="text-secondary">
                     {pipelineLogs.find(l => l.type === "ws_open")
                       ? String(files.length)
@@ -1048,13 +1068,13 @@ export default function ImportDataPage() {
                   </span>
                 </span>
                 <span>
-                  📋 Records extracted:{" "}
+                  📋 Record estratti:{" "}
                   <span className="text-secondary">
                     {pipelineLogs.filter(l => l.type === "record").length || "—"}
                   </span>
                 </span>
                 <span>
-                  ✅ Stored:{" "}
+                  ✅ Salvati:{" "}
                   <span className="text-secondary">
                     {(() => {
                       const done = pipelineLogs.find(l => l.type === "done");
@@ -1065,14 +1085,14 @@ export default function ImportDataPage() {
                   </span>
                 </span>
                 <span>
-                  ⚠ Warnings:{" "}
+                  ⚠ Avvisi:{" "}
                   <span className={warnings.length > 0 ? "text-amber-400" : "text-secondary"}>
                     {warnings.length || "0"}
                   </span>
                 </span>
                 {pipelineLogs.find(l => l.type === "done") && (
                   <span>
-                    ⏱ Duration:{" "}
+                    ⏱ Durata:{" "}
                     <span className="text-secondary">
                       {(() => {
                         const done = pipelineLogs.find(l => l.type === "done");

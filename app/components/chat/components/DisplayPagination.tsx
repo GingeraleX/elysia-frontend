@@ -230,7 +230,7 @@ const DisplayPagination: React.FC<DisplayPaginationProps> = ({
       {/* Items per page selector */}
       <div className="flex justify-between items-center w-full">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-secondary">Items per page:</span>
+          <span className="text-sm text-secondary">Elementi per pagina:</span>
           <Select
             value={dynamicItemsPerPage.toString()}
             onValueChange={handleItemsPerPageChange}
@@ -253,7 +253,7 @@ const DisplayPagination: React.FC<DisplayPaginationProps> = ({
           {totalItems > 0 && (
             <span>
               {startIndex + 1}-
-              {Math.min(startIndex + dynamicItemsPerPage, totalItems)} of{" "}
+              {Math.min(startIndex + dynamicItemsPerPage, totalItems)} di{" "}
               {totalItems}
             </span>
           )}

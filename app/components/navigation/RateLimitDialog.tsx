@@ -62,23 +62,23 @@ const RateLimitDialog: React.FC = () => {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Thank you for trying Elysia!</DialogTitle>
+          <DialogTitle>Grazie per aver provato Elysia!</DialogTitle>
           <DialogDescription>
-            You hit today&apos;s rate limit, but no worries, we&apos;ll reset it
-            tomorrow!
+            Hai raggiunto il limite di richieste di oggi, ma nessun problema:
+            verrà reimpostato domani!
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-6">
           <p>
-            In the meantime, you can follow us on social media to stay updated
-            on Elysia, or subscribe to one of our newsletters to get updates on
-            our latest features.
+            Nel frattempo puoi seguirci sui social per restare aggiornato su
+            Elysia, oppure iscriverti alla newsletter per scoprire le ultime
+            funzionalità.
           </p>
           <div className="flex flex-col gap-2">
-            <p>Subscribe to our newsletter</p>
+            <p>Iscriviti alla newsletter</p>
             <div className="flex flex-row gap-2">
               <Input
-                placeholder="Enter your email"
+                placeholder="Inserisci la tua email"
                 disabled={true}
                 className="border-secondary"
               />
@@ -87,7 +87,7 @@ const RateLimitDialog: React.FC = () => {
                 className="text-primary border-secondary"
                 disabled={true}
               >
-                Subscribe
+                Iscriviti
               </Button>
             </div>
           </div>
@@ -192,10 +192,10 @@ const RateLimitDialog: React.FC = () => {
               checked={dontShowAgain}
               onCheckedChange={handleCheck}
             />
-            <p className="text-sm">Don&apos;t show again</p>
+            <p className="text-sm">Non mostrare più</p>
           </div>
           <Button variant="outline" onClick={handleContinue}>
-            Got it!
+            Ho capito
           </Button>
         </DialogFooter>
       </DialogContent>

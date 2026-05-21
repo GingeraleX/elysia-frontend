@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Manrope, Space_Grotesk } from "next/font/google";
+import { Manrope, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import { AuthProvider } from "./components/contexts/AuthContext";
 import { SessionProvider } from "./components/contexts/SessionContext";
 import { CollectionProvider } from "./components/contexts/CollectionContext";
@@ -17,23 +17,31 @@ import { ModeProvider } from "./components/contexts/ModeContext";
 import { StackModeProvider } from "./components/contexts/StackModeContext";
 import { MockToggle } from "./components/MockToggle";
 
-const space_grotesk = Space_Grotesk({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-text",
-  weight: ["300", "400", "500", "600", "700"],
-});
-
 const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-heading",
+  variable: "--font-text",
   weight: ["200", "300", "400", "500", "600", "700", "800"],
+});
+
+const instrument_serif = Instrument_Serif({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-heading",
+  weight: ["400"],
+  style: ["normal", "italic"],
+});
+
+const jetbrains_mono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
+  weight: ["300", "400", "500", "600"],
 });
 
 export const metadata: Metadata = {
   title: "Elysia",
-  description: "Your AI Platform",
+  description: "La tua piattaforma AI",
 };
 
 export default function RootLayout({
@@ -42,10 +50,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="it" suppressHydrationWarning>
       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_G_KEY || ""} />
       <body
-        className={`bg-background h-screen w-screen overflow-hidden ${space_grotesk.variable} ${manrope.variable} font-text antialiased flex`}
+        className={`bg-background h-screen w-screen overflow-hidden ${manrope.variable} ${instrument_serif.variable} ${jetbrains_mono.variable} font-text antialiased flex`}
         suppressHydrationWarning
       >
         {/* Minimal providers - only auth needed for login screen */}

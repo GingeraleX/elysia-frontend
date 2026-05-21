@@ -76,10 +76,10 @@ const MetadataFieldsDisplay: React.FC<MetadataFieldsDisplayProps> = ({
           <div className="bg-highlight/10 border border-highlight rounded-md p-1">
             <BsDatabase className="text-highlight" />
           </div>
-          <p className="font-bold text-sm sm:text-base">Field Metadata</p>
+          <p className="font-bold text-sm sm:text-base">Metadati campi</p>
           <div className="bg-secondary/10 border border-secondary/20 rounded-full px-2 py-1">
             <p className="text-xs text-secondary font-medium">
-              {Object.keys(fields).length} fields
+              {Object.keys(fields).length} campi
             </p>
           </div>
         </div>
@@ -133,7 +133,7 @@ const MetadataFieldsDisplay: React.FC<MetadataFieldsDisplayProps> = ({
                 </div>
               ) : (
                 <div className="text-xs text-secondary/50 italic pl-1">
-                  No description — run &quot;Re-Analyze Collection&quot; to generate one.
+                  Nessuna descrizione — esegui &quot;Riesegui analisi collezione&quot; per generarne una.
                 </div>
               )}
 
@@ -143,7 +143,7 @@ const MetadataFieldsDisplay: React.FC<MetadataFieldsDisplayProps> = ({
                   <>
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                       <span className="text-secondary text-xs sm:text-sm">
-                        Range:
+                        Intervallo:
                       </span>
                       <span className="font-medium text-sm">
                         {formatNumber(field.range[0])} -{" "}
@@ -152,7 +152,7 @@ const MetadataFieldsDisplay: React.FC<MetadataFieldsDisplayProps> = ({
                     </div>
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                       <span className="text-secondary text-xs sm:text-sm">
-                        Mean:
+                        Media:
                       </span>
                       <span className="font-medium text-sm">
                         {formatNumber(field.mean)}
@@ -166,17 +166,17 @@ const MetadataFieldsDisplay: React.FC<MetadataFieldsDisplayProps> = ({
                     <>
                       <div className="flex justify-between items-center">
                         <span className="text-secondary text-xs sm:text-sm">
-                          Date Range:
+                          Intervallo date:
                         </span>
                       </div>
                       <div className="text-xs bg-background rounded p-2">
-                        <div>From: {field.date_range[0] || "N/A"}</div>
-                        <div>To: {field.date_range[1] || "N/A"}</div>
+                        <div>Da: {field.date_range[0] || "N/D"}</div>
+                        <div>A: {field.date_range[1] || "N/D"}</div>
                       </div>
                       {field.date_mean && (
                         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                           <span className="text-secondary text-xs sm:text-sm">
-                            Mean Date:
+                            Data media:
                           </span>
                           <span className="font-medium text-xs">
                             {field.date_mean}
@@ -190,7 +190,7 @@ const MetadataFieldsDisplay: React.FC<MetadataFieldsDisplayProps> = ({
                   <div className="flex flex-col gap-1">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0">
                       <span className="text-secondary text-xs sm:text-sm">
-                        Unique Values:
+                        Valori unici:
                       </span>
                       <span className="font-medium text-sm">
                         {field.unique_count ?? groupEntries.length}
@@ -214,7 +214,7 @@ const MetadataFieldsDisplay: React.FC<MetadataFieldsDisplayProps> = ({
                         ))}
                         {groupEntries.length > 8 && (
                           <span className="inline-flex px-2 py-1 bg-highlight/10 border border-highlight/20 rounded text-xs text-highlight">
-                            +{groupEntries.length - 8} more
+                            +{groupEntries.length - 8} altri
                           </span>
                         )}
                       </div>

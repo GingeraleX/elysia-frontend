@@ -2,7 +2,6 @@
 
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { FeedbackMetadata } from "../components/types";
-import { Button } from "../../components/ui/button";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { MdOutlineFeedback } from "react-icons/md";
@@ -18,11 +17,11 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getFeedback } from "../api/getFeedback";
-import { RouterContext } from "../components/contexts/RouterContext";
+import { FeedbackSection } from "./FeedbackPage";
 
 const chartConfig = {
   count: {
-    label: "Count",
+    label: "Conteggio",
     color: "#ffffff",
   },
 } satisfies ChartConfig;
@@ -40,8 +39,6 @@ export default function Home() {
   const loading = useRef(false);
   const [feedbackMetadata, setFeedbackMetadata] =
     useState<FeedbackMetadata | null>(null);
-
-  const { changePage } = useContext(RouterContext);
 
   const [feedbackChartData, setFeedbackChartData] = useState<ChartData[]>([]);
 
@@ -107,25 +104,28 @@ export default function Home() {
     loading.current = false;
   };
 
-  const handleBrowseFeedback = () => {
-    changePage("eval", { page: "feedback" }, true);
-  };
-
   useEffect(() => {
     fetchMetadata();
   }, [id]);
 
   return (
     <div
-      className="flex flex-col w-full gap-2 items-start justify-start"
+      className="flex h-full w-full flex-col gap-4 overflow-y-auto p-2 pb-6 lg:p-4"
       tabIndex={0}
     >
-      <div className="flex flex-col gap-8 items-start justify-start w-full">
-        <div className="flex items-center justify-start gap-2">
-          <p className="text-primary text-xl font-heading font-bold">
-            Evaluation Dashboard
+      <div className="flex flex-col gap-2 rounded-lg border border-border/60 bg-background_alt/20 p-4">
+        <div className="flex items-center gap-2">
+          <MdOutlineFeedback className="h-5 w-5 text-highlight" />
+          <p className="text-base font-semibold text-primary">
+            Valutazione
           </p>
         </div>
+        <p className="max-w-3xl text-sm leading-relaxed text-secondary">
+          Riepilogo feedback e revisione dei dettagli in una sola schermata.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-4 items-start justify-start w-full">
         {loading.current && (
           <div className="w-full flex flex-col items-start justify-start gap-2 fade-in">
             <Skeleton className="w-full h-[25vh]" />
@@ -137,18 +137,11 @@ export default function Home() {
               <CardHeader>
                 <CardTitle>
                   <div className="w-full flex items-start justify-between">
-                    <p>Feedback Evaluation</p>
-                    <Button
-                      onClick={handleBrowseFeedback}
-                      className="text-primary"
-                    >
-                      <MdOutlineFeedback />
-                      Browse Feedback
-                    </Button>
+                    <p>Valutazione feedback</p>
                   </div>
                 </CardTitle>
                 <CardDescription>
-                  Feedback received over the last 30 days
+                  Feedback ricevuti negli ultimi 30 giorni
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex lg:flex-row flex-col gap-2">
@@ -173,26 +166,26 @@ export default function Home() {
                 </ChartContainer>
                 <div className="w-full lg:w-1/3 flex flex-col border border-secondary rounded-md h-full">
                   <div className="flex flex-col flex-1 items-start justify-start gap-2 p-4 w-full border-b border-secondary">
-                    <p className="text-secondary text-sm">Total Feedback</p>
+                    <p className="text-secondary text-sm">Totale feedback</p>
                     <p className="text-primary text-3xl font-bold">
                       {feedbackMetadata.total_feedback}
                     </p>
                   </div>
                   <div className="flex items-start justify-start w-full flex-1">
                     <div className="flex flex-col items-start justify-start border-r border-secondary gap-2 w-1/3 p-2">
-                      <p className="text-secondary text-sm">Very Positive</p>
+                      <p className="text-secondary text-sm">Molto positivo</p>
                       <p className="text-highlight text-3xl font-bold">
                         {feedbackMetadata.feedback_by_value?.superpositive ?? 0}
                       </p>
                     </div>
                     <div className="flex flex-col items-start justify-start border-r border-secondary gap-2 w-1/3 p-2">
-                      <p className="text-secondary text-sm">Positive</p>
+                      <p className="text-secondary text-sm">Positivo</p>
                       <p className="text-accent text-3xl font-bold">
                         {feedbackMetadata.feedback_by_value?.positive ?? 0}
                       </p>
                     </div>
                     <div className="flex flex-col items-start justify-start gap-2 w-1/3 p-2">
-                      <p className="text-secondary text-sm">Negative</p>
+                      <p className="text-secondary text-sm">Negativo</p>
                       <p className="text-error text-3xl font-bold">
                         {feedbackMetadata.feedback_by_value?.negative ?? 0}
                       </p>
@@ -204,6 +197,8 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      <FeedbackSection embedded />
     </div>
   );
 }

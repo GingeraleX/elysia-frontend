@@ -31,7 +31,7 @@ export default function FeedbackDetails({
   if (!feedbackItem) {
     return (
       <div className="p-6 text-secondary text-sm flex items-center justify-center">
-        Feedback item not found. It may have been deleted or is still loading.
+        Elemento feedback non trovato. Potrebbe essere stato eliminato o è ancora in caricamento.
       </div>
     );
   }
@@ -48,9 +48,9 @@ export default function FeedbackDetails({
         <SettingHeader
           icon={<MdInfo />}
           className="bg-accent"
-          header="Feedback Details"
+          header="Dettagli feedback"
           buttonIcon={<MdOutlineClose />}
-          buttonText="Close"
+          buttonText="Chiudi"
           onClick={onClose}
         />
 
@@ -64,7 +64,7 @@ export default function FeedbackDetails({
               className="flex flex-col p-4 border border-foreground bg-background_alt rounded-md"
             >
               <div className="w-full flex justify-between items-center mb-2">
-                <p className="text-sm font-medium text-secondary">Query ID</p>
+                <p className="text-sm font-medium text-secondary">ID query</p>
                 <CopyToClipboardButton copyText={feedbackItem.query_id ?? ""} />
               </div>
               <p className="text-primary text-sm font-mono truncate">
@@ -80,7 +80,7 @@ export default function FeedbackDetails({
             >
               <div className="w-full flex justify-between items-center mb-2">
                 <p className="text-sm font-medium text-secondary">
-                  Conversation ID
+                  ID conversazione
                 </p>
                 <CopyToClipboardButton
                   copyText={feedbackItem.conversation_id ?? ""}
@@ -98,7 +98,7 @@ export default function FeedbackDetails({
               className="flex flex-col p-4 border border-foreground bg-background_alt rounded-md"
             >
               <div className="w-full flex justify-between items-center mb-2">
-                <p className="text-sm font-medium text-secondary">User ID</p>
+                <p className="text-sm font-medium text-secondary">ID utente</p>
                 <CopyToClipboardButton copyText={feedbackItem.user_id} />
               </div>
               <p className="text-primary text-sm font-mono truncate">
@@ -115,7 +115,7 @@ export default function FeedbackDetails({
               className="flex flex-col p-4 border border-foreground bg-background_alt rounded-md"
             >
               <p className="text-sm font-medium text-secondary mb-2">
-                Base Model
+                Modello base
               </p>
               <p className="text-primary text-sm">
                 {feedbackItem.base_lm_used ?? "—"}
@@ -129,7 +129,7 @@ export default function FeedbackDetails({
               className="flex flex-col p-4 border border-foreground bg-background_alt rounded-md"
             >
               <p className="text-sm font-medium text-secondary mb-2">
-                Complex Model
+                Modello complesso
               </p>
               <p className="text-primary text-sm">
                 {feedbackItem.complex_lm_used ?? "—"}
@@ -150,10 +150,10 @@ export default function FeedbackDetails({
           <Tabs defaultValue="history" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="history" className="flex items-center gap-2">
-                Conversation History
+                Cronologia conversazione
               </TabsTrigger>
               <TabsTrigger value="tasks" className="flex items-center gap-2">
-                Tasks
+                Attività
               </TabsTrigger>
             </TabsList>
 
@@ -181,7 +181,7 @@ export default function FeedbackDetails({
                   <div className="flex flex-col gap-3 p-4 bg-background_alt rounded-md border border-foreground">
                     <div className="flex items-center gap-2">
                       <p className="text-primary text-sm font-medium">
-                        Queries Performed
+                        Query eseguite
                       </p>
                     </div>
                     <Separator className="my-2" />
@@ -198,7 +198,7 @@ export default function FeedbackDetails({
                             {action.code && action.code.text}
                           </p>
                           <p className="text-secondary text-xs">
-                            Collection: {action.collection_name}
+                            Collezione: {action.collection_name}
                           </p>
                         </motion.div>
                       ))}
@@ -212,7 +212,7 @@ export default function FeedbackDetails({
               <div className="flex flex-col gap-4 w-full overflow-y-auto">
                 {/* Route Display */}
                 <div className="flex flex-col gap-3 p-4 bg-background_alt rounded-md border border-foreground">
-                  <p className="text-primary text-sm font-medium">Task Route</p>
+                  <p className="text-primary text-sm font-medium">Percorso attività</p>
                   <div className="flex flex-row gap-2 items-center w-full justify-center flex-wrap">
                     {(feedbackItem.route ?? []).map((step, index) => (
                       <motion.div

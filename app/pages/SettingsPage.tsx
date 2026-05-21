@@ -191,8 +191,8 @@ export default function Home() {
     if (id) {
       if (changedConfig) {
         showConfirmModal(
-          "Unsaved Changes",
-          "You have unsaved changes. Are you sure you want to load a new config?",
+          "Modifiche non salvate",
+          "Hai modifiche non salvate. Vuoi davvero caricare una nuova configurazione?",
           () => selectConfigFunction(configId)
         );
       } else {
@@ -224,8 +224,8 @@ export default function Home() {
   const handleCreateConfigWithUniqueName = async () => {
     if (changedConfig) {
       showConfirmModal(
-        "Unsaved Changes",
-        "You have unsaved changes. Are you sure you want to create a new config?",
+        "Modifiche non salvate",
+        "Hai modifiche non salvate. Vuoi davvero creare una nuova configurazione?",
         () => handleCreateConfigFunction()
       );
     } else {
@@ -427,7 +427,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="flex items-center justify-center h-full w-full">
-                <p className="text-primary shine">Loading config...</p>
+                <p className="text-primary shine">Caricamento configurazione...</p>
               </div>
             )}
           </div>

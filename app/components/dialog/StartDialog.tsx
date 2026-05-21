@@ -75,7 +75,11 @@ const StartDialog: React.FC = () => {
   };
 
   const handleElysiaDocs = () => {
-    window.open("https://weaviate.github.io/elysia/", "_blank");
+    changePage("documentation", {}, true);
+    if (dontShowAgain) {
+      localStorage.setItem(dontShowAgainKey, "true");
+    }
+    setOpen(false);
   };
 
   const handleWeaviateCloud = () => {
@@ -89,40 +93,38 @@ const StartDialog: React.FC = () => {
           <DialogHeader>
             <DialogTitle className="flex gap-3 items-center justify-start">
               <p className="text-primary text-3xl font-bold">
-                Welcome to Elysia!
+                Benvenuto in Elysia!
               </p>
             </DialogTitle>
             <DialogDescription className="flex justify-start">
-              Open Source Release
+              Release open source
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col items-center gap-4">
               <p>
-                Elysia is your newest open-source agentic AI platform powered by
-                <strong> Weaviate </strong>. Import your own data and start
-                exploring them with the power of agentic AI.
+                Elysia è la tua nuova piattaforma open source di AI agentica,
+                potenziata da <strong> Weaviate </strong>. Importa i tuoi dati
+                e inizia a esplorarli con la potenza dell&apos;AI agentica.
               </p>
               {invalidSettings ? (
                 <div className="flex flex-col gap-2">
                   <p>
-                    To get started, head over to the settings page where you can
-                    connect your Weaviate Cluster and choose your preferred AI
-                    models.
+                    Per iniziare, vai nella pagina Impostazioni: puoi collegare
+                    il tuo cluster Weaviate e scegliere i modelli AI preferiti.
                   </p>
                   <p>
-                    Need a Weaviate Cluster? Simply visit the Weaviate Cloud
-                    Console where you can create a free account and begin
-                    importing your data in just a few minutes.
+                    Ti serve un cluster Weaviate? Visita la Weaviate Cloud
+                    Console: puoi creare un account gratuito e iniziare a
+                    importare i dati in pochi minuti.
                   </p>
                 </div>
               ) : (
                 <p>
-                  Good job! Seems like you already got all the settings ready.
-                  You can start by adding existing data to Elysia via the
-                  Weaviate console. Elysia will analyze your data and create an
-                  agentic chain-of-thought reasoning process to navigate your
-                  data.
+                  Ottimo lavoro! Sembra che le impostazioni siano già pronte.
+                  Puoi iniziare aggiungendo i dati esistenti a Elysia tramite
+                  la console Weaviate. Elysia analizzerà i tuoi dati e creerà
+                  un processo di ragionamento agentico per navigarli.
                 </p>
               )}
             </div>
@@ -135,7 +137,7 @@ const StartDialog: React.FC = () => {
                   checked={dontShowAgain}
                   onCheckedChange={handleCheck}
                 />
-                <p className="text-sm text-secondary">Don&apos;t show again</p>
+                <p className="text-sm text-secondary">Non mostrare più</p>
               </div>
               <motion.div
                 className="flex flex-col lg:flex-row w-full justify-center gap-2 p-4"
@@ -161,7 +163,7 @@ const StartDialog: React.FC = () => {
                     onClick={handleElysiaDocs}
                   >
                     <HiMiniSparkles />
-                    Elysia Docs
+                    Documentazione Elysia
                   </Button>
                 </motion.div>
                 <motion.div
@@ -250,7 +252,7 @@ const StartDialog: React.FC = () => {
                           }}
                           className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-[length:200%_100%] bg-clip-text text-transparent font-semibold"
                         >
-                          Setup Elysia
+                          Configura Elysia
                         </motion.span>
                       </Button>
                     </motion.div>
@@ -273,7 +275,7 @@ const StartDialog: React.FC = () => {
                       onClick={handleClose}
                     >
                       <IoIosCheckmarkCircleOutline />
-                      Start Elysia
+                      Avvia Elysia
                     </Button>
                   </motion.div>
                 )}

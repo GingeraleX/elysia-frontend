@@ -36,7 +36,7 @@ const CodeView: React.FC<CodeDisplayProps> = ({
     <div className="flex flex-col gap-6 overflow-hidden chat-animation">
       <div className="w-full flex justify-between items-center">
         <div className="flex gap-2 items-center">
-          <p>Source Code</p>
+          <p>Codice sorgente</p>
         </div>
         <Button
           variant={"ghost"}

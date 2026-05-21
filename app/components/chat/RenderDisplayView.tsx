@@ -79,7 +79,7 @@ const RenderDisplayView: React.FC<RenderDisplayViewProps> = ({
     if (!id || !payload.uuid || !currentCollectionName) return;
     const data = await getObject(id, currentCollectionName, payload.uuid);
     if (data.error) {
-      showErrorToast("Error fetching data", data.error);
+      showErrorToast("Errore nel recupero dati", data.error);
     } else {
       setData(data);
     }
@@ -153,7 +153,7 @@ const RenderDisplayView: React.FC<RenderDisplayViewProps> = ({
                     transition={{ duration: 0.2, delay: 0.1 }}
                     className="text-alt_color_b text-xs"
                   >
-                    {showRawData ? "Show display" : "Show raw"}
+                    {showRawData ? "Mostra visualizzazione" : "Mostra grezzo"}
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -200,7 +200,7 @@ const RenderDisplayView: React.FC<RenderDisplayViewProps> = ({
                   transition={{ duration: 0.2, delay: 0.1 }}
                   className="text-error text-xs"
                 >
-                  Back to chat
+                  Torna alla chat
                 </motion.span>
               )}
             </AnimatePresence>
@@ -209,7 +209,7 @@ const RenderDisplayView: React.FC<RenderDisplayViewProps> = ({
       </motion.div>
       {loading && (
         <div className="w-full flex flex-col">
-          <p className="text-secondary shine">Loading...</p>
+          <p className="text-secondary shine">Caricamento...</p>
         </div>
       )}
       {showRawData ? (

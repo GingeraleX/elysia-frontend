@@ -14,7 +14,7 @@ const WarningDisplay: React.FC<WarningDisplayProps> = ({ warning }) => {
       <div className="flex flex-col justify-start items-start gap-2 chat-animation border border-warning p-4 rounded-lg">
         <div className="flex gap-2 items-center">
           <IoWarningOutline className="text-warning text-lg" />
-          <p className="text-warning text-sm font-bold">Warning</p>
+          <p className="text-warning text-sm font-bold">Avviso</p>
         </div>
         <MarkdownFormat text={warning} />
       </div>

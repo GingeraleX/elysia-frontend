@@ -512,19 +512,19 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem";
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-lg p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-foreground_alt hover:text-primary focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-foreground_alt data-[active=true]:font-medium data-[active=true]:text-primary data-[state=open]:hover:bg-foreground_alt data-[state=open]:hover:text-primary group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md px-2.5 py-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding,color,background-color] hover:bg-foreground_alt hover:text-primary focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-foreground_alt data-[active=true]:font-medium data-[active=true]:text-primary data-[state=open]:hover:bg-foreground_alt data-[state=open]:hover:text-primary group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
         default: "text-secondary",
-        active: "bg-foreground text-primary",
+        active: "bg-foreground_alt text-primary",
         coolActive: "bg-backgorund_alt text-primary cool-active",
         warning: "text-warning",
         outline:
           "bg-background shadow-[0_0_0_1px_hsl(var(--secondary))] hover:bg-foreground_alt hover:text-primary",
       },
       size: {
-        default: "h-10 text-sm",
+        default: "h-9 text-sm",
         sm: "h-7 text-xs",
         lg: "h-12 text-sm group-data-[collapsible=icon]:!p-0",
       },

@@ -253,7 +253,7 @@ export default function ModelsSection({
   onUpdateConfig,
   setChangedConfig,
   showDocumentation = true,
-  title = "Models",
+  title = "Modelli",
   onResetConfig,
   onModeChange,
 }: ModelsSectionProps) {
@@ -549,7 +549,7 @@ export default function ModelsSection({
         className="bg-alt_color_a"
         header={title}
         buttonIcon={showDocumentation ? <FaRobot /> : undefined}
-        buttonText={showDocumentation ? "Available Models" : undefined}
+        buttonText={showDocumentation ? "Modelli disponibili" : undefined}
         onClick={
           showDocumentation
             ? () => window.open("https://openrouter.ai/models", "_blank")
@@ -560,7 +560,7 @@ export default function ModelsSection({
       {/* Warning Card for Models Issues */}
       {modelsIssues.length > 0 && (
         <WarningCard
-          title="Model Configuration Required"
+          title="Configurazione modelli richiesta"
           issues={modelsIssues}
         />
       )}
@@ -588,11 +588,11 @@ export default function ModelsSection({
                     `}
                   >
                     {tab === "cloud" ? <MdCloudQueue size={14} /> : <FaServer size={12} />}
-                    {tab === "cloud" ? "Online (Cloud)" : "Offline (Local)"}
+                    {tab === "cloud" ? "Online (Cloud)" : "Offline (Locale)"}
                     {isActive && (
                       <span className={`text-xs px-1.5 py-0.5 rounded font-bold ml-1
                         ${tab === "cloud" ? "bg-blue-400/20 text-blue-400" : "bg-green-400/20 text-green-400"}`}>
-                        ACTIVE
+                        ATTIVO
                       </span>
                     )}
                   </button>
@@ -603,7 +603,7 @@ export default function ModelsSection({
             {/* Switch button — only on inactive tab */}
             {isViewingActive ? (
                 <span className={`text-xs font-medium ${accentText}`}>
-                  ✓ Currently active
+                  ✓ Attualmente attivo
                 </span>
               ) : (
                 <Button
@@ -618,7 +618,7 @@ export default function ModelsSection({
                   {switching
                     ? <FaSpinner className="animate-spin" size={11} />
                     : isCloud ? <MdCloudQueue size={12} /> : <FaServer size={11} />}
-                  {switching ? "Switching..." : `Switch to ${isCloud ? "Online" : "Offline"}`}
+                  {switching ? "Cambio..." : `Passa a ${isCloud ? "Online" : "Offline"}`}
                 </Button>
               )
             }
@@ -632,10 +632,10 @@ export default function ModelsSection({
           <div className="flex items-start gap-2 text-xs text-yellow-400 rounded-md border border-yellow-400/40 bg-yellow-400/10 px-3 py-2">
             <IoWarningOutline className="mt-0.5 flex-shrink-0" size={14} />
             <span>
-              Missing API {missingApiKeys.length === 1 ? "key" : "keys"}:{" "}
+              API {missingApiKeys.length === 1 ? "key mancante" : "keys mancanti"}:{" "}
               <strong>{missingApiKeys.join(", ")}</strong>.
-              Add {missingApiKeys.length === 1 ? "it" : "them"} in the{" "}
-              <strong>API Keys</strong> section below to use cloud models.
+              Aggiungi {missingApiKeys.length === 1 ? "la chiave" : "le chiavi"} nella sezione{" "}
+              <strong>API Keys</strong> qui sotto per usare i modelli cloud.
             </span>
           </div>
         )}
@@ -643,12 +643,12 @@ export default function ModelsSection({
         {/* ── GPU stack mode (local tab only) ── */}
         {!isCloud && (
           <div className="flex flex-col gap-1.5">
-            <p className="text-xs font-semibold text-secondary uppercase tracking-wider">Stack mode</p>
+            <p className="text-xs font-semibold text-secondary uppercase tracking-wider">Modalità stack</p>
             <StackModeSlider overrides={stackOverrides} />
             {/* Model file warnings from the last stack switch (e.g. OCR model not downloaded) */}
             {modelWarnings.length > 0 && (
               <div className="flex flex-col gap-1 mt-1 rounded-md border border-yellow-500/40 bg-yellow-500/10 px-3 py-2">
-                <p className="text-xs font-semibold text-yellow-400">⚠ Model file warnings</p>
+                <p className="text-xs font-semibold text-yellow-400">⚠ Avvisi file modello</p>
                 {modelWarnings.map((w, i) => (
                   <p key={i} className="text-xs text-yellow-300/80 font-mono break-all">{w}</p>
                 ))}
@@ -663,7 +663,7 @@ export default function ModelsSection({
             {/* GPU total input inline with chart header */}
             <div className="flex items-center justify-between gap-3">
               <span className="text-xs font-semibold text-secondary uppercase tracking-wider">
-                Memory estimate
+                Stima memoria
               </span>
               <div className="flex items-center gap-1.5">
                 <span className="text-xs text-secondary opacity-50">GPU / RAM</span>
@@ -702,8 +702,8 @@ export default function ModelsSection({
             onClick={handleApply}
             title={
               planResult !== null && !planResult.fits
-                ? "Stack exceeds VRAM budget — adjust models or context windows"
-                : !scriptsConfigured ? "No GPU control scripts configured — settings will be saved for next manual restart" : undefined
+                ? "La stack supera il budget VRAM: modifica modelli o contesto"
+                : !scriptsConfigured ? "Nessuno script GPU configurato: le impostazioni saranno salvate per il prossimo riavvio manuale" : undefined
             }
             className={[
               "w-full py-2 text-sm font-semibold rounded-md border transition-all flex items-center justify-center gap-2",
@@ -718,13 +718,13 @@ export default function ModelsSection({
             ].join(" ")}
           >
             {stackBooting || slotApplying ? (
-              <><FaSpinner className="animate-spin" size={12} /> Applying…</>
+              <><FaSpinner className="animate-spin" size={12} /> Applicazione…</>
             ) : pendingChanges && !scriptsConfigured ? (
-              "💾 Save settings (no live restart)"
+              "💾 Salva impostazioni (senza riavvio live)"
             ) : pendingChanges ? (
-              "⚡ Apply to stack"
+              "⚡ Applica alla stack"
             ) : (
-              "↺ Restart with current settings"
+              "↺ Riavvia con impostazioni correnti"
             )}
           </button>
         )}
@@ -733,7 +733,7 @@ export default function ModelsSection({
         {!isCloud && (
           <div className="flex flex-col gap-1.5 rounded-md border border-foreground/20 px-3 py-2.5 bg-background_alt">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-semibold text-secondary uppercase tracking-wider">GPU Stack Status</p>
+              <p className="text-xs font-semibold text-secondary uppercase tracking-wider">Stato stack GPU</p>
               {scriptsConfigured && sshMode && (
                 <span className="text-[10px] text-secondary/40 font-mono">SSH</span>
               )}
@@ -742,7 +742,7 @@ export default function ModelsSection({
             {/* Not configured warning */}
             {!scriptsConfigured && (
               <p className="text-xs text-amber-500/70 leading-relaxed">
-                ⚠ GPU control not configured — set{" "}
+                ⚠ Controllo GPU non configurato: imposta{" "}
                 <code className="font-mono text-amber-400/80">AGENTS_ROUTER_CONTROL_URL</code> (Docker) or{" "}
                 <code className="font-mono text-amber-400/80">SSH_AGENTS_CMD</code> (SSH) in{" "}
                 <code className="font-mono text-amber-400/80">backend/.env</code>
@@ -754,8 +754,8 @@ export default function ModelsSection({
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <p className="text-xs text-amber-500/60 leading-relaxed">
                   {sshMode
-                    ? <>⚠ Stack not running — click <strong>Start</strong> to launch via SSH, then open tunnel if needed: <code className="font-mono text-amber-400/70">ssh -N -L 8090:localhost:8090 ssh-wally</code></>
-                    : <>⚠ Stack not running — click <strong>Start</strong> to launch via the control API.</>
+                    ? <>⚠ Stack non in esecuzione: clicca <strong>Avvia</strong> per lanciare via SSH, poi apri il tunnel se serve: <code className="font-mono text-amber-400/70">ssh -N -L 8090:localhost:8090 ssh-wally</code></>
+                    : <>⚠ Stack non in esecuzione: clicca <strong>Avvia</strong> per lanciare via API di controllo.</>
                   }
                 </p>
                 <button
@@ -781,8 +781,8 @@ export default function ModelsSection({
                     disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                 >
                   {(stackBooting || stackSwitching)
-                    ? <><FaSpinner className="animate-spin" size={10} /> Starting…</>
-                    : <>▶ Start</>
+                    ? <><FaSpinner className="animate-spin" size={10} /> Avvio…</>
+                    : <>▶ Avvia</>
                   }
                 </button>
               </div>
@@ -791,15 +791,15 @@ export default function ModelsSection({
             {/* Router unreachable — no control mechanism configured at all */}
             {modelStatus?.mode === "local" && modelStatus.router_reachable === false && !scriptsConfigured && (
               <p className="text-xs text-amber-500/60 leading-relaxed">
-                ⚠ Router unreachable and no control configured — set{" "}
+                ⚠ Router non raggiungibile e nessun controllo configurato: imposta{" "}
                 <code className="font-mono text-amber-400/70">AGENTS_ROUTER_CONTROL_URL</code> (Docker) or{" "}
                 <code className="font-mono text-amber-400/70">SSH_AGENTS_CMD</code> (SSH) in{" "}
-                <code className="font-mono text-amber-400/70">backend/.env</code>, then restart the backend.
+                <code className="font-mono text-amber-400/70">backend/.env</code>, poi riavvia il backend.
               </p>
             )}
 
             {!modelStatus && (
-              <p className="text-xs text-secondary/50 animate-pulse">Checking inference server…</p>
+              <p className="text-xs text-secondary/50 animate-pulse">Controllo server di inferenza…</p>
             )}
             {modelStatus && (
               <div className="flex flex-col gap-1 mt-0.5">
@@ -842,9 +842,9 @@ export default function ModelsSection({
         {/* ── Base Model ── */}
         <div className={`flex flex-col gap-3 ${isBigBrain ? "opacity-40 pointer-events-none select-none" : ""}`}>
           <div className="flex flex-col w-full">
-            <p className="text-primary font-bold">Base Model</p>
+            <p className="text-primary font-bold">Modello base</p>
             <p className="text-sm text-secondary">
-              Used for the decision agent, as well as any tools requiring simpler tasks that require speed over precision.
+              Usato dall'agente decisionale e dagli strumenti che richiedono task semplici, dove la velocità è più importante della precisione.
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:gap-4 w-full">
@@ -866,15 +866,15 @@ export default function ModelsSection({
                     setChangedConfig(true);
                   }
                 }}
-                placeholder={loadingModels ? "Loading providers..." : "Select provider..."}
-                searchPlaceholder="Search providers..."
+                placeholder={loadingModels ? "Caricamento provider..." : "Seleziona provider..."}
+                searchPlaceholder="Cerca provider..."
                 isInvalid={!tabBaseProviderValid}
               />
             </div>
               {baseProvider && (
               <div className="w-full">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                  <p className="text-sm text-secondary">Model</p>
+                  <p className="text-sm text-secondary">Modello</p>
                   <ModelBadges modelsData={modelsData} provider={baseProvider} model={baseModel} />
                 </div>
                 <SettingCombobox
@@ -887,8 +887,8 @@ export default function ModelsSection({
                       onUpdateSettings(modelBaseKey, value);
                     }
                   }}
-                  placeholder={loadingModels ? "Loading models..." : "Select model..."}
-                  searchPlaceholder="Search models..."
+                  placeholder={loadingModels ? "Caricamento modelli..." : "Seleziona modello..."}
+                  searchPlaceholder="Cerca modelli..."
                   isInvalid={!tabBaseModelValid}
                 />
               </div>
@@ -906,7 +906,7 @@ export default function ModelsSection({
                   }}
                 />
                 <CtxSelector
-                  label="Context window"
+                  label="Finestra contesto"
                   value={flashCtx}
                   maxCtx={maxCtxFor(baseModel)}
                   defaultCtx={defaultCtxFor(baseModel)}
@@ -928,17 +928,17 @@ export default function ModelsSection({
             <div className="flex items-start gap-2 text-xs text-purple-400 rounded-md border border-purple-400/40 bg-purple-400/10 px-3 py-2">
               <span className="mt-0.5 shrink-0">🧠</span>
               <span>
-                <strong>Brain mode active</strong> — this model runs solo on all slots.
-                Change it here, then click <strong>Apply to stack</strong> to load.
+                <strong>Modalità Brain attiva</strong>: questo modello gira da solo su tutti gli slot.
+                Modificalo qui, poi clicca <strong>Applica alla stack</strong> per caricarlo.
               </span>
             </div>
           )}
           <div className="flex flex-col w-full">
-            <p className="text-primary font-bold">{isBigBrain ? "🧠 Brain Model" : "Complex Model"}</p>
+            <p className="text-primary font-bold">{isBigBrain ? "🧠 Modello Brain" : "Modello complesso"}</p>
             <p className="text-sm text-secondary">
               {isBigBrain
-                ? "Runs solo on all slots — handles vision, text, and reasoning. Change it here, then click Apply to stack."
-                : "Used in tools that require complex tasks requiring higher precision and reasoning, such as the query and aggregate tools. Speed may be slower but quality is higher."}
+                ? "Gira da solo su tutti gli slot: gestisce vision, testo e ragionamento. Modificalo qui, poi clicca Applica alla stack."
+                : "Usato negli strumenti che richiedono task complessi e maggiore precisione/ragionamento (es. query e aggregazioni). Più lento, ma più accurato."}
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:gap-4 w-full">
@@ -960,15 +960,15 @@ export default function ModelsSection({
                     setChangedConfig(true);
                   }
                 }}
-                placeholder={loadingModels ? "Loading providers..." : "Select provider..."}
-                searchPlaceholder="Search providers..."
+                placeholder={loadingModels ? "Caricamento provider..." : "Seleziona provider..."}
+                searchPlaceholder="Cerca provider..."
                 isInvalid={!tabComplexProviderValid}
               />
             </div>
             {complexProvider && (
               <div className="w-full">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                  <p className="text-sm text-secondary">Model</p>
+                  <p className="text-sm text-secondary">Modello</p>
                   <ModelBadges modelsData={modelsData} provider={complexProvider} model={complexModel} />
                 </div>
                 <SettingCombobox
@@ -981,8 +981,8 @@ export default function ModelsSection({
                       onUpdateSettings(modelCmplxKey, value);
                     }
                   }}
-                  placeholder={loadingModels ? "Loading models..." : "Select model..."}
-                  searchPlaceholder="Search models..."
+                  placeholder={loadingModels ? "Caricamento modelli..." : "Seleziona modello..."}
+                  searchPlaceholder="Cerca modelli..."
                   isInvalid={!tabComplexModelValid}
                 />
               </div>
@@ -1000,7 +1000,7 @@ export default function ModelsSection({
                   }}
                 />
                 <CtxSelector
-                  label="Context window"
+                  label="Finestra contesto"
                   value={brainCtx}
                   maxCtx={maxCtxFor(complexModel)}
                   defaultCtx={defaultCtxFor(complexModel)}
@@ -1019,10 +1019,10 @@ export default function ModelsSection({
         {/* ── Embedding Model ── */}
         <SettingItem>
           <SettingTitle
-            title="Embedding Model"
+            title="Modello embedding"
             description={isCloud
-              ? "Weaviate-native vectorizer for semantic search"
-              : "Sentence-transformer via @xenova/transformers — no API key needed"}
+              ? "Vectorizer nativo Weaviate per ricerca semantica"
+              : "Sentence-transformer via @xenova/transformers: nessuna API key necessaria"}
           />
           <SettingCombobox
             value={isCloud
@@ -1041,8 +1041,8 @@ export default function ModelsSection({
                   { value: "Xenova/paraphrase-multilingual-MiniLM-L12-v2",     label: "Multilingual MiniLM  (96 langs · 384-dim)" },
                 ]}
             onChange={(value) => onUpdateSettings(isCloud ? "CLOUD_EMBED_MODEL" : "LOCAL_EMBED_MODEL", value)}
-            placeholder="Select embedding model…"
-            searchPlaceholder="Search models…"
+            placeholder="Seleziona modello embedding…"
+            searchPlaceholder="Cerca modelli…"
             allowCustom={true}
           />
         </SettingItem>
@@ -1051,18 +1051,18 @@ export default function ModelsSection({
           <div className={isBigBrain ? "opacity-40 pointer-events-none select-none" : ""}>
           <SettingItem>
             <SettingTitle
-              title="Extraction Model"
+              title="Modello estrazione"
               description={isBigBrain
-                ? "In Brain mode, all extraction — text, vision, and OCR — routes through the single Brain model on :8081. No separate OCR slot runs."
-                : "Model used for document OCR and JSON extraction on port :8083. Routing is immediate; loading a different physical GGUF requires restarting the stack with OCR_MODEL set in env.local."}
+                ? "In modalità Brain, tutta l'estrazione (testo, vision, OCR) passa dal modello Brain su :8081. Nessuno slot OCR separato."
+                : "Modello usato per OCR documenti ed estrazione JSON sulla porta :8083. Per caricare un GGUF fisico diverso serve riavviare la stack con OCR_MODEL impostato in env.local."}
             />
             {isBigBrain && (
-              <p className="text-xs text-secondary italic mt-1">🧠 Brain mode active — uses Brain model for all extraction (no OCR slot needed)</p>
+              <p className="text-xs text-secondary italic mt-1">🧠 Modalità Brain attiva: usa il modello Brain per tutta l'estrazione (nessuno slot OCR necessario)</p>
             )}
             <SettingCombobox
               value={(currentUserConfig?.settings?.LOCAL_OCR_MODEL as string) || ""}
               values={[
-                { value: "",                      label: "Auto — same as Complex model" },
+                { value: "",                      label: "Auto — uguale al modello complesso" },
                 // ── With full stack (Flash + Brain + OCR, ~14 GB total) ───────
                 { value: "gemini-1.5-pro-vision",  label: "★ Qwen3-VL-8B Thinking  (OCR · vision · 32k ctx)" },
                 { value: "gemini-vl-8b",            label: "Qwen3-VL-8B Instruct  (~5.5 GB · with stack)" },
@@ -1088,8 +1088,8 @@ export default function ModelsSection({
                 { value: "gemini-ocr-2",            label: "DeepSeek OCR 2  (Document OCR · manual GGUF load)" },
               ]}
               onChange={(value) => handleLocalModelChange("LOCAL_OCR_MODEL", value || "")}
-              placeholder="Auto (Complex model)"
-              searchPlaceholder="Search…"
+              placeholder="Auto (modello complesso)"
+              searchPlaceholder="Cerca…"
               allowCustom={false}
             />
           </SettingItem>
@@ -1097,7 +1097,7 @@ export default function ModelsSection({
           {(currentUserConfig?.settings?.LOCAL_OCR_MODEL as string) && (
             <div className="flex flex-col gap-3 pl-1 pt-2 border-l border-foreground/15 ml-1 mt-2">
               <TempSlider
-                label="OCR temperature"
+                label="Temperatura OCR"
                 value={ocrTemp}
                 onChange={(v) => {
                   setOcrTemp(v);
@@ -1106,7 +1106,7 @@ export default function ModelsSection({
                 }}
               />
               <CtxSelector
-                label="OCR context"
+                label="Contesto OCR"
                 value={ocrCtx}
                 maxCtx={maxCtxFor((currentUserConfig?.settings?.LOCAL_OCR_MODEL as string) || "gemini-1.5-pro-vision")}
                 defaultCtx={defaultCtxFor((currentUserConfig?.settings?.LOCAL_OCR_MODEL as string) || "gemini-1.5-pro-vision")}
@@ -1125,21 +1125,21 @@ export default function ModelsSection({
         {isCloud && (
           <SettingItem>
             <SettingTitle
-              title="Extraction Model"
-              description="Gemini model used for document OCR and structured JSON extraction during ingestion. Defaults to your Complex model."
+              title="Modello estrazione"
+              description="Modello Gemini usato per OCR documenti ed estrazione JSON strutturata durante l'ingestione. Di default usa il tuo modello complesso."
             />
             <SettingCombobox
               value={(currentUserConfig?.settings?.CLOUD_OCR_MODEL as string) || ""}
               values={[
-                { value: "",                      label: "Auto — same as Complex model" },
+                { value: "",                      label: "Auto — uguale al modello complesso" },
                 { value: "gemini-2.5-pro",         label: "Gemini 2.5 Pro  (Best quality)" },
                 { value: "gemini-2.5-flash",       label: "Gemini 2.5 Flash  (Fast · recommended)" },
                 { value: "gemini-2.0-flash-001",   label: "Gemini 2.0 Flash  (Lightweight)" },
                 { value: "gemini-2.5-flash-lite",  label: "Gemini 2.5 Flash Lite  (Cheapest)" },
               ]}
               onChange={(value) => onUpdateSettings("CLOUD_OCR_MODEL", value || null)}
-              placeholder="Auto (Complex model)"
-              searchPlaceholder="Search models…"
+              placeholder="Auto (modello complesso)"
+              searchPlaceholder="Cerca modelli…"
               allowCustom={true}
             />
           </SettingItem>
@@ -1149,8 +1149,8 @@ export default function ModelsSection({
         {isCloud ? (
           <SettingItem>
             <SettingTitle
-              title="API Base URL"
-              description="Use this to specify custom endpoints for accessing models, such as self-hosted or private models"
+              title="URL base API"
+              description="Usa questo campo per endpoint custom di accesso ai modelli (self-hosted o privati)"
             />
             <SettingInput
               isProtected={false}
@@ -1162,8 +1162,8 @@ export default function ModelsSection({
           <div className={isBigBrain ? "opacity-40 pointer-events-none select-none" : ""}>
           <SettingItem>
             <SettingTitle
-              title="Local API Base URL"
-              description="Endpoint for your local inference server (e.g. temp_router on :8090)."
+              title="URL base API locale"
+              description="Endpoint del server di inferenza locale (es. temp_router su :8090)."
             />
             <SettingInput
               isProtected={false}
@@ -1179,8 +1179,8 @@ export default function ModelsSection({
           <IoInformationCircle className="mt-0.5 flex-shrink-0" size={14} />
           <span>
             {isCloud
-              ? "Cloud providers require API keys — configure them in the API Keys section below."
-              : "Local inference requires no API keys. GPU inference server must be running on the configured ports."}
+              ? "I provider cloud richiedono API keys: configurale nella sezione API Keys qui sotto."
+              : "L'inferenza locale non richiede API keys. Il server GPU deve essere attivo sulle porte configurate."}
           </span>
         </div>
 
@@ -1188,11 +1188,11 @@ export default function ModelsSection({
         <div className="flex flex-col gap-2 bg-highlight/10 rounded-lg p-3 text-sm text-highlight">
           <div className="flex flex-row gap-1 items-center">
             <IoInformationCircle className="text-highlight" />
-            <p className="font-bold text-highlight">Note</p>
+            <p className="font-bold text-highlight">Nota</p>
           </div>
           <p>
-            You can use the same model for both base and complex tasks. Using different models allows you
-            to balance speed vs quality — faster models for simple tasks and more capable models for complex reasoning.
+            Puoi usare lo stesso modello sia per i task base sia per quelli complessi. Usare modelli diversi
+            permette di bilanciare velocità e qualità: modelli rapidi per task semplici, modelli più potenti per ragionamenti complessi.
           </p>
         </div>
 
@@ -1200,11 +1200,11 @@ export default function ModelsSection({
         <div className="flex flex-col gap-2 bg-alt_color_b/10 rounded-lg p-3 text-sm text-alt_color_b">
           <div className="flex flex-row gap-1 items-center">
             <IoInformationCircle className="text-alt_color_b" />
-            <p className="font-bold text-alt_color_b">Recommendation</p>
+            <p className="font-bold text-alt_color_b">Suggerimento</p>
           </div>
           <p>
-            Elysia is optimized for Gemini models. We recommend using Gemini models over OpenAI models
-            for the best performance if possible.
+            Elysia è ottimizzata per i modelli Gemini. Se possibile, consigliamo Gemini rispetto ai modelli OpenAI
+            per ottenere le prestazioni migliori.
           </p>
         </div>
 
@@ -1213,9 +1213,9 @@ export default function ModelsSection({
           <div className="flex w-full items-center justify-center pt-4">
             <DeleteButton
               onClick={onResetConfig}
-              text="Reset Config"
+              text="Reimposta configurazione"
               icon={<TbArrowBackUp />}
-              confirmText="Are you sure?"
+              confirmText="Sei sicuro?"
             />
           </div>
         )}

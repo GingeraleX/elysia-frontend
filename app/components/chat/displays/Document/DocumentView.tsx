@@ -144,16 +144,16 @@ const DocumentView: React.FC<DocumentViewProps> = ({
                 {showChunksOnly ? (
                   <>
                     <IoDocumentText className="mr-1" />
-                    <span className="hidden xs:inline">Show Full Document</span>
-                    <span className="xs:hidden">Full Doc</span>
+                    <span className="hidden xs:inline">Mostra documento completo</span>
+                    <span className="xs:hidden">Completo</span>
                   </>
                 ) : (
                   <>
                     <FaBookmark className="mr-1" />
                     <span className="hidden xs:inline">
-                      Only Relevant Parts
+                      Solo parti rilevanti
                     </span>
-                    <span className="xs:hidden">Relevant</span>
+                    <span className="xs:hidden">Rilevanti</span>
                   </>
                 )}
               </Button>

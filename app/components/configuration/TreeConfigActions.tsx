@@ -27,10 +27,10 @@ export default function TreeConfigActions({
     <>
       {/* Header with title and modified indicator */}
       <div className="flex items-center gap-2">
-        <h2 className="text-primary">Chat Configuration</h2>
+        <h2 className="text-primary">Configurazione chat</h2>
         {changedConfig && (
           <div className="flex flex-row fade-in items-center gap-2 bg-highlight text-primary-foreground rounded-md px-2 py-1">
-            <p className="text-xs text-background">Modified</p>
+            <p className="text-xs text-background">Modificata</p>
           </div>
         )}
       </div>
@@ -56,7 +56,7 @@ export default function TreeConfigActions({
             onClick={onSaveConfig}
           >
             <FaSave />
-            Save
+            Salva
           </Button>
         </motion.div>
 
@@ -65,12 +65,12 @@ export default function TreeConfigActions({
           onClick={onCancelConfig}
           disabled={!changedConfig}
         >
-          Cancel
+          Annulla
         </Button>
 
         <Button variant="outline" onClick={onBack}>
           <TbArrowBackUp size={16} />
-          Back
+          Indietro
         </Button>
       </div>
     </>

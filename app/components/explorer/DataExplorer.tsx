@@ -255,10 +255,10 @@ const DataExplorer = () => {
         {collection && !collection.processed && !loadingCollection && (
           <div className="flex flex-row justify-between items-center w-full bg-warning/10 text-warning border border-warning p-2 rounded-md">
             <div className="flex flex-col gap-1 items-start justify-start">
-              <p className="text-sm font-bold text-warning">Warning</p>
+              <p className="text-sm font-bold text-warning">Avviso</p>
               <p className="text-sm ">
-                This collection needs to be analyzed before it can be used in
-                Elysia and to access its metadata.
+                Questa collezione deve essere analizzata prima di poter essere
+                usata in Elysia e prima di accedere ai suoi metadati.
               </p>
             </div>
           </div>
@@ -286,23 +286,23 @@ const DataExplorer = () => {
             >
               <div className="flex flex-col gap-1 items-start justify-start">
                 <div className="flex flex-row gap-1 items-center justify-between w-full">
-                  <p className="text-sm font-bold text-highlight">Note</p>
+                  <p className="text-sm font-bold text-highlight">Nota</p>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setVectorizerNoteVisible(false)}
                     className="h-auto p-1 text-highlight hover:text-highlight hover:bg-highlight/20"
-                    aria-label="Close note"
+                    aria-label="Chiudi nota"
                   >
                     <IoClose size={16} />
                   </Button>
                 </div>
                 <p className="text-sm ">
-                  No vectorizers could be detected for this collection (neither
-                  global nor named vectors). Vector search might be limited
-                  which could lead to issues. Please verify that your collection
-                  is using one of Weaviate&apos;s supported embedding model
-                  providers.{" "}
+                  Non è stato possibile rilevare vectorizer per questa
+                  collezione (né globale né named vectors). La ricerca
+                  vettoriale potrebbe essere limitata e causare problemi.
+                  Verifica che la collezione usi uno dei provider di modelli
+                  embedding supportati da Weaviate.{" "}
                 </p>
                 <a
                   href="https://docs.weaviate.io/weaviate/model-providers"
@@ -310,7 +310,7 @@ const DataExplorer = () => {
                   rel="noopener noreferrer"
                   className="text-highlight underline hover:no-underline text-sm"
                 >
-                  View Weaviate documentation
+                  Apri documentazione Weaviate
                 </a>
               </div>
             </motion.div>
@@ -332,7 +332,7 @@ const DataExplorer = () => {
                 >
                   <Input
                     type="text"
-                    placeholder={"Search " + (collection?.name || "collection")}
+                    placeholder={"Cerca " + (collection?.name || "collezione")}
                     value={query}
                     className="text-sm placeholder:text-secondary placeholder:text-sm"
                     onChange={(e) => setQuery(e.target.value)}
@@ -360,11 +360,11 @@ const DataExplorer = () => {
                       </Button>
                       {!usingQuery ? (
                         <p className="text-primary text-xs font-light">
-                          {"Page " + page + " of " + maxPage}
+                          {"Pagina " + page + " di " + maxPage}
                         </p>
                       ) : (
                         <p className="text-primary text-xs font-light">
-                          {"Page " + page}
+                          {"Pagina " + page}
                         </p>
                       )}
                       <Button

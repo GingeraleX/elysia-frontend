@@ -33,7 +33,7 @@ const ConfirmationModal: React.FC = () => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={handleCancelModal}>
-            Cancel
+            Annulla
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirmModal}

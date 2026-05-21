@@ -36,8 +36,8 @@ export const RouterProvider = ({ children }: { children: React.ReactNode }) => {
   ) => {
     if (guarded) {
       showConfirmModal(
-        "Unsaved Changes",
-        "You have unsaved changes. Are you sure you want to leave this page? You will lose your changes.",
+        "Modifiche non salvate",
+        "Hai modifiche non salvate. Vuoi davvero lasciare questa pagina? Le modifiche andranno perse.",
         () => {
           onConfirm?.();
           changePageFunction(page, params, replace);
@@ -94,6 +94,7 @@ export const RouterProvider = ({ children }: { children: React.ReactNode }) => {
       "data",
       "collection",
       "import",
+      "models",
       "settings",
       "eval",
       "feedback",
@@ -102,6 +103,7 @@ export const RouterProvider = ({ children }: { children: React.ReactNode }) => {
       "login",
       "landing",
       "files",
+      "documentation",
     ];
     const validatedPage = validPages.includes(pageParam) ? pageParam : "chat";
 

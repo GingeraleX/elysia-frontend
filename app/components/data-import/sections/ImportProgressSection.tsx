@@ -57,12 +57,12 @@ export default function ImportProgressSection({
       <div className="text-center">
         <h3 className="font-semibold text-lg text-primary mb-1">
           {progress.status === "complete"
-            ? "Import Complete"
+            ? "Import completato"
             : progress.status === "error"
-            ? "Import Failed"
+            ? "Import non riuscito"
             : progress.status === "processing"
-            ? "Importing Data"
-            : "Ready to Import"}
+            ? "Importazione dati in corso"
+            : "Pronto per l'importazione"}
         </h3>
         <p className="text-sm text-secondary">{collectionName}</p>
       </div>
@@ -100,7 +100,7 @@ export default function ImportProgressSection({
       {progress.status === "complete" && (
         <div className="w-full max-w-xs p-3 rounded-lg bg-accent/10 border border-accent/30">
           <p className="text-xs text-accent">
-            Your data has been successfully imported and is ready for use.
+            I tuoi dati sono stati importati correttamente e sono pronti all&apos;uso.
           </p>
         </div>
       )}
@@ -110,10 +110,10 @@ export default function ImportProgressSection({
         {progress.status === "idle" && (
           <>
             <Button variant="outline" onClick={onReset}>
-              Cancel
+              Annulla
             </Button>
             <Button onClick={onStartImport} className="bg-accent hover:bg-highlight text-background">
-              Start Import
+              Avvia importazione
             </Button>
           </>
         )}
@@ -122,13 +122,13 @@ export default function ImportProgressSection({
             <div className="animate-spin mr-2 h-4 w-4">
               <div className="h-full w-full border-2 border-background border-t-transparent rounded-full"></div>
             </div>
-            Importing...
+            Importazione in corso...
           </Button>
         )}
         {(progress.status === "complete" || progress.status === "error") && (
           <>
             <Button variant="outline" onClick={onReset} className="border-border text-primary hover:bg-foreground_alt">
-              Import Another
+              Importa un altro file
             </Button>
           </>
         )}
@@ -136,4 +136,3 @@ export default function ImportProgressSection({
     </div>
   );
 }
-

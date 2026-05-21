@@ -30,7 +30,7 @@ export default function FileUploadSection({
       if (ext === ".csv") {
         const text = await file.text();
         const lines = text.split("\n").filter((l) => l.trim());
-        if (lines.length < 2) throw new Error("CSV must have headers and at least one row");
+        if (lines.length < 2) throw new Error("Il CSV deve avere intestazioni e almeno una riga");
         const headers = lines[0].split(",").map(h => h.trim());
         return lines.slice(1, 11).map((line) => {
           const values = line.split(",").map(v => v.trim());
@@ -43,25 +43,25 @@ export default function FileUploadSection({
       } else if (ext === ".json") {
         const text = await file.text();
         const data = JSON.parse(text);
-        if (!Array.isArray(data)) throw new Error("JSON must be an array");
+        if (!Array.isArray(data)) throw new Error("Il JSON deve essere un array");
         return data.slice(0, 10);
       } else if (ext === ".jsonl") {
         const text = await file.text();
         const lines = text.split("\n").filter((l) => l.trim());
-        if (lines.length === 0) throw new Error("JSONL is empty");
+        if (lines.length === 0) throw new Error("Il JSONL è vuoto");
         return lines.slice(0, 10).map((line) => JSON.parse(line));
       } else if (ext === ".txt") {
         const text = await file.text();
         const lines = text.split("\n").filter((l) => l.trim());
-        if (lines.length === 0) throw new Error("TXT is empty");
+        if (lines.length === 0) throw new Error("Il TXT è vuoto");
         return lines.slice(0, 10).map((line, idx) => ({
           id: idx + 1,
           content: line,
         }));
       }
-      throw new Error("Unsupported format");
+      throw new Error("Formato non supportato");
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Failed to parse";
+      const errorMsg = err instanceof Error ? err.message : "Parsing non riuscito";
       setError(errorMsg);
       throw err;
     } finally {
@@ -73,19 +73,19 @@ export default function FileUploadSection({
     const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
 
     if (!SUPPORTED_FORMATS.includes(ext)) {
-      setError(`Unsupported format. Use: ${SUPPORTED_FORMATS.join(", ")}`);
+      setError(`Formato non supportato. Usa: ${SUPPORTED_FORMATS.join(", ")}`);
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setError("File too large (max 100MB)");
+      setError("File troppo grande (max 100MB)");
       return;
     }
 
     try {
       const parsed = await parseFile(file);
       if (parsed.length === 0) {
-        setError("File is empty");
+        setError("Il file è vuoto");
         return;
       }
       onFileUpload(file, parsed);
@@ -150,10 +150,10 @@ export default function FileUploadSection({
 
         <div className="text-center">
           <h3 className="font-semibold text-base text-primary">
-            {loading ? "Parsing..." : error ? "Error" : "Drop file here"}
+            {loading ? "Analisi..." : error ? "Errore" : "Trascina qui il file"}
           </h3>
           <p className="text-sm text-secondary mt-1">
-            {error || "or click to select (CSV, JSON, JSONL, TXT)"}
+            {error || "oppure clicca per selezionare (CSV, JSON, JSONL, TXT)"}
           </p>
         </div>
 
@@ -162,7 +162,7 @@ export default function FileUploadSection({
             onClick={() => setError("")}
             className="text-xs px-3 py-1 rounded bg-accent text-background hover:bg-highlight transition-colors"
           >
-            Try Again
+            Riprova
           </button>
         )}
       </div>
@@ -170,7 +170,7 @@ export default function FileUploadSection({
       {/* Info Cards */}
       <div className="grid grid-cols-2 gap-4">
         <div className="p-4 rounded-lg border border-border bg-foreground">
-          <h4 className="font-semibold text-base text-primary mb-3">Requirements</h4>
+          <h4 className="font-semibold text-base text-primary mb-3">Requisiti</h4>
           <ul className="space-y-2 text-xs text-secondary">
             <li className="flex gap-2">
               <span className="text-accent">✓</span> Max 100MB
@@ -179,19 +179,18 @@ export default function FileUploadSection({
               <span className="text-accent">✓</span> CSV, JSON, JSONL, TXT
             </li>
             <li className="flex gap-2">
-              <span className="text-accent">✓</span> Headers for CSV/JSON
+              <span className="text-accent">✓</span> Intestazioni per CSV/JSON
             </li>
           </ul>
         </div>
 
         <div className="p-4 rounded-lg border border-border bg-foreground">
-          <h4 className="font-semibold text-base text-primary mb-3">Collections</h4>
+          <h4 className="font-semibold text-base text-primary mb-3">Collezioni</h4>
           <p className="text-xs text-secondary">
-            Total: <span className="text-accent font-semibold">{existingCollections.length}</span>
+            Totale: <span className="text-accent font-semibold">{existingCollections.length}</span>
           </p>
         </div>
       </div>
     </div>
   );
 }
-

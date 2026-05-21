@@ -14,7 +14,7 @@ const ProductView: React.FC<ProductViewProps> = ({ product }) => {
   const [imageError, setImageError] = useState(false);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("it-IT", {
       style: "currency",
       currency: "USD",
       minimumFractionDigits: 0,
@@ -82,7 +82,7 @@ const ProductView: React.FC<ProductViewProps> = ({ product }) => {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-secondary/30 text-center p-8">
                 <div className="text-6xl mb-4 opacity-50">📷</div>
-                <div className="text-sm opacity-60">Image unavailable</div>
+                <div className="text-sm opacity-60">Immagine non disponibile</div>
               </div>
             </div>
           )}
@@ -162,7 +162,7 @@ const ProductView: React.FC<ProductViewProps> = ({ product }) => {
           >
             <div className="text-center space-y-3">
               <div className="text-xs text-secondary/40 uppercase tracking-[0.2em] font-medium">
-                Collection
+                Collezione
               </div>
               <div className="text-lg text-primary font-light">
                 {product.collection}
@@ -170,7 +170,7 @@ const ProductView: React.FC<ProductViewProps> = ({ product }) => {
             </div>
             <div className="text-center space-y-3">
               <div className="text-xs text-secondary/40 uppercase tracking-[0.2em] font-medium">
-                Category
+                Categoria
               </div>
               <div className="text-lg text-primary font-light">
                 {product.category}
@@ -178,7 +178,7 @@ const ProductView: React.FC<ProductViewProps> = ({ product }) => {
             </div>
             <div className="text-center space-y-3">
               <div className="text-xs text-secondary/40 uppercase tracking-[0.2em] font-medium">
-                Type
+                Tipo
               </div>
               <div className="text-lg text-primary font-light">
                 {product.subcategory}

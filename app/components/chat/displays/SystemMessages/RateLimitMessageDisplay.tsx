@@ -18,7 +18,7 @@ const RateLimitMessageDisplay: React.FC<RateLimitMessageDisplayProps> = ({
         <div className="flex flex-col justify-start items-start gap-2 chat-animation border border-secondary p-4 rounded-lg">
           <div className="flex gap-2 items-center">
             <IoWarningOutline className="text-primary text-lg" />
-            <p className="text-primary text-sm font-bold">Rate Limit reached</p>
+            <p className="text-primary text-sm font-bold">Limite richieste raggiunto</p>
           </div>
           <MarkdownFormat
             text={

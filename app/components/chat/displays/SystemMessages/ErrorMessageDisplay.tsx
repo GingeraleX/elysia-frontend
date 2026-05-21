@@ -23,12 +23,12 @@ const ErrorMessageDisplay: React.FC<ErrorMessageDisplayProps> = ({ error }) => {
     : IoWarningOutline;
 
   const title = isRateLimit
-    ? "Rate Limited"
+    ? "Limite richieste"
     : isAuthError
-    ? "API Key Error"
+    ? "Errore API key"
     : isUnavailable
-    ? "Service Unavailable"
-    : "Error";
+    ? "Servizio non disponibile"
+    : "Errore";
 
   return (
     <div className="w-full flex flex-col justify-start items-start ">
@@ -44,7 +44,7 @@ const ErrorMessageDisplay: React.FC<ErrorMessageDisplayProps> = ({ error }) => {
               href="/?page=settings"
               className="text-xs text-primary underline mt-1 hover:opacity-80 transition-opacity"
             >
-              → Open Settings → AI Configuration
+              → Apri Impostazioni → Configurazione AI
             </a>
           )}
         </div>

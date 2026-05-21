@@ -35,43 +35,43 @@ export default function EnvImportModal({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Import API Keys from .env</DialogTitle>
+          <DialogTitle>Importa API key da .env</DialogTitle>
           <DialogDescription>
-            Paste your .env file content below. We&apos;ll automatically parse
-            and add your API keys. Supports both <code>KEY=value</code> and{" "}
-            <code>KEY=&quot;value&quot;</code> formats.
+            Incolla qui sotto il contenuto del tuo file .env. Lo parseremo
+            automaticamente e aggiungeremo le API key. Supporta sia il formato{" "}
+            <code>KEY=value</code> che <code>KEY=&quot;value&quot;</code>.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
             <label htmlFor="env-content" className="text-sm font-medium">
-              .env Content
+              Contenuto .env
             </label>
             <textarea
               id="env-content"
               value={envContent}
               onChange={(e) => onEnvContentChange(e.target.value)}
-              placeholder={`OPENAI_API_KEY=your_key_here
-ANTHROPIC_API_KEY="your_key_here"
-GOOGLE_API_KEY=your_key_here`}
+              placeholder={`OPENAI_API_KEY=la_tua_chiave
+ANTHROPIC_API_KEY="la_tua_chiave"
+GOOGLE_API_KEY=la_tua_chiave`}
               className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
               rows={8}
             />
             <p className="text-xs text-muted-foreground">
-              Comments (lines starting with #) will be ignored
+              I commenti (righe che iniziano con `#`) verranno ignorati
             </p>
           </div>
         </div>
         <div className="flex justify-end gap-3">
           <Button variant="outline" onClick={onCancel}>
-            Cancel
+            Annulla
           </Button>
           <Button
             onClick={onSubmit}
             disabled={!envContent.trim()}
             className="bg-accent/10 text-accent hover:bg-accent/20"
           >
-            Import Keys
+            Importa chiavi
           </Button>
         </div>
       </DialogContent>

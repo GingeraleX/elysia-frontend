@@ -51,22 +51,22 @@ export default function CollectionInfoSection({
       >
         <div className="flex items-center gap-2">
           <AiOutlineInfoCircle className="text-primary" />
-          <h4 className="font-semibold text-sm">Collection Info</h4>
+          <h4 className="font-semibold text-sm">Info collezione</h4>
         </div>
 
         <div className="space-y-2 text-xs">
           <div>
-            <p className="text-muted-foreground">Name</p>
+            <p className="text-muted-foreground">Nome</p>
             <p className="font-semibold break-all">{collectionName}</p>
           </div>
 
           <div>
-            <p className="text-muted-foreground">Records</p>
+            <p className="text-muted-foreground">Record</p>
             <p className="font-semibold">{filePreviewData?.length || 0}</p>
           </div>
 
           <div>
-            <p className="text-muted-foreground">Fields</p>
+            <p className="text-muted-foreground">Campi</p>
             <p className="font-semibold">{columns.length}</p>
           </div>
         </div>
@@ -82,7 +82,7 @@ export default function CollectionInfoSection({
         >
           <div className="flex items-center gap-2">
             <BiCheckCircle className="text-primary" />
-            <h4 className="font-semibold text-sm">Embedder Config</h4>
+            <h4 className="font-semibold text-sm">Config embedder</h4>
           </div>
 
           <div className="space-y-2 text-xs">
@@ -92,12 +92,12 @@ export default function CollectionInfoSection({
             </div>
 
             <div>
-              <p className="text-muted-foreground">Model</p>
+              <p className="text-muted-foreground">Modello</p>
               <p className="font-semibold text-xs break-all">{selectedEmbedder.model}</p>
             </div>
 
             <div>
-              <p className="text-muted-foreground">Vector Field</p>
+              <p className="text-muted-foreground">Campo vettoriale</p>
               <p className="font-semibold">{selectedEmbedder.vectorField}</p>
             </div>
           </div>
@@ -112,7 +112,7 @@ export default function CollectionInfoSection({
           transition={{ duration: 0.5, delay: 0.2 }}
           className="p-4 rounded-lg bg-muted/50 space-y-2"
         >
-          <h4 className="font-semibold text-sm">Fields ({columns.length})</h4>
+          <h4 className="font-semibold text-sm">Campi ({columns.length})</h4>
           <div className="space-y-1 text-xs max-h-64 overflow-y-auto">
             {columns.map((col) => (
               <div
@@ -126,7 +126,7 @@ export default function CollectionInfoSection({
                   <strong>{col}</strong>
                 </span>
                 <span className="flex-shrink-0 px-2 py-0.5 rounded bg-muted text-muted-foreground text-xs capitalize">
-                  {fieldTypes[col] || "unknown"}
+                  {fieldTypes[col] || "sconosciuto"}
                 </span>
                 {col === selectedEmbedder?.vectorField && (
                   <span className="flex-shrink-0 text-primary font-bold ml-1">✓</span>
@@ -137,7 +137,7 @@ export default function CollectionInfoSection({
 
           {/* Display mappings note */}
           <p className="text-xs text-muted-foreground mt-2 pt-2 border-t border-border">
-            Display mappings auto-detected — review in next step
+            Mappature display rilevate automaticamente — rivedile nel prossimo passaggio
           </p>
         </motion.div>
       )}
@@ -150,16 +150,15 @@ export default function CollectionInfoSection({
         className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 space-y-2"
       >
         <p className="text-xs font-semibold text-blue-900 dark:text-blue-100">
-          💡 Tips
+          💡 Suggerimenti
         </p>
         <ul className="text-xs text-blue-800 dark:text-blue-200 space-y-1 ml-3 list-disc">
-          <li>All fields are indexed and searchable</li>
-          <li>Text fields can be vectorized for semantic search</li>
-          <li>Numeric and boolean fields enable filtering</li>
-          <li>Choose descriptive field names for better UX</li>
+          <li>Tutti i campi sono indicizzati e ricercabili</li>
+          <li>I campi testuali possono essere vettorializzati per la ricerca semantica</li>
+          <li>I campi numerici e booleani consentono il filtraggio</li>
+          <li>Scegli nomi campo descrittivi per una UX migliore</li>
         </ul>
       </motion.div>
     </div>
   );
 }
-

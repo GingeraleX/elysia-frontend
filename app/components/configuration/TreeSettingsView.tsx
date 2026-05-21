@@ -78,7 +78,7 @@ export default function TreeSettingsView({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full w-full">
-        <p className="text-primary shine">Loading chat config...</p>
+        <p className="text-primary shine">Caricamento configurazione chat...</p>
       </div>
     );
   }
@@ -86,13 +86,13 @@ export default function TreeSettingsView({
   if (!currentConfig) {
     return (
       <div className="flex flex-col items-center justify-center h-full w-full gap-4">
-        <p className="text-secondary">No chat configuration found</p>
+        <p className="text-secondary">Nessuna configurazione chat trovata</p>
         <button
           onClick={selectChat}
           className="flex items-center gap-2 px-4 py-2 border border-foreground_alt rounded-md hover:bg-foreground_alt/10 transition-colors"
         >
           <TbArrowBackUp size={16} />
-          Back
+          Indietro
         </button>
       </div>
     );
@@ -126,7 +126,7 @@ export default function TreeSettingsView({
             currentUserConfig={currentConfig}
             onUpdateFields={updateFields}
             onUpdateSettings={updateSettingsFields}
-            title="Agent Configuration"
+            title="Configurazione agente"
             showDocumentation={false}
             showFeedbackSetting={false}
           />

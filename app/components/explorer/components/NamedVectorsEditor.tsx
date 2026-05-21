@@ -32,7 +32,7 @@ const NamedVectorsEditor: React.FC<NamedVectorsEditorProps> = ({
   return (
     <div className="flex flex-col gap-2 w-full">
       <div className="flex flex-row items-center gap-2">
-        <p className="font-bold">Named Vectors</p>
+        <p className="font-bold">Vettori nominati</p>
         {!editing && (
           <Button
             size="sm"
@@ -74,22 +74,22 @@ const NamedVectorsEditor: React.FC<NamedVectorsEditorProps> = ({
                       value={namedVectorsDraft[key]?.description || ""}
                       onChange={(e) => onDescriptionChange(key, e.target.value)}
                       disabled={saving}
-                      placeholder="Enter description..."
+                      placeholder="Inserisci descrizione..."
                     />
                   </div>
                 ) : (
                   <p className="text-secondary text-sm font-light text-wrap">
-                    {namedVector?.description || "No description"}
+                    {namedVector?.description || "Nessuna descrizione"}
                   </p>
                 )}
               </div>
               <div className="flex flex-row gap-2">
                 <p className="text-primary text-sm font-bold">
-                  Source Properties:
+                  Proprietà sorgente:
                 </p>
                 <p className="text-secondary text-sm font-light text-wrap">
                   {namedVector?.source_properties?.join(", ") ||
-                    "No source properties"}
+                    "Nessuna proprietà sorgente"}
                 </p>
               </div>
             </div>

@@ -100,7 +100,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     localSocket.onopen = () => {
       setSocketOnline(true);
-      showSuccessToast("Connected to Elysia");
+      showSuccessToast("Connesso a Elysia");
       if (process.env.NODE_ENV === "development") {
         console.log("Socket opened");
       }
@@ -127,7 +127,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       handleAllConversationsError();
       // Don't show error toast - let user use app in offline mode
       if (process.env.NODE_ENV === "development") {
-        showErrorToast("⚠️ Connection to backend lost (working in offline mode)");
+        showErrorToast("⚠️ Connessione al backend persa (modalità offline)");
       }
     };
 
@@ -141,7 +141,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       handleAllConversationsError();
       // Don't show error toast in production - silently retry
       if (process.env.NODE_ENV === "development") {
-        showErrorToast("⚠️ Disconnected from backend");
+        showErrorToast("⚠️ Disconnesso dal backend");
       }
     };
 
@@ -167,7 +167,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       return Promise.resolve(false);
     }
 
-    setConversationStatus("Thinking...", conversation_id);
+    setConversationStatus("Sto pensando...", conversation_id);
     const enabled_collections = getAllEnabledCollections();
 
     // Fetch the current mode (cloud | local) at send-time so each message

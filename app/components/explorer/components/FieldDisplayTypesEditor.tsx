@@ -16,18 +16,18 @@ import SaveCancelButtons from "./SaveCancelButtons";
 
 /** All recognised display types — must stay in sync with MAPPING_TYPES in collections.ts */
 const DISPLAY_TYPES = [
-  { value: "text",          label: "Text" },
-  { value: "image",         label: "Image" },
-  { value: "table",         label: "Table" },
-  { value: "chart_bar",     label: "Chart — Bar" },
-  { value: "chart_line",    label: "Chart — Line" },
-  { value: "chart_scatter", label: "Chart — Scatter" },
-  { value: "entity",        label: "Entity" },
-  { value: "document",      label: "Document" },
-  { value: "product",       label: "Product" },
-  { value: "person",        label: "Person" },
-  { value: "event",         label: "Event" },
-  { value: "link",          label: "Link" },
+  { value: "text",          label: "Testo" },
+  { value: "image",         label: "Immagine" },
+  { value: "table",         label: "Tabella" },
+  { value: "chart_bar",     label: "Grafico — Barre" },
+  { value: "chart_line",    label: "Grafico — Linee" },
+  { value: "chart_scatter", label: "Grafico — Dispersione" },
+  { value: "entity",        label: "Entità" },
+  { value: "document",      label: "Documento" },
+  { value: "product",       label: "Prodotto" },
+  { value: "person",        label: "Persona" },
+  { value: "event",         label: "Evento" },
+  { value: "link",          label: "Collegamento" },
 ] as const;
 
 interface FieldDisplayTypesEditorProps {
@@ -68,15 +68,15 @@ const FieldDisplayTypesEditor: React.FC<FieldDisplayTypesEditorProps> = ({
           <div className="bg-accent/10 border border-accent rounded-md p-1">
             <MdOutlineSchema className="text-accent" />
           </div>
-          <p className="font-bold">Field Display Types</p>
+          <p className="font-bold">Tipi di visualizzazione campi</p>
           <span className="text-xs text-secondary bg-foreground border border-border rounded-full px-2 py-0.5">
-            auto-detected · editable
+            rilevati automaticamente · modificabili
           </span>
         </div>
         {!editing && (
           <Button onClick={onEdit}>
             <FaEdit className="text-secondary" />
-            <p className="text-secondary">Edit</p>
+            <p className="text-secondary">Modifica</p>
           </Button>
         )}
         {editing && (
@@ -144,4 +144,3 @@ const FieldDisplayTypesEditor: React.FC<FieldDisplayTypesEditorProps> = ({
 };
 
 export default FieldDisplayTypesEditor;
-

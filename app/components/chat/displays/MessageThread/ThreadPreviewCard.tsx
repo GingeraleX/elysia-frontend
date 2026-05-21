@@ -18,19 +18,19 @@ const ThreadPreviewCard: React.FC<ThreadPreviewCardProps> = ({
   const uniqueAuthors = [...new Set(authors)];
   const authorsTitle =
     uniqueAuthors.length > 3
-      ? `${uniqueAuthors[0]} & others`
+      ? `${uniqueAuthors[0]} e altri`
       : uniqueAuthors.join(", ");
   const threadLength = thread.messages.length;
 
   const formatDate = (date: string) => {
     const dateObj = new Date(date);
-    return dateObj.toLocaleDateString("en-US", {
+    return dateObj.toLocaleDateString("it-IT", {
       year: "numeric",
       month: "numeric",
       day: "numeric",
       hour: "numeric",
       minute: "numeric",
-      hour12: true,
+      hour12: false,
     });
   };
 

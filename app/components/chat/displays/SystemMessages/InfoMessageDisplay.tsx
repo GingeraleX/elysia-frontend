@@ -15,7 +15,7 @@ const InfoMessageDisplay: React.FC<InfoMessageDisplayProps> = ({ info }) => {
         <div className="flex flex-col justify-start items-start gap-2 chat-animation border border-secondary p-4 rounded-lg">
           <div className="flex gap-2 items-center">
             <RiRobot2Line className="text-primary text-lg" />
-            <p className="text-primary text-sm font-bold">Info</p>
+            <p className="text-primary text-sm font-bold">Informazione</p>
           </div>
           <MarkdownFormat text={info} />
         </div>

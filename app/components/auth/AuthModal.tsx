@@ -43,7 +43,7 @@ export function AuthModal() {
     } catch (err) {
       // Extract error message from ApiError or Error object
       const errorMessage = err instanceof Error ? err.message : String(err);
-      showErrorToast("Login Failed", errorMessage);
+      showErrorToast("Accesso non riuscito", errorMessage);
       console.error("[AuthModal] Login error:", err);
     }
   };
@@ -52,7 +52,7 @@ export function AuthModal() {
     e.preventDefault();
 
     if (registerData.password !== registerData.confirmPassword) {
-      showErrorToast("Validation Error", "Passwords don't match");
+      showErrorToast("Errore di validazione", "Le password non coincidono");
       return;
     }
 
@@ -67,7 +67,7 @@ export function AuthModal() {
     } catch (err) {
       // Extract error message from ApiError or Error object
       const errorMessage = err instanceof Error ? err.message : String(err);
-      showErrorToast("Registration Failed", errorMessage);
+      showErrorToast("Registrazione non riuscita", errorMessage);
       console.error("[AuthModal] Register error:", err);
     }
   };
@@ -93,7 +93,7 @@ export function AuthModal() {
             </div>
             <CardTitle className="text-2xl font-bold text-primary">Elysia</CardTitle>
             <CardDescription className="text-secondary">
-              {activeTab === "login" ? "Sign in to your account" : "Create your account"}
+              {activeTab === "login" ? "Accedi al tuo account" : "Crea il tuo account"}
             </CardDescription>
           </CardHeader>
 
@@ -111,7 +111,7 @@ export function AuthModal() {
                 whileTap={{ scale: 0.98 }}
                 layout
               >
-                Sign In
+                Accedi
               </motion.button>
               <motion.button
                 onClick={() => setActiveTab("register")}
@@ -124,7 +124,7 @@ export function AuthModal() {
                 whileTap={{ scale: 0.98 }}
                 layout
               >
-                Sign Up
+                Registrati
               </motion.button>
             </div>
 
@@ -173,7 +173,7 @@ export function AuthModal() {
                     whileTap={{ scale: 0.98 }}
                   >
                     <Button type="submit" disabled={isLoading} className="w-full bg-accent hover:bg-highlight text-background mt-6">
-                      {isLoading ? "Signing in..." : "Sign In"}
+                      {isLoading ? "Accesso in corso..." : "Accedi"}
                     </Button>
                   </motion.div>
                 </motion.form>
@@ -202,11 +202,11 @@ export function AuthModal() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="company" className="text-primary">Company Name (Optional)</Label>
+                    <Label htmlFor="company" className="text-primary">Nome azienda (opzionale)</Label>
                     <Input
                       id="company"
                       type="text"
-                      placeholder="Your company"
+                      placeholder="La tua azienda"
                       value={registerData.companyName}
                       onChange={(e) => setRegisterData({ ...registerData, companyName: e.target.value })}
                       disabled={isLoading}
@@ -229,7 +229,7 @@ export function AuthModal() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirm-password" className="text-primary">Confirm Password</Label>
+                    <Label htmlFor="confirm-password" className="text-primary">Conferma password</Label>
                     <Input
                       id="confirm-password"
                       type="password"
@@ -247,7 +247,7 @@ export function AuthModal() {
                     whileTap={{ scale: 0.98 }}
                   >
                     <Button type="submit" disabled={isLoading} className="w-full bg-accent hover:bg-highlight text-background mt-6">
-                      {isLoading ? "Creating account..." : "Create Account"}
+                      {isLoading ? "Creazione account..." : "Crea account"}
                     </Button>
                   </motion.div>
                 </motion.form>
@@ -271,11 +271,11 @@ export function AuthModal() {
                   disabled={isLoading}
                   className="w-full text-secondary hover:text-primary hover:bg-foreground_alt"
                 >
-                  Continue as Guest
+                  Continua come ospite
                 </Button>
               </motion.div>
               <p className="text-xs text-secondary text-center mt-3 opacity-75">
-                Limited features available in guest mode
+                Funzionalità limitate in modalità ospite
               </p>
             </motion.div>
           </CardContent>
@@ -284,4 +284,3 @@ export function AuthModal() {
     </div>
   );
 }
-

@@ -208,7 +208,7 @@ export const ConversationProvider = ({
     // Multiple entries accumulate when the app loaded while Weaviate was empty and
     // auto-created a new conversation each time. Delete the older duplicates.
     const newConvEntries = Object.entries(trees)
-      .filter(([, v]) => v.title === "New Conversation")
+      .filter(([, v]) => v.title === "New Conversation" || v.title === "Nuova conversazione")
       .sort(([, a], [, b]) => new Date(b.last_update_time).getTime() - new Date(a.last_update_time).getTime());
 
     if (newConvEntries.length > 1) {
@@ -461,7 +461,7 @@ export const ConversationProvider = ({
       // the chat shows "Loading…" before the first render with empty queries
       retrieveConversation(
         conversationId,
-        preview?.title ?? "Conversation",
+        preview?.title ?? "Conversazione",
         new Date(preview?.last_update_time ?? Date.now())
       );
     }
@@ -1146,7 +1146,7 @@ export const ConversationProvider = ({
             const preview = conversationPreviews[latestConversationId];
             retrieveConversation(
               latestConversationId,
-              preview?.title ?? "New Conversation",
+              preview?.title ?? "Nuova conversazione",
               new Date(preview?.last_update_time ?? Date.now())
             );
           }

@@ -74,7 +74,7 @@ function RemediationList({
   return (
     <div className="mt-1 p-2 rounded-md border border-amber-500/30 bg-amber-500/5">
       <div className="text-xs font-semibold text-amber-400 mb-1.5">
-        ⚠ Stack exceeds VRAM budget — suggested fixes:
+        ⚠ La stack supera il budget VRAM — correzioni suggerite:
       </div>
       <div className="flex flex-col gap-1.5">
         {visible.map((r, i) => (
@@ -84,7 +84,7 @@ function RemediationList({
                 {r.shortLabel ?? r.message}
               </span>
               <span className="text-[10px] font-semibold text-emerald-400/80">
-                saves {r.savingsGb.toFixed(1)} GB
+                risparmia {r.savingsGb.toFixed(1)} GB
               </span>
             </div>
             {onApply && (
@@ -92,7 +92,7 @@ function RemediationList({
                 onClick={() => onApply(r)}
                 className="text-[11px] px-2 py-0.5 rounded border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 transition-colors shrink-0 whitespace-nowrap"
               >
-                Apply
+                Applica
               </button>
             )}
           </div>
@@ -103,7 +103,7 @@ function RemediationList({
           onClick={() => setExpanded(true)}
           className="mt-1.5 text-[11px] text-secondary/60 hover:text-secondary transition-colors underline"
         >
-          Show all {remediations.length} suggestions
+          Mostra tutti i {remediations.length} suggerimenti
         </button>
       )}
       {expanded && hidden > 0 && (
@@ -111,7 +111,7 @@ function RemediationList({
           onClick={() => setExpanded(false)}
           className="mt-1.5 text-[11px] text-secondary/60 hover:text-secondary transition-colors underline"
         >
-          Show less
+          Mostra meno
         </button>
       )}
     </div>
@@ -136,7 +136,7 @@ export default function ModelMemoryBar({ planResult, loading, error, onApplyReme
     return (
       <div className="flex flex-col gap-2">
         <div className="flex items-baseline justify-between gap-2">
-          <span className="text-xs font-semibold text-secondary uppercase tracking-wider">VRAM estimate</span>
+          <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Stima VRAM</span>
           <span className="text-xs text-amber-500/70">{error}</span>
         </div>
         <div className="w-full rounded-full overflow-hidden bg-white/5 opacity-30" style={{ height: "14px" }} />
@@ -147,8 +147,8 @@ export default function ModelMemoryBar({ planResult, loading, error, onApplyReme
     return (
       <div className="flex flex-col gap-2">
         <div className="flex items-baseline justify-between gap-2">
-          <span className="text-xs font-semibold text-secondary uppercase tracking-wider">VRAM estimate</span>
-          <span className="text-xs text-secondary opacity-50">Loading…</span>
+          <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Stima VRAM</span>
+          <span className="text-xs text-secondary opacity-50">Caricamento…</span>
         </div>
         <div className="w-full rounded-full overflow-hidden bg-white/5 animate-pulse" style={{ height: "14px" }} />
       </div>
@@ -174,7 +174,7 @@ export default function ModelMemoryBar({ planResult, loading, error, onApplyReme
     <div className="flex flex-col gap-2">
       {/* Header */}
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-xs font-semibold text-secondary uppercase tracking-wider">VRAM estimate</span>
+        <span className="text-xs font-semibold text-secondary uppercase tracking-wider">Stima VRAM</span>
         <span className="text-xs font-mono">
           <span className={!fits ? "text-red-400 font-bold" : "text-primary"}>
             {fmtGb(totalGb)}
@@ -182,7 +182,7 @@ export default function ModelMemoryBar({ planResult, loading, error, onApplyReme
           <span className="text-secondary opacity-50"> / {fmtGb(budgetGb)}</span>
           {!fits && (
             <span className="ml-2 text-red-400 font-bold text-[10px] uppercase tracking-wider">
-              ⚠ OOM risk
+              ⚠ rischio OOM
             </span>
           )}
         </span>
@@ -213,7 +213,7 @@ export default function ModelMemoryBar({ planResult, loading, error, onApplyReme
           <div
             className="h-full flex-1 opacity-15"
             style={{ backgroundColor: "white" }}
-            title={`Free: ${fmtGb(freeGb)}`}
+            title={`Libera: ${fmtGb(freeGb)}`}
           />
         )}
         {!fits && (
@@ -244,7 +244,7 @@ export default function ModelMemoryBar({ planResult, loading, error, onApplyReme
         {freeGb > 0.05 && (
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-sm shrink-0 bg-white opacity-20" />
-            <span className="text-xs text-secondary">Free</span>
+            <span className="text-xs text-secondary">Libera</span>
             <span className="text-xs font-mono text-primary">{fmtGb(freeGb)}</span>
           </div>
         )}
@@ -257,4 +257,3 @@ export default function ModelMemoryBar({ planResult, loading, error, onApplyReme
     </div>
   );
 }
-

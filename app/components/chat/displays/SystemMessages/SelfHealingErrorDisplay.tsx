@@ -273,7 +273,7 @@ const SelfHealingErrorDisplay: React.FC<SelfHealingErrorDisplayProps> = ({
                               />
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>Copy feedback</p>
+                              <p>Copia feedback</p>
                             </TooltipContent>
                           </Tooltip>
                         )}
@@ -304,7 +304,7 @@ const SelfHealingErrorDisplay: React.FC<SelfHealingErrorDisplayProps> = ({
                               </motion.button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>Show details</p>
+                              <p>Mostra dettagli</p>
                             </TooltipContent>
                           </Tooltip>
                         )}
@@ -344,7 +344,7 @@ const SelfHealingErrorDisplay: React.FC<SelfHealingErrorDisplayProps> = ({
                           >
                             <FaCode className="text-sm" />
                           </motion.div>
-                          Self Healing Details
+                          Dettagli auto-riparazione
                         </h4>
                         <motion.div
                           className="flex items-center gap-1 flex-shrink-0"

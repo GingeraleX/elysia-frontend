@@ -63,7 +63,7 @@ export default function WeaviateSection({
         className="bg-accent"
         header="Weaviate Cluster"
         buttonIcon={<BsDatabaseFillAdd />}
-        buttonText="Create Cluster"
+        buttonText="Crea cluster"
         onClick={() => {
           window.open("https://console.weaviate.cloud/", "_blank");
         }}
@@ -72,7 +72,7 @@ export default function WeaviateSection({
       {/* Warning Card for Weaviate Issues */}
       {weaviateIssues.length > 0 && (
         <WarningCard
-          title="Weaviate Configuration Required"
+          title="Configurazione Weaviate richiesta"
           issues={weaviateIssues}
         />
       )}
@@ -80,8 +80,8 @@ export default function WeaviateSection({
       <SettingGroup>
         <SettingItem>
           <SettingTitle
-            title="Cluster Type"
-            description="Choose between cloud-hosted, local, or custom Weaviate instance."
+            title="Tipo cluster"
+            description="Scegli tra istanza Weaviate cloud, locale o custom."
           />
           <SettingToggle
             value={isLocal ? "Local" : isCustom ? "Custom" : "Cloud"}
@@ -115,7 +115,7 @@ export default function WeaviateSection({
           <SettingItem>
             <SettingTitle
               title="URL"
-              description="The URL of your Weaviate cluster."
+              description="URL del tuo cluster Weaviate."
             />
             <SettingInput
               isProtected={false}
@@ -132,7 +132,7 @@ export default function WeaviateSection({
             <SettingItem>
               <SettingTitle
                 title="GRPC Port"
-                description="The GRPCport of the local Weaviate cluster."
+                description="Porta gRPC del cluster Weaviate locale."
               />
               <SettingInput
                 isProtected={false}
@@ -148,7 +148,7 @@ export default function WeaviateSection({
             <SettingItem>
               <SettingTitle
                 title="Port"
-                description="The port of the local Weaviate cluster."
+                description="Porta del cluster Weaviate locale."
               />
               <SettingInput
                 isProtected={false}
@@ -167,7 +167,7 @@ export default function WeaviateSection({
             <SettingItem>
               <SettingTitle
                 title="HTTP Host"
-                description="The HTTP host of your custom Weaviate instance."
+                description="Host HTTP della tua istanza Weaviate custom."
               />
               <SettingInput
                 isProtected={false}
@@ -184,7 +184,7 @@ export default function WeaviateSection({
             <SettingItem>
               <SettingTitle
                 title="HTTP Port"
-                description="The GRPC host of your custom Weaviate instance."
+                description="Porta HTTP della tua istanza Weaviate custom."
               />
               <SettingInput
                 isProtected={false}
@@ -200,7 +200,7 @@ export default function WeaviateSection({
             <SettingItem>
               <SettingTitle
                 title="HTTP Secure"
-                description="Whether the HTTP connection is secure."
+                description="Se la connessione HTTP è sicura."
               />
               <SettingCheckbox
                 value={
@@ -215,7 +215,7 @@ export default function WeaviateSection({
             <SettingItem>
               <SettingTitle
                 title="GRPC Host"
-                description="The GRPC host of your custom Weaviate instance."
+                description="Host gRPC della tua istanza Weaviate custom."
               />
               <SettingInput
                 isProtected={false}
@@ -232,7 +232,7 @@ export default function WeaviateSection({
             <SettingItem>
               <SettingTitle
                 title="GRPC Port"
-                description="The GRPC port of your custom Weaviate instance."
+                description="Porta gRPC della tua istanza Weaviate custom."
               />
               <SettingInput
                 isProtected={false}
@@ -249,7 +249,7 @@ export default function WeaviateSection({
             <SettingItem>
               <SettingTitle
                 title="GRPC Secure"
-                description="Whether the GRPC connection is secure."
+                description="Se la connessione gRPC è sicura."
               />
               <SettingCheckbox
                 value={
@@ -269,10 +269,10 @@ export default function WeaviateSection({
             title="API Key"
             description={
               isLocal
-                ? "The API key of your local Weaviate cluster. Needs to be configured in the local Weaviate cluster."
+                ? "API key del cluster Weaviate locale. Deve essere configurata anche nel cluster locale."
                 : isCustom
-                  ? "The API key of your custom Weaviate instance."
-                  : "The API key of your Weaviate cluster."
+                  ? "API key della tua istanza Weaviate custom."
+                  : "API key del tuo cluster Weaviate."
             }
           />
           <SettingInput
@@ -287,8 +287,8 @@ export default function WeaviateSection({
 
         <SettingItem>
           <SettingTitle
-            title="Tree Timeout"
-            description="The timeout for the tree."
+            title="Timeout albero"
+            description="Timeout per l'albero."
           />
           <SettingInput
             isProtected={false}
@@ -301,8 +301,8 @@ export default function WeaviateSection({
 
         <SettingItem>
           <SettingTitle
-            title="Client Timeout"
-            description="The timeout for the client."
+            title="Timeout client"
+            description="Timeout per il client."
           />
           <SettingInput
             isProtected={false}

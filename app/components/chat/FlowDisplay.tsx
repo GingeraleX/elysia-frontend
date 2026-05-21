@@ -294,7 +294,7 @@ const FlowDisplay: React.FC<FlowDisplayProps> = ({ currentTrees }) => {
                 background:
                   "linear-gradient(90deg, hsl(var(--highlight)), hsl(var(--accent)))",
               },
-              label: `Query ${index + 2}`,
+              label: `Richiesta ${index + 2}`,
               labelStyle: {
                 fill: "hsl(var(--highlight))",
                 fontWeight: "bold",

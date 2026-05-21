@@ -13,13 +13,13 @@ interface MessageCardProps {
 const MessageCard: React.FC<MessageCardProps> = ({ message, id }) => {
   const formatDate = (date: string) => {
     const dateObj = new Date(date);
-    return dateObj.toLocaleDateString("en-US", {
+    return dateObj.toLocaleDateString("it-IT", {
       year: "numeric",
       month: "long",
       day: "numeric",
       hour: "numeric",
       minute: "numeric",
-      hour12: true,
+      hour12: false,
     });
   };
 

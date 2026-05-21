@@ -28,11 +28,10 @@ export function AuthErrorAlert({ error, onRetry, isRetrying }: AuthErrorAlertPro
             className="mt-2 h-8 text-xs"
           >
             <RefreshCw className={`h-3 w-3 mr-1 ${isRetrying ? "animate-spin" : ""}`} />
-            {isRetrying ? "Retrying..." : "Try again"}
+            {isRetrying ? "Riprovo..." : "Riprova"}
           </Button>
         )}
       </div>
     </div>
   );
 }
-

@@ -43,9 +43,9 @@ const SettingCombobox: React.FC<SettingComboboxProps> = ({
   value,
   values,
   onChange,
-  placeholder = "Select...",
-  searchPlaceholder = "Search...",
-  emptyText = "No items found.",
+  placeholder = "Seleziona...",
+  searchPlaceholder = "Cerca...",
+  emptyText = "Nessun elemento trovato.",
   allowCustom = true,
   isInvalid = false,
 }) => {

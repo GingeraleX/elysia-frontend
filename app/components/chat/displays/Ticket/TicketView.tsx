@@ -20,7 +20,7 @@ const TicketView: React.FC<TicketViewProps> = ({ ticket }) => {
       month: "long",
       day: "numeric",
     };
-    return new Date(date).toLocaleDateString("en-US", options);
+    return new Date(date).toLocaleDateString("it-IT", options);
   };
 
   const openLink = () => {
@@ -36,13 +36,13 @@ const TicketView: React.FC<TicketViewProps> = ({ ticket }) => {
             {ticket.status === "open" && (
               <Badge className="bg-accent">
                 <GoIssueOpened />
-                Open
+                Aperto
               </Badge>
             )}
             {ticket.status === "closed" && (
               <Badge className="bg-error">
                 <GoIssueClosed />
-                Closed
+                Chiuso
               </Badge>
             )}
             {ticket.status !== "open" && ticket.status !== "closed" && (
@@ -87,7 +87,7 @@ const TicketView: React.FC<TicketViewProps> = ({ ticket }) => {
           <div className="flex flex-row w-full bg-foreground rounded-t-lg gap-1 p-3">
             <p className="text-sm font-bold text-primary">{ticket.author}</p>
             <p className="text-sm text-primary">
-              opened this on {formatDate(ticket.created_at)}
+              ha aperto questo ticket il {formatDate(ticket.created_at)}
             </p>
           </div>
           <div className="flex flex-col p-4 justify-start items-start overflow-x-auto">
@@ -95,7 +95,7 @@ const TicketView: React.FC<TicketViewProps> = ({ ticket }) => {
           </div>
           {ticket.ELYSIA_SUMMARY && (
             <div className="flex flex-col gap-2 w-full p-4 pt-0">
-              <p className="text-sm font-bold text-secondary">Summary</p>
+              <p className="text-sm font-bold text-secondary">Riepilogo</p>
               <p className="text-xs text-primary font-normal">
                 {ticket.ELYSIA_SUMMARY}
               </p>
@@ -107,7 +107,7 @@ const TicketView: React.FC<TicketViewProps> = ({ ticket }) => {
         {ticket.updated_at && (
           <div className="lg:w-1/5 w-full flex flex-col gap-2 p-2">
             <div className="flex flex-col gap-2 w-full">
-              <p className="text-sm  text-secondary">Last updated</p>
+              <p className="text-sm  text-secondary">Ultimo aggiornamento</p>
               <p className="text-xs text-primary font-normal">
                 {formatDate(ticket.updated_at)}
               </p>
@@ -118,7 +118,7 @@ const TicketView: React.FC<TicketViewProps> = ({ ticket }) => {
 
       {ticket.comments && (
         <div className="w-full flex flex-col gap-2 bg-highlight/10 text-highlight rounded-md p-4">
-          <p className="text-sm font-bold">Comments</p>
+          <p className="text-sm font-bold">Commenti</p>
           {Array.isArray(ticket.comments) ? (
             <div className="flex flex-col gap-2">
               {ticket.comments.map((comment, idx) => (

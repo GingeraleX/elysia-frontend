@@ -149,8 +149,8 @@ const DataCell: React.FC<DataCellProps> = ({ selectedCell, onClose }) => {
                 )}
                 <span className="text-secondary text-sm">
                   {type === "array"
-                    ? `Array (${Array.isArray(value) ? value.length : "items"})`
-                    : "Object"}
+                    ? `Array (${Array.isArray(value) ? value.length : "elementi"})`
+                    : "Oggetto"}
                 </span>
               </Button>
             </CollapsibleTrigger>
@@ -196,8 +196,8 @@ const DataCell: React.FC<DataCellProps> = ({ selectedCell, onClose }) => {
                 )}
                 <span className="text-secondary text-sm">
                   {isExpanded
-                    ? "Show less"
-                    : `Show more (${formattedValue.length} chars)`}
+                    ? "Mostra meno"
+                    : `Mostra altro (${formattedValue.length} caratteri)`}
                 </span>
               </Button>
             </CollapsibleTrigger>
@@ -303,12 +303,12 @@ const DataCell: React.FC<DataCellProps> = ({ selectedCell, onClose }) => {
     <div className="flex flex-col gap-4 w-full fade-in">
       <div className="sticky top-0 z-20 bg-background flex items-center justify-between py-2 border-b border-border">
         <div className="flex items-center gap-2">
-          <h3 className="font-bold">Data Details</h3>
+          <h3 className="font-bold">Dettagli dato</h3>
           <Badge
             variant="default"
             className="bg-background_alt border border-border"
           >
-            {Object.keys(selectedCell).length} fields
+            {Object.keys(selectedCell).length} campi
           </Badge>
         </div>
         {onClose && (
@@ -317,7 +317,7 @@ const DataCell: React.FC<DataCellProps> = ({ selectedCell, onClose }) => {
             onClick={onClose}
           >
             <XIcon className="w-4 h-4 flex-shrink-0" />
-            <span className="text-error text-xs">Close</span>
+            <span className="text-error text-xs">Chiudi</span>
           </Button>
         )}
       </div>

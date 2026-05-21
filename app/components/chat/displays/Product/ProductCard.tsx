@@ -49,7 +49,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("it-IT", {
       style: "currency",
       currency: "USD",
       minimumFractionDigits: 0,
@@ -113,7 +113,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <div className="absolute inset-0 flex items-center justify-center bg-secondary/10">
               <div className="text-secondary/50 text-center p-4">
                 <div className="text-2xl mb-2">📷</div>
-                <div className="text-xs">Image unavailable</div>
+                <div className="text-xs">Immagine non disponibile</div>
               </div>
             </div>
           )}

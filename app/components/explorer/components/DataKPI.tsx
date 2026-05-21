@@ -15,7 +15,7 @@ interface DataKPIProps {
 
 // Utility function to format numbers with dots for thousands
 const formatNumber = (num: number): string => {
-  return new Intl.NumberFormat("de-DE").format(num);
+  return new Intl.NumberFormat("it-IT").format(num);
 };
 
 const DataKPI: React.FC<DataKPIProps> = ({
@@ -73,7 +73,7 @@ const DataKPI: React.FC<DataKPIProps> = ({
 
   return (
     <motion.div
-      className={`flex flex-row items-center justify-start flex-1 border-foreground ${lines ? "border border-dashed" : "border"} p-2 rounded-md gap-3`}
+      className={`flex min-h-[4.75rem] flex-row items-center justify-start flex-1 border-border/60 bg-background_alt/30 ${lines ? "border border-dashed" : "border"} p-3 rounded-lg gap-3`}
       initial={{ opacity: 0, y: 20, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{
@@ -84,7 +84,7 @@ const DataKPI: React.FC<DataKPIProps> = ({
       }}
     >
       <motion.div
-        className={`flex items-center justify-center p-2 ${bgColorClass[color]} ${textColorClass[color]} rounded-md`}
+        className={`flex h-9 w-9 items-center justify-center ${bgColorClass[color]} ${textColorClass[color]} rounded-md [&>svg]:size-5`}
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{
@@ -102,7 +102,7 @@ const DataKPI: React.FC<DataKPIProps> = ({
         {icon}
       </motion.div>
 
-      <div className="flex flex-col items-start justify-start">
+      <div className="flex min-w-0 flex-col items-start justify-start">
         {loading ? (
           <>
             <Skeleton className="h-8 w-16 mb-1" />
@@ -111,7 +111,7 @@ const DataKPI: React.FC<DataKPIProps> = ({
         ) : (
           <>
             <motion.p
-              className={`${textColorClass[color]} text-2xl font-bold`}
+              className={`${textColorClass[color]} text-xl font-semibold leading-tight`}
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{
@@ -125,7 +125,7 @@ const DataKPI: React.FC<DataKPIProps> = ({
             </motion.p>
 
             <motion.p
-              className="text-secondary text-xs"
+              className="text-secondary text-xs leading-tight"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{

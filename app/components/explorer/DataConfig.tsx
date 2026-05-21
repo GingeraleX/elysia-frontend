@@ -81,7 +81,7 @@ const DataConfig: React.FC<DataConfigProps> = ({
             <div className="bg-primary/10 border border-primary rounded-md p-1">
               <PiVectorThreeFill className="text-primary" />
             </div>
-            <p className="font-bold">Global Vectorizer</p>
+            <p className="font-bold">Vectorizer globale</p>
           </div>
 
           <div className="flex flex-col gap-3 p-4 bg-background_alt rounded-lg border border-border shadow-sm">
@@ -121,7 +121,7 @@ const DataConfig: React.FC<DataConfigProps> = ({
             <div className="bg-highlight/10 border border-highlight rounded-md p-1">
               <LuLayers className="text-highlight" size={16} />
             </div>
-            <p className="font-bold">Ingestion Details</p>
+            <p className="font-bold">Dettagli ingestione</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-background_alt rounded-lg border border-border">
@@ -129,7 +129,7 @@ const DataConfig: React.FC<DataConfigProps> = ({
               <div className="flex items-center gap-2">
                 <LuCalendar className="text-secondary w-4 h-4 shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-xs text-secondary">Ingested</p>
+                  <p className="text-xs text-secondary">Importato il</p>
                   <p className="text-sm text-primary truncate">
                     {new Date(ingestionMeta.ingestedAt).toLocaleString()}
                   </p>
@@ -140,9 +140,9 @@ const DataConfig: React.FC<DataConfigProps> = ({
               <div className="flex items-center gap-2">
                 <LuFile className="text-secondary w-4 h-4 shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-xs text-secondary">Source Files</p>
+                  <p className="text-xs text-secondary">File sorgente</p>
                   <p className="text-sm text-primary truncate" title={ingestionMeta.sourceFiles.join(", ")}>
-                    {ingestionMeta.sourceFiles.length} file{ingestionMeta.sourceFiles.length !== 1 ? "s" : ""}: {ingestionMeta.sourceFiles.join(", ")}
+                    {ingestionMeta.sourceFiles.length} file: {ingestionMeta.sourceFiles.join(", ")}
                   </p>
                 </div>
               </div>
@@ -151,7 +151,7 @@ const DataConfig: React.FC<DataConfigProps> = ({
               <div className="flex items-center gap-2">
                 <PiVectorThreeFill className="text-secondary w-4 h-4 shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-xs text-secondary">Embedding Model</p>
+                  <p className="text-xs text-secondary">Modello embedding</p>
                   <p className="text-sm text-primary truncate" title={ingestionMeta.embedderModel}>
                     {ingestionMeta.embedderModel}
                   </p>
@@ -162,7 +162,7 @@ const DataConfig: React.FC<DataConfigProps> = ({
               <div className="flex items-center gap-2">
                 <LuLayers className="text-secondary w-4 h-4 shrink-0" />
                 <div className="min-w-0">
-                  <p className="text-xs text-secondary">Records Stored</p>
+                  <p className="text-xs text-secondary">Record salvati</p>
                   <p className="text-sm text-primary">{ingestionMeta.recordCount}</p>
                 </div>
               </div>
@@ -189,13 +189,13 @@ const DataConfig: React.FC<DataConfigProps> = ({
                 <div className="bg-highlight/10 border border-highlight rounded-md p-1">
                   <PiVectorThreeFill className="text-highlight" />
                 </div>
-                <p className="font-bold">Named Vectors</p>
+                <p className="font-bold">Vettori nominati</p>
                 <div className="bg-secondary/10 border border-secondary/20 rounded-full px-2 py-1">
                   <p className="text-xs text-secondary font-medium">
                     {collectionMetadata.metadata.named_vectors.length}{" "}
                     {collectionMetadata.metadata.named_vectors.length === 1
-                      ? "vector"
-                      : "vectors"}
+                      ? "vettore"
+                      : "vettori"}
                   </p>
                 </div>
               </div>
@@ -206,7 +206,7 @@ const DataConfig: React.FC<DataConfigProps> = ({
                   className=""
                 >
                   <FaEdit className="text-secondary" />
-                  <p className="text-secondary">Edit</p>
+                  <p className="text-secondary">Modifica</p>
                 </Button>
               )}
             </div>
@@ -253,7 +253,7 @@ const DataConfig: React.FC<DataConfigProps> = ({
 
                         <div className="flex flex-col gap-2">
                           <p className="text-sm font-medium text-primary">
-                            Description:
+                            Descrizione:
                           </p>
                           <textarea
                             className="w-full border rounded p-2 bg-background text-sm"
@@ -271,13 +271,13 @@ const DataConfig: React.FC<DataConfigProps> = ({
                               )
                             }
                             disabled={metadataEditor.savingNamedVectors}
-                            placeholder="Enter description..."
+                            placeholder="Inserisci descrizione..."
                           />
                         </div>
 
                         <div className="flex flex-col gap-2">
                           <p className="text-sm font-medium text-primary">
-                            Source Properties:
+                            Proprietà sorgente:
                           </p>
                           <div className="flex flex-wrap gap-1">
                             {namedVector.source_properties?.map((property) => (
@@ -385,7 +385,7 @@ const DataConfig: React.FC<DataConfigProps> = ({
             onClick={() => triggerAnalysis(collection.name, id ?? "")}
           >
             <PiMagicWandFill className="text-primary" />
-            <p className="text-primary">Re-Analyze Collection</p>
+            <p className="text-primary">Riesegui analisi collezione</p>
           </Button>
         </motion.div>
         <motion.div
@@ -402,7 +402,7 @@ const DataConfig: React.FC<DataConfigProps> = ({
             onClick={() => clearAnalysis()}
           >
             <GoTrash className="text-error" />
-            <p className="text-error">Clear Analysis</p>
+            <p className="text-error">Cancella analisi</p>
           </Button>
         </motion.div>
       </div>

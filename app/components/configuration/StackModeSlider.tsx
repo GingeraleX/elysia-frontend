@@ -166,7 +166,7 @@ const COMPLEX_SHORT: Record<string, string> = {
 function brainHint(overrides?: ModelOverrides): string {
   const complexAlias = overrides?.complex_model || "gemini-2.5-pro";
   const label = COMPLEX_SHORT[complexAlias] ?? complexAlias;
-  return `Brain · ${label} solo · all tasks`;
+  return `Brain · ${label} solo · tutti i task`;
 }
 
 const SEGMENTS: Segment[] = [
@@ -177,11 +177,11 @@ const SEGMENTS: Segment[] = [
     activeBg: "bg-blue-400/15",
     activeBorder: "border-blue-400/50",
     activeText: "text-blue-300",
-    hint: "Chat · Flash + Brain stack",
+    hint: "Chat · stack Flash + Brain",
   },
   {
     value: "ingestion",
-    label: "Ingest",
+    label: "Ingestion",
     icon: "📥",
     activeBg: "bg-green-400/15",
     activeBorder: "border-green-400/50",
@@ -237,17 +237,17 @@ export default function StackModeSlider({ compact = false, overrides }: StackMod
 
   // Extra context for hidden modes shown in the status line
   const hiddenModeNote =
-    stackMode === "ocr-solo"       ? " (Solo OCR — Flash not loaded)" :
-    stackMode === "ingestion-full" ? " (Full stack — Flash + Brain + OCR)" :
-    stackMode === "flash"          ? " (Flash only)" :
+    stackMode === "ocr-solo"       ? " (Solo OCR — Flash non caricato)" :
+    stackMode === "ingestion-full" ? " (Stack completa — Flash + Brain + OCR)" :
+    stackMode === "flash"          ? " (Solo Flash)" :
     "";
 
   const statusText = stackSwitching
-    ? "Sending restart signal…"
+    ? "Invio segnale di riavvio…"
     : stackBooting
-      ? `Stack restarting in ${stackMode} mode — takes 60–90 s`
+      ? `Riavvio stack in modalità ${stackMode} — richiede 60–90 s`
       : !scriptsConfigured
-        ? "⚠ GPU stack control not configured — set AGENTS_ROUTER_CONTROL_URL (Docker) or SSH_AGENTS_CMD (SSH) in backend/.env"
+        ? "⚠ Controllo stack GPU non configurato — imposta AGENTS_ROUTER_CONTROL_URL (Docker) o SSH_AGENTS_CMD (SSH) in backend/.env"
         : resolvedHint + hiddenModeNote;
 
   const statusColor = isLoading

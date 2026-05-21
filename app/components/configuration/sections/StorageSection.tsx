@@ -69,7 +69,7 @@ export default function StorageSection({
               }`}
             >
               <IoCopy />
-              <span className="text-sm font-base">Use Same Cluster</span>
+              <span className="text-sm font-base">Usa stesso cluster</span>
             </Button>
           </div>
         </div>
@@ -78,7 +78,7 @@ export default function StorageSection({
       {/* Warning Card for Storage Issues */}
       {storageIssues.length > 0 && (
         <WarningCard
-          title="Storage Configuration Required"
+          title="Configurazione storage richiesta"
           issues={storageIssues}
         />
       )}
@@ -86,8 +86,8 @@ export default function StorageSection({
       <SettingGroup>
         <SettingItem>
           <SettingTitle
-            title="Storage Type"
-            description="Choose between local or remote Weaviate storage."
+            title="Tipo di storage"
+            description="Scegli tra storage Weaviate locale o remoto."
           />
           <SettingToggle
             value={isLocal ? "Local" : isCustom ? "Custom" : "Cloud"}
@@ -121,7 +121,7 @@ export default function StorageSection({
           <SettingItem>
             <SettingTitle
               title="URL"
-              description="The URL of your Weaviate cluster to save configs and conversations to."
+              description="URL del cluster Weaviate dove salvare configurazioni e conversazioni."
             />
             <SettingInput
               key="elysia-storage-url"
@@ -144,7 +144,7 @@ export default function StorageSection({
             <SettingItem>
               <SettingTitle
                 title="HTTP Host"
-                description="The HTTP host of your custom Weaviate instance."
+                description="Host HTTP della tua istanza Weaviate custom."
               />
               <SettingInput
                 isProtected={false}
@@ -160,7 +160,7 @@ export default function StorageSection({
             <SettingItem>
               <SettingTitle
                 title="HTTP Port"
-                description="The HTTP port of your custom Weaviate instance."
+                description="Porta HTTP della tua istanza Weaviate custom."
               />
               <SettingInput
                 isProtected={false}
@@ -175,7 +175,7 @@ export default function StorageSection({
             <SettingItem>
               <SettingTitle
                 title="HTTP Secure"
-                description="Whether the HTTP connection is secure."
+                description="Se la connessione HTTP è sicura."
               />
               <SettingCheckbox
                 value={
@@ -190,7 +190,7 @@ export default function StorageSection({
             <SettingItem>
               <SettingTitle
                 title="GRPC Host"
-                description="The GRPC host of your custom Weaviate instance."
+                description="Host gRPC della tua istanza Weaviate custom."
               />
               <SettingInput
                 isProtected={false}
@@ -206,7 +206,7 @@ export default function StorageSection({
             <SettingItem>
               <SettingTitle
                 title="GRPC Port"
-                description="The GRPC port of your custom Weaviate instance."
+                description="Porta gRPC della tua istanza Weaviate custom."
               />
               <SettingInput
                 isProtected={false}
@@ -221,7 +221,7 @@ export default function StorageSection({
             <SettingItem>
               <SettingTitle
                 title="GRPC Secure"
-                description="Whether the GRPC connection is secure."
+                description="Se la connessione gRPC è sicura."
               />
               <SettingCheckbox
                 value={
@@ -241,7 +241,7 @@ export default function StorageSection({
             <SettingItem>
               <SettingTitle
                 title="GRPC Port"
-                description="The GRPC port of the local Weaviate cluster."
+                description="Porta gRPC del cluster Weaviate locale."
               />
               <SettingInput
                 isProtected={false}
@@ -257,7 +257,7 @@ export default function StorageSection({
             <SettingItem>
               <SettingTitle
                 title="Port"
-                description="The port of the local Weaviate cluster."
+                description="Porta del cluster Weaviate locale."
               />
               <SettingInput
                 isProtected={false}
@@ -277,8 +277,8 @@ export default function StorageSection({
             title="API Key"
             description={
               isLocal
-                ? "The API key of your local Weaviate cluster. Needs to be configured in the local Weaviate cluster."
-                : "The API key of your Weaviate cluster to save configs and conversations to."
+                ? "API key del cluster Weaviate locale. Deve essere configurata anche nel cluster locale."
+                : "API key del cluster Weaviate usato per salvare configurazioni e conversazioni."
             }
           />
           <SettingInput
@@ -300,8 +300,8 @@ export default function StorageSection({
 
         <SettingItem>
           <SettingTitle
-            title="Save Conversations"
-            description="Save conversations to Weaviate."
+            title="Salva conversazioni"
+            description="Salva le conversazioni su Weaviate."
           />
           <SettingCheckbox
             value={currentFrontendConfig?.save_trees_to_weaviate || false}
@@ -313,8 +313,8 @@ export default function StorageSection({
 
         <SettingItem>
           <SettingTitle
-            title="Save Configs"
-            description="Save configs to Weaviate."
+            title="Salva configurazioni"
+            description="Salva le configurazioni su Weaviate."
           />
           <SettingCheckbox
             value={currentFrontendConfig?.save_configs_to_weaviate || false}

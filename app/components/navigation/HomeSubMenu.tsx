@@ -98,11 +98,11 @@ function ConversationTitleRow({
             <DropdownMenuContent side="right" align="start">
               <DropdownMenuItem onClick={startEdit}>
                 <MdEdit className="text-secondary" />
-                <span>Rename</span>
+                <span>Rinomina</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onDelete}>
                 <GoTrash className="text-error" />
-                <span className="text-error">Delete</span>
+                <span className="text-error">Elimina</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -136,22 +136,22 @@ const HomeSubMenu: React.FC = () => {
               <FaCircle className="text-secondary pulsing mr-2" />
             )}
             {loadingConversations ||
-              (loadingConversation && <p>Loading conversations...</p>)}
+              (loadingConversation && <p>Caricamento conversazioni...</p>)}
             {!loadingConversations && !loadingConversation && (
               <p>
                 {creatingNewConversation
-                  ? "Initializing conversation..."
-                  : "Conversations"}
+                  ? "Inizializzazione conversazione..."
+                  : "Conversazioni"}
               </p>
             )}
           </div>
         </SidebarGroupLabel>
         <SidebarGroupAction
-          title="Add Conversation"
+          title="Aggiungi conversazione"
           onClick={() => startNewConversation()}
           disabled={creatingNewConversation}
         >
-          <FaPlus /> <span className="sr-only">Add Conversation</span>
+          <FaPlus /> <span className="sr-only">Aggiungi conversazione</span>
         </SidebarGroupAction>
       </div>
       <SidebarGroupContent>

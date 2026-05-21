@@ -124,7 +124,7 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({
         </div>
       )} */}
       <p className="text-sm text-secondary">
-        Finished in{" "}
+        Completato in{" "}
         {query_end
           ? query_end.getTime() - query_start.getTime() > 60000
             ? `${Math.round(
@@ -151,7 +151,7 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Very Good Response</p>
+              <p>Risposta ottima</p>
             </TooltipContent>
           </Tooltip>
           <Tooltip>
@@ -165,7 +165,7 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Good Response</p>
+              <p>Risposta buona</p>
             </TooltipContent>
           </Tooltip>
           <Tooltip>
@@ -179,7 +179,7 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Bad Response</p>
+              <p>Risposta scarsa</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

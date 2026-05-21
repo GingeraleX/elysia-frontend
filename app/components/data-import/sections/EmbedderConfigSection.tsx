@@ -150,11 +150,11 @@ export default function EmbedderConfigSection({
     <div className="flex flex-col gap-6 h-full">
       {/* Collection Name */}
       <div className="p-4 rounded-lg border border-border">
-        <Label className="text-base font-semibold mb-2 block text-white">Collection Name</Label>
+        <Label className="text-base font-semibold mb-2 block text-white">Nome collezione</Label>
         <Input
           value={editingName}
           onChange={(e) => setEditingName(e.target.value)}
-          placeholder="my_collection"
+          placeholder="mia_collezione"
           className={
             editingName && !/^[a-zA-Z0-9_-]+$/.test(editingName)
               ? "border-destructive"
@@ -163,17 +163,17 @@ export default function EmbedderConfigSection({
         />
         {editingName && !/^[a-zA-Z0-9_-]+$/.test(editingName) && (
           <p className="text-xs text-destructive mt-2">
-            Only alphanumeric, dash, and underscore allowed
+            Sono consentiti solo caratteri alfanumerici, trattino e underscore
           </p>
         )}
       </div>
 
       {/* Provider Selection */}
       <div className="p-4 rounded-lg border border-border">
-        <Label className="text-base font-semibold mb-2 block text-white">Embedding Provider</Label>
+        <Label className="text-base font-semibold mb-2 block text-white">Provider embedding</Label>
         <Select value={selectedProvider} onValueChange={setSelectedProvider}>
           <SelectTrigger>
-            <SelectValue placeholder="Select provider" />
+            <SelectValue placeholder="Seleziona provider" />
           </SelectTrigger>
           <SelectContent>
             {providers.map((provider) => (
@@ -188,10 +188,10 @@ export default function EmbedderConfigSection({
       {/* Model Selection */}
       {selectedProvider && (
         <div className="p-4 rounded-lg border border-border">
-          <Label className="text-base font-semibold mb-2 block text-white">Model</Label>
+          <Label className="text-base font-semibold mb-2 block text-white">Modello</Label>
           <Select value={selectedModel} onValueChange={setSelectedModel}>
             <SelectTrigger>
-              <SelectValue placeholder="Select model" />
+              <SelectValue placeholder="Seleziona modello" />
             </SelectTrigger>
             <SelectContent>
               {models.map((model) => (
@@ -207,10 +207,10 @@ export default function EmbedderConfigSection({
       {/* Vector Field Selection */}
       {availableFields.length > 0 && (
         <div className="p-4 rounded-lg border border-border">
-          <Label className="text-base font-semibold mb-2 block text-white">Field to Vectorize</Label>
+          <Label className="text-base font-semibold mb-2 block text-white">Campo da vettorializzare</Label>
           <Select value={vectorField} onValueChange={setVectorField}>
             <SelectTrigger>
-              <SelectValue placeholder="Select field" />
+              <SelectValue placeholder="Seleziona campo" />
             </SelectTrigger>
             <SelectContent>
               {availableFields.map((field) => (
@@ -221,7 +221,7 @@ export default function EmbedderConfigSection({
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground mt-2">
-            This field will be converted to vectors
+            Questo campo verrà convertito in vettori
           </p>
         </div>
       )}
@@ -233,12 +233,12 @@ export default function EmbedderConfigSection({
           animate={{ opacity: 1, y: 0 }}
           className="p-4 rounded-lg border border-border"
         >
-          <h4 className="font-semibold text-base text-white mb-3">Configuration Summary</h4>
+          <h4 className="font-semibold text-base text-white mb-3">Riepilogo configurazione</h4>
           <ul className="space-y-2 text-xs text-muted-foreground">
             <li><span className="text-foreground font-medium">Provider:</span> {selectedProvider}</li>
-            <li><span className="text-foreground font-medium">Model:</span> {models.find(m => m.value === selectedModel)?.label ?? selectedModel}</li>
-            <li><span className="text-foreground font-medium">Vector Field:</span> {vectorField}</li>
-            <li><span className="text-foreground font-medium">Records:</span> {filePreviewData?.length || 0}</li>
+            <li><span className="text-foreground font-medium">Modello:</span> {models.find(m => m.value === selectedModel)?.label ?? selectedModel}</li>
+            <li><span className="text-foreground font-medium">Campo vettoriale:</span> {vectorField}</li>
+            <li><span className="text-foreground font-medium">Record:</span> {filePreviewData?.length || 0}</li>
           </ul>
         </motion.div>
       )}
@@ -249,9 +249,8 @@ export default function EmbedderConfigSection({
         disabled={!isValid}
         className="w-full mt-auto"
       >
-        Continue to Preview
+        Continua all&apos;anteprima
       </Button>
     </div>
   );
 }
-

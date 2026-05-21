@@ -38,7 +38,7 @@ export default function ModelBadges({
             {modelData.speed}
           </TooltipTrigger>
           <TooltipContent>
-            <p>Speed: How fast the model processes requests</p>
+            <p>Velocità: quanto rapidamente il modello elabora le richieste</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -50,7 +50,7 @@ export default function ModelBadges({
           </TooltipTrigger>
           <TooltipContent>
             <p>
-              Accuracy: How precise and correct the model&apos;s responses are
+              Accuratezza: quanto sono precise e corrette le risposte del modello
             </p>
           </TooltipContent>
         </Tooltip>

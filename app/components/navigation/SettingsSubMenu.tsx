@@ -13,6 +13,7 @@ import {
 import { GiAbstract053 } from "react-icons/gi";
 
 import { IoSettingsOutline } from "react-icons/io5";
+import { RiRobot2Line } from "react-icons/ri";
 
 import { RouterContext } from "../contexts/RouterContext";
 import { SessionContext } from "../contexts/SessionContext";
@@ -24,7 +25,7 @@ const SettingsSubMenu: React.FC = () => {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>
-        <p>Settings</p>
+        <p>Impostazioni</p>
       </SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenuItem className="list-none" key={"settings"}>
@@ -33,7 +34,14 @@ const SettingsSubMenu: React.FC = () => {
             onClick={() => changePage("settings", {}, true, unsavedChanges, () => updateUnsavedChanges(false))}
           >
             <IoSettingsOutline />
-            <p>Configuration</p>
+            <p>Configurazione</p>
+          </SidebarMenuButton>
+          <SidebarMenuButton
+            variant={currentPage === "models" ? "active" : "default"}
+            onClick={() => changePage("models", {}, true, unsavedChanges, () => updateUnsavedChanges(false))}
+          >
+            <RiRobot2Line />
+            <p>Modelli AI</p>
           </SidebarMenuButton>
           <SidebarMenuButton
             variant={currentPage === "elysia" ? "active" : "default"}
@@ -44,7 +52,7 @@ const SettingsSubMenu: React.FC = () => {
           </SidebarMenuButton>
           <SidebarMenuButton>
             <IoSettingsOutline />
-            <p>Theme (Coming Soon)</p>
+            <p>Tema (in arrivo)</p>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarGroupContent>

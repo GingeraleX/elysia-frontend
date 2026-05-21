@@ -53,13 +53,13 @@ export const CollectionProvider = ({
       console.log(`[CollectionContext] Received ${result.length} collections`);
       setCollections(result);
       if (result.length > 0) {
-        toastRef.current.showSuccessToast(`${result.length} Collections Loaded`);
+        toastRef.current.showSuccessToast(`${result.length} collezioni caricate`);
       } else {
         console.log(`[CollectionContext] No collections found for user`);
       }
     } catch (error) {
       console.error(`[CollectionContext] Error fetching collections:`, error);
-      toastRef.current.showErrorToast("Failed to load collections", String(error));
+      toastRef.current.showErrorToast("Caricamento collezioni non riuscito", String(error));
     } finally {
       setLoadingCollections(false);
     }
@@ -104,11 +104,11 @@ export const CollectionProvider = ({
     const result = await deleteCollectionMetadata(id, collection_name);
 
     if (result.error) {
-      toastRef.current.showErrorToast("Failed to Remove Analysis", result.error);
+      toastRef.current.showErrorToast("Rimozione analisi non riuscita", result.error);
     } else {
       toastRef.current.showSuccessToast(
-        "Analysis Removed",
-        `Analysis for "${collection_name}" has been removed successfully.`
+        "Analisi rimossa",
+        `L'analisi di "${collection_name}" è stata rimossa correttamente.`
       );
       // Refetch after deletion
       await fetchCollections();
@@ -143,12 +143,12 @@ export const CollectionProvider = ({
         const recordCount = (meta.record_count as number | undefined) ?? col.total ?? 0;
         const sourceFile = (meta.source_files as string[] | undefined)?.[0] ?? "";
 
-        derived.push(`What does the ${label} dataset contain?`);
-        derived.push(`Summarize the key insights from ${label}`);
-        if (recordCount > 0) derived.push(`Show me the most important records from ${label}`);
-        if (sourceFile) derived.push(`What are the main findings in ${sourceFile.replace(/\.[^.]+$/, "")}?`);
-        derived.push(`What trends can you identify in ${label}?`);
-        derived.push(`Give me a breakdown of the data in ${label}`);
+        derived.push(`Cosa contiene il dataset ${label}?`);
+        derived.push(`Riassumi gli insight principali di ${label}`);
+        if (recordCount > 0) derived.push(`Mostrami i record più importanti di ${label}`);
+        if (sourceFile) derived.push(`Quali sono i risultati principali in ${sourceFile.replace(/\.[^.]+$/, "")}?`);
+        derived.push(`Quali trend puoi identificare in ${label}?`);
+        derived.push(`Dammi una panoramica dei dati in ${label}`);
       }
       if (derived.length > 0) {
         return [...derived].sort(() => 0.5 - Math.random()).slice(0, amount);
@@ -161,19 +161,19 @@ export const CollectionProvider = ({
         c.name.replace(/_+/g, " ").trim()
       );
       return [
-        `What's in the ${names[0]} collection?`,
-        "Summarize the available data sources",
-        "What can you tell me about my imported data?",
-        "Show me an overview of the knowledge base",
+        `Cosa c'è nella collezione ${names[0]}?`,
+        "Riassumi le sorgenti dati disponibili",
+        "Cosa puoi dirmi sui miei dati importati?",
+        "Mostrami una panoramica della knowledge base",
       ].slice(0, amount);
     }
 
     // 4. No collections at all — Elysia capability questions
     return [
-      "What can you help me with?",
-      "How do I import data into Elysia?",
-      "What types of files can I upload for analysis?",
-      "How does Elysia search through my documents?",
+      "Con cosa puoi aiutarmi?",
+      "Come importo dati in Elysia?",
+      "Quali tipi di file posso caricare per l'analisi?",
+      "Come cerca Elysia nei miei documenti?",
     ].slice(0, amount);
   };
 

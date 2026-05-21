@@ -25,7 +25,7 @@ export interface AuthError {
 /**
  * Parse backend error responses and map to user-friendly messages
  */
-export function parseAuthError(error: any, _defaultMessage: string = "Authentication failed"): AuthError {
+export function parseAuthError(error: any, _defaultMessage: string = "Autenticazione non riuscita"): AuthError {
   let message = "";
   let statusCode: number | undefined;
 
@@ -48,7 +48,7 @@ export function parseAuthError(error: any, _defaultMessage: string = "Authentica
   if (statusCode === 401 || lowerMessage.includes("invalid email or password")) {
     return {
       type: AuthErrorType.INVALID_CREDENTIALS,
-      userMessage: "Invalid email or password. Please check and try again.",
+      userMessage: "Email o password non valide. Controlla e riprova.",
       technicalMessage: message,
       statusCode: statusCode || 401,
     };
@@ -58,7 +58,7 @@ export function parseAuthError(error: any, _defaultMessage: string = "Authentica
   if (lowerMessage.includes("user already exists") || lowerMessage.includes("already registered")) {
     return {
       type: AuthErrorType.USER_EXISTS,
-      userMessage: "This email is already registered. Please sign in instead.",
+      userMessage: "Questa email è già registrata. Effettua l'accesso.",
       technicalMessage: message,
       statusCode: statusCode || 400,
     };
@@ -69,7 +69,7 @@ export function parseAuthError(error: any, _defaultMessage: string = "Authentica
     if (lowerMessage.includes("at least 6") || lowerMessage.includes("6 characters")) {
       return {
         type: AuthErrorType.WEAK_PASSWORD,
-        userMessage: "Password must be at least 6 characters with letters and numbers.",
+        userMessage: "La password deve contenere almeno 6 caratteri, lettere e numeri.",
         technicalMessage: message,
         statusCode: statusCode || 400,
       };
@@ -77,14 +77,14 @@ export function parseAuthError(error: any, _defaultMessage: string = "Authentica
     if (lowerMessage.includes("letters and numbers")) {
       return {
         type: AuthErrorType.WEAK_PASSWORD,
-        userMessage: "Password must contain both letters and numbers.",
+        userMessage: "La password deve contenere sia lettere sia numeri.",
         technicalMessage: message,
         statusCode: statusCode || 400,
       };
     }
     return {
       type: AuthErrorType.WEAK_PASSWORD,
-      userMessage: "Password does not meet requirements. Please try again.",
+      userMessage: "La password non soddisfa i requisiti. Riprova.",
       technicalMessage: message,
       statusCode: statusCode || 400,
     };
@@ -94,7 +94,7 @@ export function parseAuthError(error: any, _defaultMessage: string = "Authentica
   if (lowerMessage.includes("email")) {
     return {
       type: AuthErrorType.INVALID_EMAIL,
-      userMessage: "Please enter a valid email address.",
+      userMessage: "Inserisci un indirizzo email valido.",
       technicalMessage: message,
       statusCode: statusCode || 400,
     };
@@ -104,7 +104,7 @@ export function parseAuthError(error: any, _defaultMessage: string = "Authentica
   if (lowerMessage.includes("required")) {
     return {
       type: AuthErrorType.MISSING_FIELDS,
-      userMessage: "Please fill in all required fields.",
+      userMessage: "Compila tutti i campi obbligatori.",
       technicalMessage: message,
       statusCode: statusCode || 400,
     };
@@ -114,7 +114,7 @@ export function parseAuthError(error: any, _defaultMessage: string = "Authentica
   if (lowerMessage.includes("timeout")) {
     return {
       type: AuthErrorType.TIMEOUT,
-      userMessage: "Request timed out. Please check your connection and try again.",
+      userMessage: "Richiesta scaduta. Controlla la connessione e riprova.",
       technicalMessage: message,
       statusCode: statusCode || 408,
     };
@@ -123,7 +123,7 @@ export function parseAuthError(error: any, _defaultMessage: string = "Authentica
   if (lowerMessage.includes("network") || lowerMessage.includes("fetch")) {
     return {
       type: AuthErrorType.NETWORK_ERROR,
-      userMessage: "Network error. Please check your internet connection and try again.",
+      userMessage: "Errore di rete. Controlla la connessione internet e riprova.",
       technicalMessage: message,
       statusCode: statusCode || 0,
     };
@@ -133,7 +133,7 @@ export function parseAuthError(error: any, _defaultMessage: string = "Authentica
   if (statusCode === 500 || statusCode === 502 || statusCode === 503) {
     return {
       type: AuthErrorType.SERVER_ERROR,
-      userMessage: "Server is temporarily unavailable. Please try again later.",
+      userMessage: "Il server è temporaneamente non disponibile. Riprova più tardi.",
       technicalMessage: message,
       statusCode,
     };
@@ -143,7 +143,7 @@ export function parseAuthError(error: any, _defaultMessage: string = "Authentica
   if (statusCode === 400) {
     return {
       type: AuthErrorType.VALIDATION_ERROR,
-      userMessage: "Please check your input and try again.",
+      userMessage: "Controlla i dati inseriti e riprova.",
       technicalMessage: message,
       statusCode,
     };
@@ -152,10 +152,9 @@ export function parseAuthError(error: any, _defaultMessage: string = "Authentica
   // Default error handling
   return {
     type: AuthErrorType.UNKNOWN,
-    userMessage: "Something went wrong. Please try again.",
+    userMessage: "Qualcosa è andato storto. Riprova.",
     technicalMessage: message,
     statusCode: statusCode || 0,
   };
 }
-
 

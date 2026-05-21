@@ -67,7 +67,7 @@ const SettingDropdown: React.FC<SettingDropdownProps> = ({
               )}
               variant="outline"
             >
-              <span className="truncate">{value || "Select..."}</span>
+              <span className="truncate">{value || "Seleziona..."}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-full">

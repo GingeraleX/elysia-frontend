@@ -102,7 +102,7 @@ export type Conversation = {
 
 export const initialConversation: Conversation = {
   id: uuidv4(),
-  name: "New Conversation",
+  name: "Nuova conversazione",
   error: false,
   tree_updates: [],
   timestamp: new Date(),

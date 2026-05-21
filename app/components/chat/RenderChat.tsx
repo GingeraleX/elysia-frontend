@@ -471,7 +471,7 @@ const RenderChat: React.FC<RenderChatProps> = ({
           {!socketOnline && (
             <div className="w-full flex justify-center items-center">
               <p className="text-primary text-sm shine">
-                Connection lost. Reconnecting...
+                Connessione persa. Riconnessione...
               </p>
             </div>
           )}

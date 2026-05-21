@@ -29,7 +29,7 @@ export default function PreviewSection({
       {/* Info Cards */}
       <div className="grid grid-cols-4 gap-3">
         <div className="p-3 rounded-lg border border-border">
-          <p className="text-xs text-muted-foreground">Collection</p>
+          <p className="text-xs text-muted-foreground">Collezione</p>
           <p className="font-semibold text-sm truncate text-foreground">{collectionName}</p>
         </div>
         <div className="p-3 rounded-lg border border-border">
@@ -37,18 +37,18 @@ export default function PreviewSection({
           <p className="font-semibold text-sm text-foreground">{embedderConfig?.provider}</p>
         </div>
         <div className="p-3 rounded-lg border border-border">
-          <p className="text-xs text-muted-foreground">Model</p>
+          <p className="text-xs text-muted-foreground">Modello</p>
           <p className="font-semibold text-sm truncate text-xs text-foreground">{embedderConfig?.model}</p>
         </div>
         <div className="p-3 rounded-lg border border-border">
-          <p className="text-xs text-muted-foreground">Records</p>
+          <p className="text-xs text-muted-foreground">Record</p>
           <p className="font-semibold text-sm text-foreground">{filePreviewData?.length || 0}</p>
         </div>
       </div>
 
       {/* Data Preview */}
       <div className="flex-1 flex flex-col gap-2 min-h-0">
-        <h3 className="font-semibold text-base text-white">Data Preview</h3>
+        <h3 className="font-semibold text-base text-white">Anteprima dati</h3>
         <div className="flex-1 overflow-auto rounded-lg border border-border p-4 min-h-0">
           <div className="text-xs space-y-2">
             {filePreviewData?.slice(0, 5).map((row, idx) => (
@@ -69,19 +69,18 @@ export default function PreviewSection({
 
       {/* Stats */}
       <div className="p-4 rounded-lg border border-border">
-        <h4 className="font-semibold text-base text-white mb-3">Statistics</h4>
+        <h4 className="font-semibold text-base text-white mb-3">Statistiche</h4>
         <ul className="space-y-1 text-xs text-muted-foreground">
-          <li>• <span className="text-foreground font-medium">Fields:</span> {columns.length}</li>
-          <li>• <span className="text-foreground font-medium">Vector Field:</span> {embedderConfig?.vectorField}</li>
-          <li>• <span className="text-foreground font-medium">Preview Rows:</span> {Math.min(5, filePreviewData?.length || 0)}</li>
+          <li>• <span className="text-foreground font-medium">Campi:</span> {columns.length}</li>
+          <li>• <span className="text-foreground font-medium">Campo vettoriale:</span> {embedderConfig?.vectorField}</li>
+          <li>• <span className="text-foreground font-medium">Righe anteprima:</span> {Math.min(5, filePreviewData?.length || 0)}</li>
         </ul>
       </div>
 
       {/* Button */}
       <Button onClick={onProceed} className="w-full">
-        Proceed to Import
+        Procedi all&apos;importazione
       </Button>
     </div>
   );
 }
-

@@ -216,7 +216,7 @@ export const SessionProvider = ({
     const configList = await getConfigList(user_id);
 
     if (configList.error) {
-      showErrorToast("Failed to Load Configuration List", configList.error);
+      showErrorToast("Impossibile caricare l'elenco configurazioni", configList.error);
     }
 
     // Deduplicate configs by config_id (in case backend returns duplicates)
@@ -255,7 +255,7 @@ export const SessionProvider = ({
     const config = await getConfig(userId);
     if (config.error) {
       console.error(config.error);
-      showErrorToast("Failed to Load Configuration", config.error);
+      showErrorToast("Impossibile caricare la configurazione", config.error);
       return;
     }
     setUserConfig({
@@ -321,7 +321,7 @@ export const SessionProvider = ({
       console.error("User initialization error:", user_object.error);
       // Don't show error toast on transient errors during page load
       if (!user_object.error.includes("not found")) {
-        showErrorToast("Failed to Initialize User", user_object.error);
+        showErrorToast("Impossibile inizializzare l'utente", user_object.error);
       }
       return;
     }
@@ -358,18 +358,18 @@ export const SessionProvider = ({
     );
     if (response.error) {
       console.error(response.error);
-      showErrorToast("Failed to Save Configuration", response.error);
+      showErrorToast("Impossibile salvare la configurazione", response.error);
       setLoadingConfig(false);
       setSavingConfig(false);
       return false;
     } else if (response.warnings && response.warnings.length > 0) {
       response.warnings.forEach((warning) => {
-        showWarningToast("Configuration Saved with Warning", warning);
+        showWarningToast("Configurazione salvata con avvisi", warning);
       });
     } else {
       showSuccessToast(
-        "Configuration Saved",
-        "Your configuration has been saved successfully."
+        "Configurazione salvata",
+        "La configurazione è stata salvata correttamente."
       );
     }
     setUserConfig({
@@ -403,11 +403,11 @@ export const SessionProvider = ({
     const response: ConfigPayload = await loadConfig(user_id, config_id);
     if (response.error) {
       console.error(response.error);
-      showErrorToast("Failed to Load Configuration", response.error);
+      showErrorToast("Impossibile caricare la configurazione", response.error);
     } else {
       showSuccessToast(
-        "Configuration Loaded",
-        "Configuration loaded successfully."
+        "Configurazione caricata",
+        "Configurazione caricata correttamente."
       );
     }
     setUserConfig({
@@ -431,13 +431,13 @@ export const SessionProvider = ({
       
       if (response.error) {
         console.error('[SessionContext] Config creation error:', response.error);
-        showErrorToast("Failed to Create Configuration", response.error);
+        showErrorToast("Impossibile creare la configurazione", response.error);
         return;
       }
 
       // Check if name already exists and generate unique name if needed
       if (response.config) {
-        const baseName = response.config.name || "New Config";
+        const baseName = response.config.name || "Nuova configurazione";
         let uniqueName = baseName;
         let counter = 1;
 
@@ -458,15 +458,15 @@ export const SessionProvider = ({
       });
       
       showSuccessToast(
-        "Configuration Created",
-        "New configuration created successfully."
+        "Configurazione creata",
+        "Nuova configurazione creata correttamente."
       );
       
       // Refresh config list
       await getConfigIDs(user_id);
     } catch (error) {
       console.error('[SessionContext] Unexpected error creating config:', error);
-      showErrorToast("Failed to Create Configuration", String(error));
+      showErrorToast("Impossibile creare la configurazione", String(error));
     } finally {
       setLoadingConfig(false);
     }
@@ -484,11 +484,11 @@ export const SessionProvider = ({
     const response: BasePayload = await deleteConfig(user_id, config_id);
     if (response.error) {
       console.error(response.error);
-      showErrorToast("Failed to Delete Configuration", response.error);
+      showErrorToast("Impossibile eliminare la configurazione", response.error);
     } else {
       showSuccessToast(
-        "Configuration Deleted",
-        "Configuration deleted successfully."
+        "Configurazione eliminata",
+        "Configurazione eliminata correttamente."
       );
       if (selectedConfig) {
         // Find another config to load

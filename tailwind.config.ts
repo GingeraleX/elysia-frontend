@@ -18,8 +18,10 @@ const config: Config = {
         },
       },
       fontFamily: {
-        text: ["var(--font-text)"],
-        heading: ["var(--font-heading)"],
+        text: ["var(--font-text)", "system-ui", "sans-serif"],
+        heading: ["var(--font-heading)", "Georgia", "serif"],
+        display: ["var(--font-heading)", "Georgia", "serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       fontSize: {
         xs: ["0.75rem", { lineHeight: "1rem" }],

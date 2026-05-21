@@ -17,6 +17,10 @@ type FeedbackCollectionData = {
   error?: string;
 };
 
+type FeedbackItemWithProperties = Partial<FeedbackItem> & {
+  properties?: Partial<FeedbackItem>;
+};
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,7 +48,7 @@ import {
 
 import { SlOptions } from "react-icons/sl";
 
-import { useSearchParams, usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import React, { useContext } from "react";
 import { SessionContext } from "@/app/components/contexts/SessionContext";
@@ -59,10 +63,9 @@ import {
   SettingGroup,
 } from "../components/configuration/SettingComponents";
 
-export default function Home() {
+export function FeedbackSection({ embedded = false }: { embedded?: boolean }) {
   const searchParams = useSearchParams();
   const { changePage } = useContext(RouterContext);
-  const pathname = usePathname();
 
   const { id } = useContext(SessionContext);
 
@@ -159,13 +162,11 @@ export default function Home() {
   ]);
 
   useEffect(() => {
-    if (pathname === "/eval/feedback") {
-      const page = searchParams.get("page");
-      if (page) {
-        setFeedbackPage(parseInt(page));
-      }
+    const page = searchParams.get("feedbackPage");
+    if (page) {
+      setFeedbackPage(parseInt(page));
     }
-  }, [searchParams, pathname]);
+  }, [searchParams]);
 
   const convert_date = (date: string) => {
     const date_obj = new Date(date);
@@ -187,9 +188,10 @@ export default function Home() {
   };
 
   const routerSetPage = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", page.toString());
-    changePage("eval", { page: "feedback" }, true);
+    setFeedbackPage(page);
+    if (!embedded) {
+      changePage("eval", { feedbackPage: page }, true);
+    }
   };
 
   const pageDown = () => {
@@ -221,8 +223,13 @@ export default function Home() {
 
   return (
     <div className="flex flex-col w-full h-full">
-      <div className="flex flex-col w-full gap-4 min-h-0 items-start justify-start h-full fade-in p-2 lg:p-4">
+      <div
+        className={`flex flex-col w-full gap-4 min-h-0 items-start justify-start h-full fade-in ${
+          embedded ? "" : "p-2 lg:p-4"
+        }`}
+      >
         {/* Breadcrumb */}
+        {!embedded && (
         <div className="flex mb-2 w-full justify-start">
           <Breadcrumb>
             <BreadcrumbList>
@@ -231,7 +238,7 @@ export default function Home() {
                   className="cursor-pointer text-lg flex items-center gap-2"
                   onClick={backToDashboard}
                 >
-                  Evaluation
+                  Valutazione
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
@@ -246,6 +253,7 @@ export default function Home() {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
+        )}
 
         {/* Main Content */}
         <div className="flex flex-col w-full gap-6">
@@ -254,9 +262,9 @@ export default function Home() {
             <SettingHeader
               icon={<MdFeedback />}
               className="bg-highlight"
-              header="User Feedback"
+              header="Feedback utenti"
               buttonIcon={<LuRefreshCw />}
-              buttonText="Refresh"
+              buttonText="Aggiorna"
               onClick={() => fetchFeedbackData()}
             />
 
@@ -267,10 +275,10 @@ export default function Home() {
                     <DropdownMenuTrigger asChild>
                       <Button size={"sm"} variant={"outline"}>
                         {feedbackSortOn === "feedback_date"
-                          ? "Date"
+                          ? "Data"
                           : feedbackSortOn === "time_taken_seconds"
-                            ? "Query Time"
-                            : "Sort By"}
+                            ? "Tempo query"
+                            : "Ordina per"}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
@@ -279,10 +287,10 @@ export default function Home() {
                         onValueChange={setFeedbackSortOn}
                       >
                         <DropdownMenuRadioItem value="feedback_date">
-                          Date
+                          Data
                         </DropdownMenuRadioItem>
                         <DropdownMenuRadioItem value="time_taken_seconds">
-                          Query Time
+                          Tempo query
                         </DropdownMenuRadioItem>
                       </DropdownMenuRadioGroup>
                     </DropdownMenuContent>
@@ -291,7 +299,7 @@ export default function Home() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button size={"sm"} variant={"outline"}>
-                        {feedbackAscending ? "Ascending" : "Descending"}
+                        {feedbackAscending ? "Crescente" : "Decrescente"}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
@@ -300,10 +308,10 @@ export default function Home() {
                         onValueChange={handleSortOrderChange}
                       >
                         <DropdownMenuRadioItem value="ascending">
-                          Ascending
+                          Crescente
                         </DropdownMenuRadioItem>
                         <DropdownMenuRadioItem value="descending">
-                          Descending
+                          Decrescente
                         </DropdownMenuRadioItem>
                       </DropdownMenuRadioGroup>
                     </DropdownMenuContent>
@@ -312,7 +320,7 @@ export default function Home() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button size={"sm"} variant={"outline"}>
-                        Filter by {feedbackFilter}
+                        Filtra per {feedbackFilter}
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
@@ -321,16 +329,16 @@ export default function Home() {
                         onValueChange={setFeedbackFilter}
                       >
                         <DropdownMenuRadioItem value="all">
-                          All
+                          Tutti
                         </DropdownMenuRadioItem>
                         <DropdownMenuRadioItem value="very_positive">
-                          Very Positive
+                          Molto positivo
                         </DropdownMenuRadioItem>
                         <DropdownMenuRadioItem value="positive">
-                          Positive
+                          Positivo
                         </DropdownMenuRadioItem>
                         <DropdownMenuRadioItem value="negative">
-                          Negative
+                          Negativo
                         </DropdownMenuRadioItem>
                       </DropdownMenuRadioGroup>
                     </DropdownMenuContent>
@@ -371,11 +379,11 @@ export default function Home() {
                           className="flex items-center gap-2"
                         >
                           <MdOutlineKeyboardArrowLeft size={16} />
-                          Previous
+                          Precedente
                         </Button>
                         <div className="flex items-center gap-2 px-3">
                           <span className="text-primary text-sm font-medium">
-                            Page {feedbackPage} of {maxPage + 1}
+                            Pagina {feedbackPage} di {maxPage + 1}
                           </span>
                         </div>
                         <Button
@@ -385,7 +393,7 @@ export default function Home() {
                           disabled={feedbackPage + 1 > maxPage}
                           className="flex items-center gap-2"
                         >
-                          Next
+                          Successiva
                           <MdOutlineKeyboardArrowRight size={16} />
                         </Button>
                       </div>
@@ -435,7 +443,7 @@ export default function Home() {
                                       className="text-error focus:text-error focus:bg-error/10"
                                     >
                                       <GoTrash size={14} />
-                                      <span>Delete</span>
+                                      <span>Elimina</span>
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
@@ -449,17 +457,17 @@ export default function Home() {
                                 </Badge>
                                 {item.feedback === 2 && (
                                   <Badge className="text-highlight bg-highlight/10 border-highlight/20 text-xs">
-                                    Very Positive
+                                    Molto positivo
                                   </Badge>
                                 )}
                                 {item.feedback === 1 && (
                                   <Badge className="text-accent bg-accent/10 border-accent/20 text-xs">
-                                    Positive
+                                    Positivo
                                   </Badge>
                                 )}
                                 {item.feedback === 0 && (
                                   <Badge className="text-error bg-error/10 border-error/20 text-xs">
-                                    Negative
+                                    Negativo
                                   </Badge>
                                 )}
                               </div>
@@ -476,7 +484,7 @@ export default function Home() {
                         <FeedbackDetails
                           feedbackData={{
                             ...feedbackData,
-                            items: (feedbackData.items ?? []).map((item: any) => ({
+                            items: (feedbackData.items ?? []).map((item: FeedbackItemWithProperties) => ({
                               query_id:             item.query_id             ?? item.properties?.query_id             ?? "",
                               conversation_id:      item.conversation_id      ?? item.properties?.conversation_id      ?? "",
                               user_id:              item.user_id              ?? item.properties?.user_id              ?? "",
@@ -501,11 +509,11 @@ export default function Home() {
                         <div className="flex flex-col items-center gap-3 text-secondary">
                           <MdFeedback size={48} className="opacity-50" />
                           <p className="text-lg font-medium">
-                            Select feedback to view details
+                            Seleziona un feedback per vedere i dettagli
                           </p>
                           <p className="text-sm text-center max-w-md">
-                            Choose a feedback item from the list to see the full
-                            conversation and details.
+                            Scegli un elemento dalla lista per vedere
+                            conversazione completa e dettagli.
                           </p>
                         </div>
                       </div>
@@ -519,4 +527,8 @@ export default function Home() {
       </div>
     </div>
   );
+}
+
+export default function Home() {
+  return <FeedbackSection />;
 }

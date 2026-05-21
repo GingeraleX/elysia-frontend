@@ -15,8 +15,8 @@ const SaveCancelButtons: React.FC<SaveCancelButtonsProps> = ({
   hasChanges,
   onSave,
   onCancel,
-  saveText = "Save",
-  cancelText = "Cancel",
+  saveText = "Salva",
+  cancelText = "Annulla",
 }) => (
   <div className="flex gap-2 justify-end mt-2">
     <Button

@@ -69,7 +69,7 @@ export default function ProcessingModeSection({
       onUpdateSettings("PROCESSING_MODE", to);
       onModeChange?.(to);
     } else {
-      setError("Switch failed — is the backend running?");
+      setError("Cambio modalità non riuscito — il backend è in esecuzione?");
     }
   }
 
@@ -100,7 +100,7 @@ export default function ProcessingModeSection({
       <SettingHeader
         icon={activeMode === "cloud" ? <MdCloudQueue /> : <FaServer />}
         className={activeMode === "cloud" ? "bg-blue-500/20" : "bg-green-500/20"}
-        header="Processing Mode"
+        header="Modalità di elaborazione"
       />
 
       <SettingGroup>
@@ -124,11 +124,11 @@ export default function ProcessingModeSection({
                 `}
               >
                 {tab === "cloud" ? <MdCloudQueue size={14} /> : <FaServer size={12} />}
-                {tab === "cloud" ? "Online (Cloud)" : "Offline (Local)"}
+                {tab === "cloud" ? "Online (Cloud)" : "Offline (Locale)"}
                 {isActive && (
                   <span className={`text-xs px-1.5 py-0.5 rounded font-bold ml-1
                     ${tab === "cloud" ? "bg-blue-400/20 text-blue-400" : "bg-green-400/20 text-green-400"}`}>
-                    ACTIVE
+                    ATTIVA
                   </span>
                 )}
               </button>
@@ -141,10 +141,10 @@ export default function ProcessingModeSection({
             {/* Mode label + active hint */}
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <p className={`font-semibold text-sm ${accentText}`}>
-                {isCloud ? "☁️ Online — Cloud providers" : "🔒 Offline — Local GPU inference"}
+                {isCloud ? "☁️ Online — provider cloud" : "🔒 Offline — inferenza GPU locale"}
               </p>
               {isViewingActive ? (
-                <span className={`text-xs font-medium ${accentText}`}>✓ Currently active</span>
+                <span className={`text-xs font-medium ${accentText}`}>✓ Attualmente attiva</span>
               ) : (
                 <Button
                   disabled={switching}
@@ -156,7 +156,7 @@ export default function ProcessingModeSection({
                     }`}
                 >
                   {switching ? <FaSpinner className="animate-spin" size={11} /> : isCloud ? <MdCloudQueue size={12} /> : <FaServer size={11} />}
-                  {switching ? "Switching..." : `Switch to ${isCloud ? "Online" : "Offline"}`}
+                  {switching ? "Cambio..." : `Passa a ${isCloud ? "Online" : "Offline"}`}
                 </Button>
               )}
             </div>
@@ -164,9 +164,9 @@ export default function ProcessingModeSection({
             {/* ── Base Model ── */}
             <div className="flex flex-col gap-3">
               <div>
-                <p className="text-primary font-bold text-sm">Base Model</p>
+                <p className="text-primary font-bold text-sm">Modello base</p>
                 <p className="text-secondary text-xs mt-0.5">
-                  Used for fast tasks, decision routing and simple tool calls.
+                  Usato per attività rapide, instradamento decisioni e chiamate tool semplici.
                 </p>
               </div>
 
@@ -188,15 +188,15 @@ export default function ProcessingModeSection({
                       setChangedConfig(true);
                     }
                   }}
-                  placeholder={loadingModels ? "Loading..." : "Select provider..."}
-                  searchPlaceholder="Search providers..."
+                  placeholder={loadingModels ? "Caricamento..." : "Seleziona provider..."}
+                  searchPlaceholder="Cerca provider..."
                 />
               </SettingItem>
 
               {baseProvider && (
                 <SettingItem>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <SettingTitle title="Model" description="" />
+                    <SettingTitle title="Modello" description="" />
                     <ModelBadges
                       modelsData={modelsData}
                       provider={baseProvider}
@@ -207,8 +207,8 @@ export default function ProcessingModeSection({
                     value={baseModel}
                     values={baseModels}
                     onChange={(value) => onUpdateSettings(modelBaseKey, value)}
-                    placeholder={loadingModels ? "Loading..." : "Select model..."}
-                    searchPlaceholder="Search models..."
+                    placeholder={loadingModels ? "Caricamento..." : "Seleziona modello..."}
+                    searchPlaceholder="Cerca modelli..."
                   />
                 </SettingItem>
               )}
@@ -220,9 +220,9 @@ export default function ProcessingModeSection({
             {/* ── Complex Model ── */}
             <div className="flex flex-col gap-3">
               <div>
-                <p className="text-primary font-bold text-sm">Complex Model</p>
+                <p className="text-primary font-bold text-sm">Modello complesso</p>
                 <p className="text-secondary text-xs mt-0.5">
-                  Used for reasoning-heavy tasks, aggregation and deep analysis.
+                  Usato per attività ad alto ragionamento, aggregazioni e analisi approfondite.
                 </p>
               </div>
 
@@ -244,15 +244,15 @@ export default function ProcessingModeSection({
                       setChangedConfig(true);
                     }
                   }}
-                  placeholder={loadingModels ? "Loading..." : "Select provider..."}
-                  searchPlaceholder="Search providers..."
+                  placeholder={loadingModels ? "Caricamento..." : "Seleziona provider..."}
+                  searchPlaceholder="Cerca provider..."
                 />
               </SettingItem>
 
               {complexProvider && (
                 <SettingItem>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <SettingTitle title="Model" description="" />
+                    <SettingTitle title="Modello" description="" />
                     <ModelBadges
                       modelsData={modelsData}
                       provider={complexProvider}
@@ -263,8 +263,8 @@ export default function ProcessingModeSection({
                     value={complexModel}
                     values={complexModels}
                     onChange={(value) => onUpdateSettings(modelComplexKey, value)}
-                    placeholder={loadingModels ? "Loading..." : "Select model..."}
-                    searchPlaceholder="Search models..."
+                    placeholder={loadingModels ? "Caricamento..." : "Seleziona modello..."}
+                    searchPlaceholder="Cerca modelli..."
                   />
                 </SettingItem>
               )}
@@ -276,8 +276,8 @@ export default function ProcessingModeSection({
                 <div className="border-t border-foreground/10" />
                 <SettingItem>
                   <SettingTitle
-                    title="Local API Base URL"
-                    description="Endpoint for your local inference server (e.g. temp_router on :8090)."
+                    title="URL base API locale"
+                    description="Endpoint del tuo server di inferenza locale (es. temp_router su :8090)."
                   />
                   <SettingInput
                     isProtected={false}
@@ -293,8 +293,8 @@ export default function ProcessingModeSection({
               <IoInformationCircle className="mt-0.5 flex-shrink-0" size={14} />
               <span>
                 {isCloud
-                  ? "Cloud providers require API keys — configure them in the API Keys section below."
-                  : "Local inference requires no API keys. GPU inference server must be running on the configured ports."}
+                  ? "I provider cloud richiedono API key — configurale nella sezione API key qui sotto."
+                  : "L'inferenza locale non richiede API key. Il server di inferenza GPU deve essere in esecuzione sulle porte configurate."}
               </span>
             </div>
           </div>

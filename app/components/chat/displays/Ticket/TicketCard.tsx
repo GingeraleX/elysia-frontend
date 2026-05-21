@@ -16,7 +16,7 @@ interface TicketCardProps {
 const TicketCard: React.FC<TicketCardProps> = ({ ticket, handleOpen }) => {
   const formatDate = (date: string) => {
     const dateObj = new Date(date);
-    return dateObj.toLocaleDateString("en-US", {
+    return dateObj.toLocaleDateString("it-IT", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -55,13 +55,13 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket, handleOpen }) => {
             {ticket.status === "open" && (
               <Badge className="bg-accent ">
                 <GoIssueOpened size={12} />
-                Open
+                Aperto
               </Badge>
             )}
             {ticket.status === "closed" && (
               <Badge className="bg-error">
                 <GoIssueClosed size={12} />
-                Closed
+                Chiuso
               </Badge>
             )}
             {ticket.status !== "open" && ticket.status !== "closed" && (
@@ -70,7 +70,7 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket, handleOpen }) => {
           </div>
         </div>
         <p className="w-full text-xs font-light text-secondary">
-          <span className="font-bold">{ticket.author}</span> opened this on{" "}
+          <span className="font-bold">{ticket.author}</span> ha aperto questo ticket il{" "}
           {formatDate(ticket.created_at)}
         </p>
       </CardTitle>

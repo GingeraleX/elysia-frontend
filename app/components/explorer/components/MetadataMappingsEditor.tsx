@@ -56,12 +56,12 @@ const MetadataMappingsEditor: React.FC<MetadataMappingsEditorProps> = ({
         <div className="bg-highlight/10 border border-highlight rounded-md p-1">
           <MdDisplaySettings className="text-highlight" />
         </div>
-        <p className="font-bold">Display Mappings</p>
+        <p className="font-bold">Mappature visualizzazioni</p>
       </div>
       {!editing && (
         <Button onClick={onEdit} className="">
           <FaEdit className="text-secondary" />
-          <p className="text-secondary">Edit</p>
+          <p className="text-secondary">Modifica</p>
         </Button>
       )}
       {editing && (
@@ -100,11 +100,11 @@ const MetadataMappingsEditor: React.FC<MetadataMappingsEditorProps> = ({
                   {/* Headers */}
                   <div className="flex flex-row gap-2 items-center mb-2 border-b border-border pb-1 sticky top-0 bg-background z-10">
                     <p className="w-[120px] md:w-[150px] text-xs font-semibold text-secondary uppercase tracking-wide">
-                      Data Field
+                      Campo dati
                     </p>
                     <div className="w-[24px]"></div> {/* Space for arrow */}
                     <p className="w-[120px] md:w-[150px] text-xs font-semibold text-secondary uppercase tracking-wide">
-                      Display Field
+                      Campo visualizzazione
                     </p>
                   </div>
 
@@ -126,7 +126,7 @@ const MetadataMappingsEditor: React.FC<MetadataMappingsEditorProps> = ({
                         >
                           <SelectTrigger className="w-[120px] md:w-[150px] h-8 border-background_alt bg-background_alt">
                             <SelectValue
-                              placeholder="Select field"
+                              placeholder="Seleziona campo"
                               className="text-primary"
                             />
                           </SelectTrigger>
@@ -135,7 +135,7 @@ const MetadataMappingsEditor: React.FC<MetadataMappingsEditorProps> = ({
                               value="none"
                               className="text-primary focus:bg-primary/20 focus:text-primary data-[highlighted]:bg-primary/20 data-[highlighted]:text-primary"
                             >
-                              (empty)
+                              (vuoto)
                             </SelectItem>
                             {Object.keys(collectionDataProperties).map(
                               (field) => (
@@ -200,11 +200,11 @@ const MetadataMappingsEditor: React.FC<MetadataMappingsEditorProps> = ({
                   {/* Headers for read-only view */}
                   <div className="flex flex-row gap-2 items-center mb-2 border-b border-border pb-1 sticky top-0 bg-background_alt z-10">
                     <p className="w-[120px] md:w-[150px] text-xs font-semibold text-secondary uppercase tracking-wide">
-                      Data Field
+                      Campo dati
                     </p>
                     <div className="w-[24px]"></div> {/* Space for arrow */}
                     <p className="w-[120px] md:w-[150px] text-xs font-semibold text-secondary uppercase tracking-wide">
-                      Display Field
+                      Campo visualizzazione
                     </p>
                   </div>
 
@@ -216,7 +216,7 @@ const MetadataMappingsEditor: React.FC<MetadataMappingsEditorProps> = ({
                       <p
                         className={`w-[120px] md:w-[150px] truncate text-sm md:text-base ${!mappings[subkey] ? "text-secondary" : ""}`}
                       >
-                        {mappings[subkey] || "(empty)"}
+                        {mappings[subkey] || "(vuoto)"}
                       </p>
                       <FaLongArrowAltRight
                         className={`w-[24px] flex justify-center ${!mappings[subkey] ? "text-secondary" : "text-primary"}`}

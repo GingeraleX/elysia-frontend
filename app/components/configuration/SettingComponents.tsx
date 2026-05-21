@@ -9,9 +9,14 @@ import { motion } from "framer-motion";
 
 export const SettingCard: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => {
+  unstyled?: boolean;
+}> = ({ children, unstyled = false }) => {
+  if (unstyled) {
+    return <div className="flex flex-col gap-4">{children}</div>;
+  }
+
   return (
-    <div className="flex flex-col gap-6 border border-foreground rounded-md p-4">
+    <div className="flex flex-col gap-4 rounded-lg border border-border/60 bg-background_alt/20 p-4">
       {children}
     </div>
   );
@@ -29,11 +34,11 @@ export const SettingHeader: React.FC<{
     <div className="flex flex-col sm:flex-row items-start sm:items-center w-full justify-between gap-3">
       <div className="flex items-center gap-2">
         <div
-          className={`h-7 w-7 ${className} rounded-md flex items-center justify-center`}
+          className={`h-8 w-8 ${className} rounded-md flex items-center justify-center [&>svg]:size-4`}
         >
           {icon}
         </div>
-        <p className="text-primary text-lg">{header}</p>
+        <p className="text-primary text-base font-semibold">{header}</p>
       </div>
       {onClick && (
         <div className="flex items-center justify-end w-full sm:w-auto">
@@ -44,7 +49,7 @@ export const SettingHeader: React.FC<{
           >
             {buttonIcon || <IoAdd />}
             {buttonText && (
-              <span className="text-sm font-base">{buttonText}</span>
+              <span className="text-sm font-medium">{buttonText}</span>
             )}
           </Button>
         </div>
@@ -56,7 +61,7 @@ export const SettingHeader: React.FC<{
 export const SettingGroup: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  return <div className="flex flex-col gap-4">{children}</div>;
+  return <div className="flex flex-col gap-3">{children}</div>;
 };
 
 export const SettingItem: React.FC<{
@@ -81,9 +86,9 @@ export const SettingTitle: React.FC<SettingTitleProps> = ({
   return (
     <div className="flex flex-col w-full sm:w-1/3 sm:flex-0">
       <div className="flex items-center justify-start gap-2">
-        <p className="text-primary font-bold">{title}</p>
+        <p className="text-primary text-sm font-semibold">{title}</p>
       </div>
-      <p className="text-sm text-secondary">{description}</p>
+      <p className="text-sm text-secondary leading-relaxed">{description}</p>
     </div>
   );
 };
